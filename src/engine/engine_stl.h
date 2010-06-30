@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		engine_common.h
+//	file:		engine_stl.h
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //
@@ -10,14 +10,32 @@
 //========================================================================
 // Headers
 //========================================================================
-#include "engine_api.h"
-#include "engine_types.h"
-#include "engine_stl.h"
-#include "engine_string_utils.h"
+#include <string>
+#include <vector>
+#include <list>
+#include <map>
+#include <set>
+#include <hash_map>
+#include <hash_set>
 //========================================================================
 
 //========================================================================
-// Utilities
+// Containers
 //========================================================================
-ENGINE_API size_t		EnHashMem(const char* mem, uint size);
+using std::string;
+using std::vector;
+using std::list;
+using std::map;
+using std::set;
+using stdext::hash_map;
+using stdext::hash_set;
+
+typedef vector<string>		strvec;
 //========================================================================
+
+//========================================================================
+// Declarations
+//========================================================================
+#define SNULL				""
+//========================================================================
+
