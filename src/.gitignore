@@ -1,0 +1,14 @@
+*.suo
+*.swp
+*.ilk
+*.ncb
+*.obj
+*.htm
+*.embed.manifest
+*.embed.manifest.res
+*.intermediate.manifest
+*.dep
+*.idb
+*.pdb
+*.user
+*.pch
