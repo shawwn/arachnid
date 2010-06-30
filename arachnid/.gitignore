@@ -1,0 +1,7 @@
+*.swp
+*.ilk
+*.pdb
+*.exp
+*.lib
+*_d.dll
+*_d.exe
