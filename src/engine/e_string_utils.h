@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		engine_string_utils.h
+//	file:		e_string_utils.h
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //

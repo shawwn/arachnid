@@ -45,7 +45,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="engine_common.h"
+				PrecompiledHeaderThrough="e_common.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
@@ -120,7 +120,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ENGINE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="engine_common.h"
+				PrecompiledHeaderThrough="e_common.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -177,11 +177,11 @@
 			Name="misc"
 			>
 			<File
-				RelativePath=".\engine_api.h"
+				RelativePath=".\e_api.h"
 				>
 			</File>
 			<File
-				RelativePath=".\engine_common.cpp"
+				RelativePath=".\e_common.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -201,27 +201,27 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\engine_common.h"
+				RelativePath=".\e_common.h"
 				>
 			</File>
 			<File
-				RelativePath=".\engine_stl.cpp"
+				RelativePath=".\e_stl.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\engine_stl.h"
+				RelativePath=".\e_stl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\engine_string_utils.cpp"
+				RelativePath=".\e_string_utils.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\engine_string_utils.h"
+				RelativePath=".\e_string_utils.h"
 				>
 			</File>
 			<File
-				RelativePath=".\engine_types.h"
+				RelativePath=".\e_types.h"
 				>
 			</File>
 		</Filter>

@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		engine_string_utils.cpp
+//	file:		e_string_utils.cpp
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //
@@ -9,8 +9,8 @@
 //========================================================================
 // Headers
 //========================================================================
-#include "engine_common.h"
-#include "engine_string_utils.h"
+#include "e_common.h"
+#include "e_string_utils.h"
 #include <ctype.h>
 //========================================================================
 
