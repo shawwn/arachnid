@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		e_common.h
+//	file:		e_filemanager.h
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //
@@ -10,18 +10,25 @@
 //========================================================================
 // Headers
 //========================================================================
-#include "e_api.h"
-#include "e_types.h"
-#include "e_stl.h"
-#include "e_string_utils.h"
-#include "e_utils.h"
-#include <cassert>
-#include <fstream>
+#include "e_file.h"
 //========================================================================
 
 //========================================================================
-// Macros
+// EFileManager
 //========================================================================
-#define	E_ASSERT(x)					assert(x)
-#define E_VERIFY(cond, ifFail)		{ assert(cond); if (!(cond)) { ifFail; } }
+class ENGINE_API EFileManager
+{
+public:
+	EFileManager();
+	~EFileManager();
+
+	static wstring		SanitizePath(const wstring& path);
+
+	bool				Exists(const wstring& filePath);
+
+	wstring				GetAbsolutePath(const wstring& path);
+
+	EFile*				GetFile(const wstring& path, uint mode);
+};
+extern ENGINE_API EFileManager*		gFileManager;
 //========================================================================

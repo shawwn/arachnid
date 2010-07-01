@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		arachnid_main.cpp
+//	file:		e_file.cpp
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //
@@ -9,24 +9,36 @@
 //========================================================================
 // Headers
 //========================================================================
-#include "../engine/e_common.h"
-#include "../engine/e_engine.h"
+#include "e_common.h"
+#include "e_file.h"
 //========================================================================
 
-
 //===================
-// main
+// EFileDisk::IsModeValid
 //===================
-#ifdef _WIN32
-#include <windows.h>
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-#else
-int main()
-#endif
+bool		EFile::IsModeValid(uint mode) const
 {
-	new EEngine();
+	bool read = (mode & FILE_READ) != 0;
+	bool write = (mode & FILE_WRITE) != 0;
+	bool binary = (mode & FILE_BINARY) != 0;
+	bool text = (mode & FILE_TEXT) != 0;
 
-	delete gEngine;
+	if (read && write)
+		return false;
 
-	return 0;
+	if (binary && text)
+		return false;
+
+	return true;
 }
+
+
+//===================
+// EFile::EFile
+//===================
+EFile::EFile()
+: _mode(0)
+, _textEncoding(TE_UTF8)
+{
+}
+

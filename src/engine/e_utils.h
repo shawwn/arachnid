@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		e_stl.h
+//	file:		e_utils.h
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //
@@ -8,39 +8,39 @@
 #pragma once
 
 //========================================================================
-// Headers
+// Macros
 //========================================================================
-#include <string>
-#include <vector>
-#include <list>
-#include <map>
-#include <set>
-#include <hash_map>
-#include <hash_set>
+#define BIT(x)				(1 << (x))
 //========================================================================
 
 //========================================================================
-// Containers
+// Utilities
 //========================================================================
-using std::string;
-using std::wstring;
-using std::vector;
-using std::list;
-using std::map;
-using std::set;
-using stdext::hash_map;
-using stdext::hash_set;
-
-typedef vector<string>		strvec;
-typedef vector<wstring>		wstrvec;
+ENGINE_API size_t			EnHashMem(const char* mem, uint size);
 //========================================================================
 
 //========================================================================
-// Declarations
+// Memory
 //========================================================================
-#define SNULL				""
-#define WSNULL				L""
-#define _T_pre(x)			L##x
-#define _T(x)				_T_pre(x)
-//========================================================================
+inline int					MemCmp(const byte* memA, const byte* memB, uint size)
+{
+	// use the standard memcmp for now.
+	return memcmp((const void*)memA, (const void*)memB, size);
+}
 
+
+inline byte*				MemAlloc(uint size)
+{
+	return (byte*)malloc(size);
+}
+
+
+inline void					MemFree(void* p)
+{
+	free(p);
+}
+
+
+ENGINE_API byte*			TmpAlloc(uint size);
+ENGINE_API void				TmpFree(void* p);
+//========================================================================

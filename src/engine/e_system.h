@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		e_common.h
+//	file:		e_system.h
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //
@@ -8,20 +8,28 @@
 #pragma once
 
 //========================================================================
-// Headers
+// Declarations
 //========================================================================
-#include "e_api.h"
-#include "e_types.h"
-#include "e_stl.h"
-#include "e_string_utils.h"
-#include "e_utils.h"
-#include <cassert>
-#include <fstream>
+class EFile;
 //========================================================================
 
 //========================================================================
-// Macros
+// ESystem
 //========================================================================
-#define	E_ASSERT(x)					assert(x)
-#define E_VERIFY(cond, ifFail)		{ assert(cond); if (!(cond)) { ifFail; } }
+class ENGINE_API ESystem
+{
+private:
+	wstring		_commandLine;
+	wstring		_rootDir;
+	wstring		_userDir;
+
+public:
+	ESystem();
+	~ESystem();
+
+	const wstring&		GetCommandLine() const	{ return _commandLine; }
+	const wstring&		GetRootDir() const		{ return _rootDir; }
+	const wstring&		GetUserDir() const		{ return _userDir; }
+};
+extern ENGINE_API ESystem*		gSystem;
 //========================================================================

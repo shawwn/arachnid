@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		e_common.h
+//	file:		e_engine.h
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //
@@ -8,20 +8,19 @@
 #pragma once
 
 //========================================================================
-// Headers
+// Declarations
 //========================================================================
-#include "e_api.h"
-#include "e_types.h"
-#include "e_stl.h"
-#include "e_string_utils.h"
-#include "e_utils.h"
-#include <cassert>
-#include <fstream>
+class EFile;
 //========================================================================
 
 //========================================================================
-// Macros
+// EEngine
 //========================================================================
-#define	E_ASSERT(x)					assert(x)
-#define E_VERIFY(cond, ifFail)		{ assert(cond); if (!(cond)) { ifFail; } }
+class ENGINE_API EEngine
+{
+public:
+	EEngine();
+	~EEngine();
+};
+extern ENGINE_API EEngine*		gEngine;
 //========================================================================

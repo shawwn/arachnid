@@ -1,27 +1,57 @@
 //========================================================================
-//	file:		e_common.h
+//	file:		e_engine.cpp
 //	author:		Shawn Presser 
 //	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
-#pragma once
 
 //========================================================================
 // Headers
 //========================================================================
-#include "e_api.h"
-#include "e_types.h"
-#include "e_stl.h"
-#include "e_string_utils.h"
-#include "e_utils.h"
-#include <cassert>
-#include <fstream>
+#include "e_common.h"
+#include "e_engine.h"
+#include "e_system.h"
+#include "e_filemanager.h"
 //========================================================================
 
 //========================================================================
-// Macros
+// Definitions
 //========================================================================
-#define	E_ASSERT(x)					assert(x)
-#define E_VERIFY(cond, ifFail)		{ assert(cond); if (!(cond)) { ifFail; } }
+EEngine*	gEngine;
 //========================================================================
+
+//===================
+// EEngine::EEngine
+//===================
+EEngine::EEngine()
+{
+	new ESystem;
+	new EFileManager;
+
+	EFile* file(gFileManager->GetFile(_T(":test.txt"), FILE_READ | FILE_TEXT));
+	if (file != NULL)
+	{
+		wstrvec lines;
+		while (!file->IsEOF())
+			lines.push_back(file->ReadLine());
+		int dbg = 42;
+		file->Close();
+		delete file;
+	}
+
+	gEngine = this;
+}
+
+
+//===================
+// EEngine::~EEngine
+//===================
+EEngine::~EEngine()
+{
+	delete gFileManager;
+	delete gSystem;
+
+	gEngine = NULL;
+}
+
