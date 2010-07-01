@@ -17,10 +17,20 @@
 // Utilities
 //========================================================================
 ENGINE_API size_t			EnHashMem(const char* mem, uint size);
+
+
+template< typename T >
+inline T*					AlignPtr16(T* ptr)
+{
+	size_t p((size_t)(void*)ptr);
+	p += 0xf;
+	p &= ~0xf;
+	return (T*)(void*)p;
+}
 //========================================================================
 
 //========================================================================
-// Memory
+// Memory Management
 //========================================================================
 inline int					MemCmp(const byte* memA, const byte* memB, uint size)
 {

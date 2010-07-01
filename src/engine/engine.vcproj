@@ -281,6 +281,26 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="math"
+			>
+			<File
+				RelativePath=".\m_math.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_math.h"
+				>
+			</File>
+			<File
+				RelativePath=".\m_vec3.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_vec3.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

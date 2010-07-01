@@ -15,6 +15,7 @@
 #include "e_stl.h"
 #include "e_string_utils.h"
 #include "e_utils.h"
+#include "m_math.h"
 #include <cassert>
 #include <fstream>
 //========================================================================
