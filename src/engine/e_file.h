@@ -55,6 +55,35 @@ public:
 
 	virtual uint		GetFileSize() const=0;
 	virtual const byte*	GetFileBuffer() const=0;
+
+	// general I/O methods.
+
+	byte				ReadByte()
+	{
+		byte r(0);
+		uint bytesRead(Read((byte*)&r, 1));
+		if (bytesRead != 1)
+			assert(!"ReadByte hit end of file.");
+		return r;
+	}
+
+	int					ReadInt()
+	{
+		int r(0);
+		uint bytesRead(Read((byte*)&r, 4));
+		if (bytesRead != 4)
+			assert(!"ReadInt hit end of file.");
+		return r;
+	}
+
+	float				ReadNum()
+	{
+		float r(0.0f);
+		uint bytesRead(Read((byte*)&r, 4));
+		if (bytesRead != 4)
+			assert(!"ReadFloat hit end of file.");
+		return r;
+	}
 };
 //========================================================================
 

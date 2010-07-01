@@ -35,7 +35,6 @@ EEngine::EEngine()
 		wstrvec lines;
 		while (!file->IsEOF())
 			lines.push_back(file->ReadLine());
-		int dbg = 42;
 		file->Close();
 		delete file;
 	}
