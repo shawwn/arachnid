@@ -463,6 +463,7 @@ __glutCreateWindow(GLUTwindow * parent,
   window = (GLUTwindow *) malloc(sizeof(GLUTwindow));
   if (!window)
     __glutFatalError("out of memory.");
+  window->closed = 0;
   window->num = winnum;
 
 #if !defined(WIN32)
@@ -750,6 +751,24 @@ glutDestroyWindow(int win)
   }
 #endif
   __glutDestroyWindow(window, window);
+}
+/* ENDCENTRY */
+
+/* CENTRY */
+void* APIENTRY
+glutGetWindowHandle(int win)
+{
+  GLUTwindow *window = __glutWindowList[win - 1];
+  return window->win;
+}
+/* ENDCENTRY */
+
+/* CENTRY */
+int APIENTRY
+glutGetWindowClosed(int win)
+{
+  GLUTwindow *window = __glutWindowList[win - 1];
+  return window->closed;
 }
 /* ENDCENTRY */
 

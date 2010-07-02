@@ -11,6 +11,8 @@
 *.user
 *.pch
 *.exp
+freeglut*/*.html
+freeglut*/*.png
 glut*/man/*
 glut*/progs/*
 glut*/test/*/*.exe

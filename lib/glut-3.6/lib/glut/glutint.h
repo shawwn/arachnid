@@ -255,6 +255,7 @@ struct _GLUTcolormap {
 typedef struct _GLUTwindow GLUTwindow;
 typedef struct _GLUToverlay GLUToverlay;
 struct _GLUTwindow {
+  int closed;           /* indicates when the window has been closed */
   int num;              /* small integer window id (0-based) */
 
   /* Window system related state. */

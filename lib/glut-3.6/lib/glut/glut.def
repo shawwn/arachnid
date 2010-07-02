@@ -16,6 +16,8 @@ EXPORTS
 	glutCreateWindow
 	glutDestroyMenu
 	glutDestroyWindow
+	glutGetWindowHandle
+	glutGetWindowClosed
 	glutDetachMenu
 	glutDeviceGet
 	glutDialsFunc

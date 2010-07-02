@@ -343,6 +343,8 @@ extern void APIENTRY glutMainLoop(void);
 //	call glutPerFrame once per frame instead.
 //========================================================================
 extern void APIENTRY glutPerFrame(void);
+extern void* APIENTRY glutGetWindowHandle(int win);
+extern int APIENTRY glutGetWindowClosed(int win);
 //========================================================================
 
 /* GLUT window sub-API. */

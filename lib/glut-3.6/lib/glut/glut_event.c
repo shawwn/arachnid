@@ -283,8 +283,11 @@ processEventsAndTimeouts(void)
 #if defined(WIN32)
     MSG event;
 
-    if(!GetMessage(&event, NULL, 0, 0))	/* bail if no more messages */
-      exit(0);
+    if(!GetMessage(&event, NULL, 0, 0)) {	/* bail if no more messages */
+      //exit(0);
+      __glutCurrentWindow->closed = 1;
+      break;
+    }
     TranslateMessage(&event);		/* translate virtual-key messages */
     DispatchMessage(&event);		/* call the window proc */
     /* see win32_event.c for event (message) processing procedures */
@@ -708,7 +711,13 @@ processEventsAndTimeouts(void)
         break;
       case ClientMessage:
         if (event.xclient.data.l[0] == __glutWMDeleteWindow)
-          exit(0);
+        {
+          //exit(0);
+          window = __glutGetWindow(event.xclient.window);
+          if (window) {
+            window->closed = 1;
+          }
+        }
         break;
       case DestroyNotify:
         purgeStaleWindow(event.xdestroywindow.window);
