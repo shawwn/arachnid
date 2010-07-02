@@ -14,6 +14,8 @@
 #include "e_system.h"
 #include "e_filemanager.h"
 #include "m_vec3.h"
+#include "m_mat33.h"
+#include "m_mat44.h"
 //========================================================================
 
 //========================================================================
@@ -30,6 +32,7 @@ EEngine::EEngine()
 	new ESystem;
 	new EFileManager;
 
+	// test filesystem.
 	EFile* file(gFileManager->GetFile(_T(":test.txt"), FILE_READ | FILE_TEXT));
 	if (file != NULL)
 	{
@@ -40,7 +43,23 @@ EEngine::EEngine()
 		delete file;
 	}
 
-	MVec3 v3;
+	// test matrices.
+	MVec3	pt(1.0f, 0.0f, 0.0f);
+	MMat33	rotX(MMat33::XRot(M_EIGTH_TURN));
+	MMat33	rotY(MMat33::YRot(M_EIGTH_TURN));
+	MMat33	rotZ(MMat33::ZRot(M_EIGTH_TURN));
+	MMat33	rotZY(rotY * rotZ);
+
+	rotZ.Rotate(pt);
+	rotY.Rotate(pt);
+
+	pt.Set(1.0f, 0.0f, 0.0f);
+	rotZY.Rotate(pt);
+
+	pt.Set(1.0f, 0.0f, 0.0f);
+	MMat44  trans;
+	trans.SetRot(rotZY);
+	trans.RotateTranslate(pt);
 
 	gEngine = this;
 }

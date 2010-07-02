@@ -23,35 +23,45 @@ private:
 	float	_v[16];
 
 public:
-	MMat44();
-	MMat44(	float _00, float _10, float _20, float _30,
-			float _01, float _11, float _21, float _31,
-			float _02, float _12, float _22, float _32,
-			float _03, float _13, float _23, float _33 );
-	MMat44(const float* p)							{ Set(p); }
+	// ctors.
+	MMat44()												{ SetIdentity(); }
+	MMat44(const MMat44& m)									{ Set(m); }
+	MMat44(const float* p)									{ Set(p); }
+	MMat44(	float rotXx,	float rotYx,	float rotZx,	float Wx,
+			float rotXy,	float rotYy,	float rotZy,	float Wy,
+			float rotXz,	float rotYz,	float rotZz,	float Wz,
+			float Tx,		float Ty,		float Tz,		float Ww);
 
-	static MMat44	IdentityMat;
-	void			Identity();
+	static MMat44	Identity;
+	static MMat44	Zero;
+	void			SetIdentity()							{ Set(Identity); }
+	void			SetZero()								{ Set(Zero); }
 
-	MVec3			TransformNoPersp(const MVec3& v);
-	void			TransformNoPersp(MVec3& v);
+	// accessors.
+	const float*	Get() const								{ return _v; }
+	float			Get(uint col, uint row) const			{ assert(col < 4 && row < 4); return _v[4*col + row]; }
+	float&			Get(uint col, uint row)					{ assert(col < 4 && row < 4); return _v[4*col + row]; }
+	float			operator()(uint col, uint row) const	{ assert(col < 4 && row < 4); return _v[4*col + row]; }
+	float&			operator()(uint col, uint row)			{ assert(col < 4 && row < 4); return _v[4*col + row]; }
 
-	const float*	Get() const						{ return _v; }
+	// setters.
 	void			Set(const float* p);
+	void			Set(const MMat44& m);
+	MMat44&			operator =(const MMat44& m);
 
-	float			Get(int col, int row) const		{ return (*this)(col, row); }
-	float&			Get(int col, int row)			{ return (*this)(col, row); }
-
+	// matrix decomposition.
 	MVec3			GetTransform() const;
 	void			SetTransform(const MVec3& t);
 
 	MMat33			GetRot() const;
 	void			SetRot(const MMat33& r);
 
-	float			operator()(int col, int row) const;
-	float&			operator()(int col, int row);
+	// rotates and translates the point.
+	MVec3			RotateTranslate(const MVec3& pt);
+	void			RotateTranslate(MVec3& pt);
 
-	MMat44			operator *(const MMat44& m);
+	// matrix multiplication.
+	MMat44			operator *(const MMat44& m) const;
 	MMat44&			operator *=(const MMat44& m);
 };
 //========================================================================

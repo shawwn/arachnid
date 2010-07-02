@@ -16,9 +16,9 @@
 //========================================================================
 // Globals
 //========================================================================
-#define TMP_BUFFER_SIZE			(1024 * 1024 * 1024)		// set aside a 1MB temp buffer.
-byte		gTmpBuffer[TMP_BUFFER_SIZE];
-bool		gTmpBufferInUse;
+#define TMP_BUFFER_SIZE			(1024 * 1024 * 1024) // 1MB temp buffer
+static byte*					gTmpBuffer;
+static bool						gTmpBufferInUse;
 //========================================================================
 
 //===================
@@ -49,8 +49,11 @@ size_t		EnHashMem(const char* mem, uint size)
 //===================
 byte*			TmpAlloc(uint size)
 {
-	if (gTmpBufferInUse || (size > TMP_BUFFER_SIZE))
+	if (gTmpBufferInUse)
 		return MemAlloc(size);
+
+	if (gTmpBuffer == NULL)
+		gTmpBuffer = MemAlloc(TMP_BUFFER_SIZE);
 
 	gTmpBufferInUse = true;
 	return gTmpBuffer;
@@ -62,9 +65,13 @@ byte*			TmpAlloc(uint size)
 //===================
 void			TmpFree(void* p)
 {
-	if (p == gTmpBuffer)
-		gTmpBufferInUse = false;
-	else
+	if (p != gTmpBuffer)
+	{
 		MemFree(p);
+		return;
+	}
+
+	assert(gTmpBufferInUse);
+	gTmpBufferInUse = false;
 }
 

@@ -15,59 +15,51 @@
 //========================================================================
 
 //========================================================================
+// Constants
+//========================================================================
+#define MAT33_SIZE				(sizeof(float) * 3 * 3)
+//========================================================================
+
+//========================================================================
 // Definitions
 //========================================================================
-MMat33	MMat33::IdentityMat(	1.0f, 0.0f, 0.0f,
-								0.0f, 1.0f, 0.0f,
-								0.0f, 0.0f, 1.0f );
+MMat33	MMat33::Identity(	1.0f, 0.0f, 0.0f,
+							0.0f, 1.0f, 0.0f,
+							0.0f, 0.0f, 1.0f );
+
+MMat33	MMat33::Zero(		0.0f, 0.0f, 0.0f,
+							0.0f, 0.0f, 0.0f,
+							0.0f, 0.0f, 0.0f );
 
 
 //===================
 // MMat33::MMat33
 //===================
-MMat33::MMat33()
-{
-	Identity();
-}
-
-
-//===================
-// MMat33::MMat33
-//===================
-MMat33::MMat33(	float _00, float _10, float _20,
-				float _01, float _11, float _21,
-				float _02, float _12, float _22 )
+MMat33::MMat33(	float rotXx,	float rotYx,	float rotZx,
+				float rotXy,	float rotYy,	float rotZy,
+				float rotXz,	float rotYz,	float rotZz )
 {
 	// row 0
-	_v[0] = _00;
-	_v[1] = _10;
-	_v[2] = _20;
+	_v[0] = rotXx;
+	_v[1] = rotYx;
+	_v[2] = rotZx;
 
 	// row 1
-	_v[3] = _01;
-	_v[4] = _11;
-	_v[5] = _21;
+	_v[3] = rotXy;
+	_v[4] = rotYy;
+	_v[5] = rotZy;
 
 	// row 2
-	_v[6] = _02;
-	_v[7] = _12;
-	_v[8] = _22;
+	_v[6] = rotXz;
+	_v[7] = rotYz;
+	_v[8] = rotZz;
 }
 
 
 //===================
-// MMat33::Identity
+// MMat33::XRot
 //===================
-void			MMat33::Identity()
-{
-	MemCpy(_v, MMat33::IdentityMat._v, sizeof(float) * 9);
-}
-
-
-//===================
-// MMat33::RotX
-//===================
-MMat33			MMat33::RotX(float theta)
+MMat33			MMat33::XRot(float theta)
 {
 	// source:		http://en.wikipedia.org/wiki/Rotation_matrix#Basic_rotations
 
@@ -80,9 +72,9 @@ MMat33			MMat33::RotX(float theta)
 
 
 //===================
-// MMat33::RotY
+// MMat33::YRot
 //===================
-MMat33			MMat33::RotY(float theta)
+MMat33			MMat33::YRot(float theta)
 {
 	// source:		http://en.wikipedia.org/wiki/Rotation_matrix#Basic_rotations
 
@@ -95,9 +87,9 @@ MMat33			MMat33::RotY(float theta)
 
 
 //===================
-// MMat33::RotZ
+// MMat33::ZRot
 //===================
-MMat33			MMat33::RotZ(float theta)
+MMat33			MMat33::ZRot(float theta)
 {
 	// source:		http://en.wikipedia.org/wiki/Rotation_matrix#Basic_rotations
 
@@ -110,31 +102,11 @@ MMat33			MMat33::RotZ(float theta)
 
 
 //===================
-// MMat33::TransformAffine
+// MMat33::GetAxis
 //===================
-MVec3			MMat33::Rotate(const MVec3& v)
-{
-	float x = v.X();
-	float y = v.Y();
-	float z = v.Z();
-	return MVec3(	x*Get(0, 0) + y*Get(0, 1) + z*Get(0, 2),
-					x*Get(1, 0) + y*Get(1, 1) + z*Get(1, 2),
-					x*Get(2, 0) + y*Get(2, 1) + z*Get(2, 2) );
-}
-
-
-//===================
-// MMat33::TransformAffine
-//===================
-void			MMat33::Rotate(MVec3& v)
-{
-	float x = v.X();
-	float y = v.Y();
-	float z = v.Z();
-	v.SetX(	x*Get(0, 0) + y*Get(0, 1) + z*Get(0, 2) );
-	v.SetY(	x*Get(1, 0) + y*Get(1, 1) + z*Get(1, 2) );
-	v.SetZ(	x*Get(2, 0) + y*Get(2, 1) + z*Get(2, 2) );
-}
+MVec3			MMat33::GetXAxis() const { return MVec3( Get(0, 0), Get(0, 1), Get(0, 2) ); }
+MVec3			MMat33::GetYAxis() const { return MVec3( Get(1, 0), Get(1, 1), Get(1, 2) ); }
+MVec3			MMat33::GetZAxis() const { return MVec3( Get(2, 0), Get(2, 1), Get(2, 2) ); }
 
 
 //===================
@@ -142,16 +114,27 @@ void			MMat33::Rotate(MVec3& v)
 //===================
 void			MMat33::Set(const float* p)
 {
-	MemCpy(_v, p, sizeof(float)*3*3 );
+	MemCpy(_v, p, MAT33_SIZE);
 }
 
 
 //===================
-// MMat33::GetAxis
+// MMat33::Set
 //===================
-MVec3			MMat33::GetXAxis() const { return MVec3( Get(0, 0), Get(0, 1), Get(0, 2) ); }
-MVec3			MMat33::GetYAxis() const { return MVec3( Get(1, 0), Get(1, 1), Get(1, 2) ); }
-MVec3			MMat33::GetZAxis() const { return MVec3( Get(2, 0), Get(2, 1), Get(2, 2) ); }
+void			MMat33::Set(const MMat33& m)
+{
+	MemCpy(_v, m._v, MAT33_SIZE);
+}
+
+
+//===================
+// MMat33::operator =
+//===================
+MMat33&			MMat33::operator =(const MMat33& m)
+{
+	MemCpy(_v, m._v, MAT33_SIZE);
+	return *this;
+}
 
 
 //===================
@@ -163,19 +146,57 @@ void			MMat33::SetZAxis(const MVec3& v) { Get(2, 0) = v.X(); Get(2, 1) = v.Y(); 
 
 
 //===================
-// MMat33::operator(col, row)
+// MMat33::TransformAffine
 //===================
-float			MMat33::operator()(int col, int row) const
+MVec3			MMat33::Rotate(const MVec3& pt) const
 {
-	return _v[3*row + col];
+	float x = pt.X();
+	float y = pt.Y();
+	float z = pt.Z();
+	return MVec3(	x*Get(0, 0) + y*Get(0, 1) + z*Get(0, 2),
+					x*Get(1, 0) + y*Get(1, 1) + z*Get(1, 2),
+					x*Get(2, 0) + y*Get(2, 1) + z*Get(2, 2) );
+}
+
+
+//===================
+// MMat33::TransformAffine
+//===================
+void			MMat33::Rotate(MVec3& pt) const
+{
+	float x = pt.X();
+	float y = pt.Y();
+	float z = pt.Z();
+	pt.X() = x*Get(0, 0) + y*Get(0, 1) + z*Get(0, 2);
+	pt.Y() = x*Get(1, 0) + y*Get(1, 1) + z*Get(1, 2);
+	pt.Z() = x*Get(2, 0) + y*Get(2, 1) + z*Get(2, 2);
+}
+
+
+//===================
+// MMat33::operator *
+//===================
+MMat33			MMat33::operator *(const MMat33& m) const
+{
+	MMat33 r(Zero);
+	for (int i = 0; i < 3; ++i)
+		for (int j = 0; j < 3; ++j)
+			for (int k = 0; k < 3; ++k)
+				r(i, j) += Get(i, k) * m(k, j);
+	return r;
 }
 
 
 //===================
 // MMat33::operator(col, row)
 //===================
-float&			MMat33::operator()(int col, int row)
+MMat33&			MMat33::operator *=(const MMat33& m)
 {
-	return _v[3*row + col];
+	SetZero();
+	for (int i = 0; i < 3; ++i)
+		for (int j = 0; j < 3; ++j)
+			for (int k = 0; k < 3; ++k)
+				Get(i, j) += Get(i, k) * m(k, j);
+	return *this;
 }
 
