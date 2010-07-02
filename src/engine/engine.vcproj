@@ -301,6 +301,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\m_mat33.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_mat33.h"
+				>
+			</File>
+			<File
 				RelativePath=".\m_mat44.cpp"
 				>
 			</File>

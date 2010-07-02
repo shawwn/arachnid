@@ -75,7 +75,7 @@ inline T*					AlignPtr16(T* ptr)
 //===================
 // MemCpy
 //===================
-inline void					MemCpy(void* dst, void* src, uint size)
+inline void					MemCpy(void* dst, const void* src, uint size)
 {
 	memcpy(dst, src, size);
 }
