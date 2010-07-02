@@ -14,3 +14,4 @@
 glut*/man/*
 glut*/progs/*
 glut*/test/*/*.exe
+glut*/buildlog.txt

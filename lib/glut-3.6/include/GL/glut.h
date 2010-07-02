@@ -337,6 +337,13 @@ extern void APIENTRY glutInitDisplayString(const char *string);
 extern void APIENTRY glutInitWindowPosition(int x, int y);
 extern void APIENTRY glutInitWindowSize(int width, int height);
 extern void APIENTRY glutMainLoop(void);
+//========================================================================
+// Customization by Shawn Presser
+//	glutMainLoop takes over your whole program, so I added an alternative.
+//	call glutPerFrame once per frame instead.
+//========================================================================
+extern void APIENTRY glutPerFrame(void);
+//========================================================================
 
 /* GLUT window sub-API. */
 extern int APIENTRY glutCreateWindow(const char *title);

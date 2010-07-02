@@ -1251,3 +1251,39 @@ glutMainLoop(void)
   }
 }
 /* ENDCENTRY */
+
+/* CENTRY */
+void APIENTRY
+glutPerFrame(void)
+{
+#if !defined(WIN32)
+  if (!__glutDisplay)
+    __glutFatalUsage("main loop entered with out proper initialization.");
+#endif
+  if (!__glutWindowListSize)
+    __glutFatalUsage(
+      "main loop entered with no windows created.");
+  if (__glutWindowWorkList) {
+    GLUTwindow *remainder, *work;
+
+    work = __glutWindowWorkList;
+    __glutWindowWorkList = NULL;
+    if (work) {
+      remainder = processWindowWorkList(work);
+      if (remainder) {
+        *beforeEnd = __glutWindowWorkList;
+        __glutWindowWorkList = remainder;
+      }
+    }
+  }
+  if (__glutIdleFunc || __glutWindowWorkList) {
+    idleWait();
+  } else {
+    if (__glutTimerList) {
+      waitForSomething();
+    } else {
+      processEventsAndTimeouts();
+    }
+  }
+}
+/* ENDCENTRY */
