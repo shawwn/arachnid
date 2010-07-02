@@ -43,6 +43,10 @@ extern ENGINE_API bool				StrBeginsWith(const wstring& str, const wstring& with)
 extern ENGINE_API bool				StrEndsWith(const string& str, const string& with);
 extern ENGINE_API bool				StrEndsWith(const wstring& str, const wstring& with);
 
+// returns whether 'str' contains 'searchFor'.
+extern ENGINE_API bool				StrContains(const string& str, const string& searchFor);
+extern ENGINE_API bool				StrContains(const wstring& str, const wstring& searchFor);
+
 // converts a string to lower/upper case.
 extern ENGINE_API string			StrLower(const string& str);
 extern ENGINE_API wstring			StrLower(const wstring& str);
@@ -65,11 +69,17 @@ extern ENGINE_API uint				StrSplitBy(strvec& results, const wstring& str, const 
 extern ENGINE_API string			StrReplace(const string& str, const string& replacing, const string& replaceWith);
 extern ENGINE_API wstring			StrReplace(const wstring& str, const wstring& replacing, const wstring& replaceWith);
 
-// replaces a sequence of the same string.
-// example:  StrCompact("/path/to/..../file", ".", "..") => "/path/to/../file"
-// example:  StrCompact("hello hello there!", "hello ", "ohai ") => "ohai there!"
+// replaces a sequence of the same string.  Examples:
+//		StrCompact("/path/to/..../file", ".", "..")			=> "/path/to/../file"
+//		StrCompact("hello hello there!", "hello ", "ohai ") => "ohai there!"
 extern ENGINE_API string			StrCompact(const string& str, const string& sequence, const string& replaceWith, size_t sequenceMinCount = 1);
 extern ENGINE_API wstring			StrCompact(const wstring& str, const wstring& sequence, const wstring& replaceWith, size_t sequenceMinCount = 1);
+
+// returns a substring from the beginning until "sequence".  Examples:
+//		StrUntil("foo/bar", "/")	=> "foo"
+//		StrUntil("foo", "/")		=> "foo"
+extern ENGINE_API string			StrUntil(const string& str, const string& sequence);
+extern ENGINE_API wstring			StrUntil(const wstring& str, const wstring& sequence);
 
 // text encoding classification.
 extern ENGINE_API ETextEncoding		StrClassifyEncoding(uint& outBomSize, const byte* buf, uint bufSize);

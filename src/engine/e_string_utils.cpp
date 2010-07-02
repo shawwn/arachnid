@@ -360,6 +360,30 @@ bool			StrEndsWith(const wstring& str, const wstring& with)
 
 
 //===================
+// StrContains
+//===================
+bool			StrContains(const string& str, const string& searchFor)
+{
+	size_t pos(str.find(searchFor));
+	if (pos == string::npos)
+		return false;
+	return true;
+}
+
+
+//===================
+// StrContains
+//===================
+bool			StrContains(const wstring& str, const wstring& searchFor)
+{
+	size_t pos(str.find(searchFor));
+	if (pos == wstring::npos)
+		return false;
+	return true;
+}
+
+
+//===================
 // StrLower
 //===================
 string			StrLower(const string& str)
@@ -735,6 +759,32 @@ wstring			StrCompact(const wstring& str, const wstring& sequence, const wstring&
 	sequenceCount = 0;
 
 	return result;
+}
+
+
+//===================
+// StrUntil
+//===================
+string				StrUntil(const string& str, const string& sequence)
+{
+	size_t pos(str.find(sequence));
+	if (pos == string::npos)
+		return str;
+
+	return str.substr(0, pos);
+}
+
+
+//===================
+// StrUntil
+//===================
+wstring				StrUntil(const wstring& str, const wstring& sequence)
+{
+	size_t pos(str.find(sequence));
+	if (pos == wstring::npos)
+		return str;
+
+	return str.substr(0, pos);
 }
 
 
