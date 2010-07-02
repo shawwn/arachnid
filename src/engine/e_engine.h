@@ -24,9 +24,11 @@ private:
 	void*				_rendererLib;
 	void*				_rendererLibShutdownFn;
 	bool				_done;
+
+	EEngine();
 public:
 	// specify renderer "none", "gl2", or "d3d9"
-	EEngine(const wstring& renderer = _TS("none"));
+	static EEngine*		Create(const wstring& ctx, const wstring& renderer = _TS("none"));
 	~EEngine();
 
 	// call once per frame.  Returns false if the application should exit.

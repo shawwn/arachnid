@@ -34,17 +34,33 @@ EEngine*	gEngine;
 //===================
 // EEngine::EEngine
 //===================
-EEngine::EEngine(const wstring& rendererName)
-: _renderer(NULL)
-, _rendererLib(NULL)
-, _rendererLibShutdownFn(NULL)
-, _done(false)
+EEngine::EEngine()
+	: _renderer(NULL)
+	, _rendererLib(NULL)
+	, _rendererLibShutdownFn(NULL)
+	, _done(false)
 {
-	if (gSystem == NULL)
-		E_ERROR("engine", "ESystem not initialized.");
+}
 
-	if (gFileManager == NULL)
-		E_ERROR("engine", "EFileManager not initialized.");
+
+//===================
+// EEngine::Create
+//===================
+EEngine*			EEngine::Create(const wstring& ctx, const wstring& rendererName)
+{
+	E_VALIDATE(gSystem != NULL,
+		"engine", "system not initialized.",
+		return NULL);
+
+	E_VALIDATE(gFileManager != NULL,
+		"engine", "filesystem not initialized.",
+		return NULL);
+
+	E_VALIDATE(gEngine == NULL,
+		"engine", "engine already initialized.",
+		return NULL);
+
+	EEngine* result(E_NEW(ctx, EEngine));
 
 	// load the renderer.
 	wstring renderer(StrLower(StrTrim(rendererName)));
@@ -59,27 +75,33 @@ EEngine::EEngine(const wstring& rendererName)
 		rendererLibName.append(_T("_d"));
 #endif
 		// attempt to load the renderer's dynamic library from disk.
-		_rendererLib = gSystem->LoadLib(rendererLibName);
-		if (_rendererLib == NULL)
-			E_ERROR("engine", _TS("Failed to load the renderer '") + rendererName + _TS("': The DLL '") + rendererLibName + _T("' does not exist.  Please reinstall."));
+		result->_rendererLib = gSystem->LoadLib(rendererLibName);
+		E_VALIDATE(result->_rendererLib != NULL,
+			"engine", _TS("Failed to load the renderer '") + rendererName + _TS("': The DLL '") + rendererLibName + _T("' does not exist.  Please reinstall."),
+			E_DELETE("engine", result);
+			return NULL );
 
 		// find the entry point and exit point.
 		RendererLibStartupFunc startupFn(NULL);
 		RendererLibShutdownFunc shutdownFn(NULL);
 
-		startupFn = (RendererLibStartupFunc)gSystem->GetLibFunction(_rendererLib, GR_LIB_STARTUP_FUNC);
-		shutdownFn = (RendererLibShutdownFunc)gSystem->GetLibFunction(_rendererLib, GR_LIB_SHUTDOWN_FUNC);
-		if (startupFn == NULL || shutdownFn == NULL)
-			E_ERROR("engine", _TS("Failed to load the renderer DLL '") + renderer + _TS("': The DLL is invalid.  Please reinstall."));
+		startupFn = (RendererLibStartupFunc)gSystem->GetLibFunction(result->_rendererLib, GR_LIB_STARTUP_FUNC);
+		shutdownFn = (RendererLibShutdownFunc)gSystem->GetLibFunction(result->_rendererLib, GR_LIB_SHUTDOWN_FUNC);
+		E_VALIDATE(startupFn != NULL && shutdownFn != NULL,
+			"engine", _TS("Failed to load the renderer DLL '") + renderer + _TS("': The DLL is invalid.  Please reinstall."),
+			E_DELETE("engine", result);
+			return NULL );
 
-		_rendererLibShutdownFn = shutdownFn;
+		result->_rendererLibShutdownFn = shutdownFn;
 
 		// initialize the renderer.
-		_renderer = (GrDriver*)(*startupFn)(GR_LIB_VERSION,
+		result->_renderer = (GrDriver*)(*startupFn)(GR_LIB_VERSION,
 			E_DEFAULT_WINDOW_WIDTH, E_DEFAULT_WINDOW_HEIGHT,
 			E_DEFAULT_WINDOW_TITLE);
-		if (_renderer == NULL)
-			E_ERROR("engine", _TS("Failed to initialize the renderer.  Please reinstall.  If the problem persists, you may need to upgrade your video card."));
+		E_VALIDATE(result->_renderer != NULL,
+			"engine", _TS("Failed to initialize the renderer.  Please reinstall.  If the problem persists, you may need to upgrade your video card."),
+			E_DELETE("engine", result);
+			return NULL );
 	}
 
 	// unit tests.
@@ -93,7 +115,7 @@ EEngine::EEngine(const wstring& rendererName)
 			while (!file->IsEOF())
 				lines.push_back(file->ReadLine());
 			file->Close();
-			delete file;
+			E_DELETE("engine", file);
 		}
 
 		// test matrices.
@@ -115,7 +137,9 @@ EEngine::EEngine(const wstring& rendererName)
 		trans.RotateTranslate(pt);
 	}
 
-	gEngine = this;
+	// return the engine.
+	gEngine = result;
+	return result;
 }
 
 
@@ -127,14 +151,12 @@ EEngine::~EEngine()
 	// shutdown the renderer.
 	if (_rendererLibShutdownFn && _renderer)
 		((RendererLibShutdownFunc)_rendererLibShutdownFn)(_renderer);
-	_rendererLibShutdownFn = NULL;
-	_renderer = NULL;
 
 	// unload the renderer DLL.
 	gSystem->UnloadLib(_rendererLib);
-	_rendererLib = NULL;
 
-	gEngine = NULL;
+	if (gEngine == this)
+		gEngine = NULL;
 }
 
 

@@ -63,6 +63,9 @@ public:
 
 	// sleep for the specified number of milliseconds
 	void				Sleep(uint msec);
+
+	// prints a warning.
+	void				Warn(const wstring& context, const wstring& msg);
 };
 extern ENGINE_API ESystem*		gSystem;
 //========================================================================

@@ -13,11 +13,8 @@
 #include "e_system.h"
 #include "e_filemanager.h"
 #include <windows.h>
-#pragma push_macro("_T")
-#undef _T
-#include <tchar.h>
-#pragma pop_macro("_T")
-#include <shlobj.h>
+#include <shlobj.h> // SHGetFolderPath
+#include <mmsystem.h> // OutputDebugString
 //========================================================================
 
 //========================================================================
@@ -187,5 +184,14 @@ void				ESystem::DisplayMessage(const wstring& caption, const wstring& msg)
 void				ESystem::Sleep(uint msec)
 {
 	::Sleep(msec);
+}
+
+
+//===================
+// ESystem::Warn
+//===================
+void				ESystem::Warn(const wstring& context, const wstring& msg)
+{
+	DisplayMessage(context, msg);
 }
 

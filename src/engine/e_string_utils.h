@@ -75,11 +75,24 @@ extern ENGINE_API wstring			StrReplace(const wstring& str, const wstring& replac
 extern ENGINE_API string			StrCompact(const string& str, const string& sequence, const string& replaceWith, size_t sequenceMinCount = 1);
 extern ENGINE_API wstring			StrCompact(const wstring& str, const wstring& sequence, const wstring& replaceWith, size_t sequenceMinCount = 1);
 
-// returns a substring from the beginning until "sequence".  Examples:
-//		StrUntil("foo/bar", "/")	=> "foo"
-//		StrUntil("foo", "/")		=> "foo"
-extern ENGINE_API string			StrUntil(const string& str, const string& sequence);
-extern ENGINE_API wstring			StrUntil(const wstring& str, const wstring& sequence);
+// returns a substring BEFORE the first instance of 'sequence'.
+// if 'remainder' is not NULL, then it is set to the substring after the
+// first instance of 'sequence'.  Examples:
+//		StrBefore("foo/bar/baz", "/")	=> "foo" with remainder "bar/baz"
+//		StrBefore("foo/", "/")			=> "foo" with remainder ""
+//		StrBefore("foo", "/")			=> "foo" with remainder ""
+extern ENGINE_API string			StrBefore(const string& str, const string& sequence, string* remainder = NULL);
+extern ENGINE_API wstring			StrBefore(const wstring& str, const wstring& sequence, wstring* remainder = NULL);
+
+// returns a substring AFTER the first instance of 'sequence'.
+// if 'before' is not NULL, then it is set to the substring before the
+// first instance of 'sequence'.  Examples:
+//		StrAfter("foo/bar/baz", "/")	=> "bar/baz" with before "foo"
+//		StrAfter("foo/", "/")			=> "" with before "foo"
+//		StrAfter("foo", "/")			=> "" with before "foo"
+//		StrAfter("/foo", "/")			=> "foo" with before ""
+extern ENGINE_API string			StrAfter(const string& str, const string& sequence, string* before = NULL);
+extern ENGINE_API wstring			StrAfter(const wstring& str, const wstring& sequence, string* before = NULL);
 
 // text encoding classification.
 extern ENGINE_API ETextEncoding		StrClassifyEncoding(uint& outBomSize, const byte* buf, uint bufSize);

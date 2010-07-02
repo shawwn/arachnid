@@ -1,40 +1,31 @@
 //========================================================================
-//	file:		e_stl.h
+//	file:		gr_scene.h
 //	author:		Shawn Presser 
-//	date:		6/30/10
+//	date:		7/2/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
 #pragma once
 
 //========================================================================
-// Headers
+// Declarations
 //========================================================================
-#include <exception>
-#include <string>
-#include <vector>
-#include <list>
-#include <map>
-#include <set>
-#include <hash_map>
-#include <hash_set>
+class GrModel;
 //========================================================================
 
 //========================================================================
-// Containers
+// GrScene
 //========================================================================
-using std::exception;
-using std::string;
-using std::wstring;
-using std::vector;
-using std::list;
-using std::map;
-using std::set;
-using stdext::hash_map;
-using stdext::hash_set;
-using std::make_pair;
+class GrScene
+{
+private:
+	wstring			_name;
+	GrModel*		_model;
+public:
+	GrScene(const wstring& name);
+	~GrScene();
 
-typedef vector<string>		strvec;
-typedef vector<wstring>		wstrvec;
+	const wstring&			GetName() const		{ return _name; }
+	GrModel*				GetModel() const	{ return _model; }
+};
 //========================================================================
-

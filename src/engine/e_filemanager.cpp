@@ -116,10 +116,10 @@ EFile*		EFileManager::GetFile(const wstring& path, uint mode)
 	if (!Exists(absolutePath))
 		return NULL;
 
-	EFile* file(new EFileDisk());
+	EFile* file(E_NEW("fileManager",EFileDisk)());
 	if (!file->Open(absolutePath, mode))
 	{
-		delete file;
+		E_DELETE("fileManager", file);
 		return NULL;
 	}
 

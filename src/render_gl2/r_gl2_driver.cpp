@@ -104,6 +104,10 @@ public:
 		: _fatalError(false)
 		, _winIdx(0)
 	{
+		// validate parameters.
+		windowWidth = E_MAX(640, windowWidth);
+		windowHeight = E_MAX(480, windowWidth);
+
 		// get the exe path.
 		string exePath(WStringToString(gSystem->GetExePath()));
 		char exePathBuf[1024];
@@ -209,9 +213,11 @@ RENDER_GL2_EXPORT void*			RendererStartup(int version,
 	if (gDriver != NULL)
 		return gDriver;
 
-	// validate parameters.
-	windowWidth = E_MAX(640, windowWidth);
-	windowHeight = E_MAX(480, windowWidth);
+	if (windowTitle.empty())
+	{
+		gSystem->Warn(_T("gl2"), _T("Failed to initialize GL2 renderer: must specify a unique window title."));
+		return NULL;
+	}
 
 	// startup the video driver and return a pointer to it.
 	gDriver = E_NEW("gl2", GL2Driver)(windowWidth, windowHeight, windowTitle);

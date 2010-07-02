@@ -32,4 +32,19 @@
 #define E_DEFAULT_WINDOW_WIDTH		800
 #define E_DEFAULT_WINDOW_HEIGHT		600
 #define E_DEFAULT_WINDOW_TITLE		_T("Arachnid")
+
+// disable exception handling.
+#define E_EXCEPTIONS				0
 //========================================================================
+
+#if E_WINDOWS
+//========================================================================
+// Windows Compile-Time Configuration
+//========================================================================
+// define our minimum windows version as Windows XP.
+#define _WIN32_WINNT		0x0500
+
+// exclude rarely-used stuff from Windows headers.
+#define WIN32_LEAN_AND_MEAN
+//========================================================================
+#endif

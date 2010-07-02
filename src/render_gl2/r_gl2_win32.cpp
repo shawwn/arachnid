@@ -12,7 +12,6 @@
 #include "r_gl2_common.h"
 
 // windows headers.
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 //========================================================================
 
@@ -29,9 +28,9 @@ HDC			hDC(NULL);
 bool							GL2_Startup(const wstring& windowTitle)
 {
 	HWND wnd(FindWindow(NULL, windowTitle.c_str()));
-	assert(wnd != NULL);
-	if (wnd == NULL)
-		E_ERROR("gl2", "could not find window handle");
+	E_VALIDATE(wnd != NULL,
+		"gl2", "could not find window handle",
+		return false );
 
 	HDC dc(GetDC(wnd));
 	if (dc == NULL)

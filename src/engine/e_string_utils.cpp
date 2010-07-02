@@ -763,28 +763,82 @@ wstring			StrCompact(const wstring& str, const wstring& sequence, const wstring&
 
 
 //===================
-// StrUntil
+// StrBefore
 //===================
-string				StrUntil(const string& str, const string& sequence)
+string				StrBefore(const string& str, const string& sequence, string* remainder)
 {
 	size_t pos(str.find(sequence));
 	if (pos == string::npos)
+	{
+		if (remainder != NULL)
+			*remainder = SNULL;
 		return str;
+	}
+
+	if (remainder != NULL)
+		*remainder = str.substr(pos + 1);
 
 	return str.substr(0, pos);
 }
 
 
 //===================
-// StrUntil
+// StrBefore
 //===================
-wstring				StrUntil(const wstring& str, const wstring& sequence)
+wstring				StrBefore(const wstring& str, const wstring& sequence, wstring* remainder)
 {
 	size_t pos(str.find(sequence));
 	if (pos == wstring::npos)
+	{
+		if (remainder != NULL)
+			*remainder = WSNULL;
 		return str;
+	}
+
+	if (remainder != NULL)
+		*remainder = str.substr(pos + 1);
 
 	return str.substr(0, pos);
+}
+
+
+//===================
+// StrAfter
+//===================
+string				StrAfter(const string& str, const string& sequence, string* before)
+{
+	size_t pos(str.find(sequence));
+	if (pos == string::npos)
+	{
+		if (before != NULL)
+			*before = str;
+		return SNULL;
+	}
+
+	if (before != NULL)
+		*before = str.substr(0, pos);
+
+	return str.substr(pos + 1);
+}
+
+
+//===================
+// StrAfter
+//===================
+wstring				StrAfter(const wstring& str, const wstring& sequence, wstring* before)
+{
+	size_t pos(str.find(sequence));
+	if (pos == wstring::npos)
+	{
+		if (before != NULL)
+			*before = str;
+		return WSNULL;
+	}
+
+	if (before != NULL)
+		*before = str.substr(0, pos);
+
+	return str.substr(pos + 1);
 }
 
 
