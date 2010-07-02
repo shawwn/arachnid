@@ -24,7 +24,7 @@ static bool						gTmpBufferInUse;
 //===================
 // EnHashMem
 //===================
-size_t		EnHashMem(const char* mem, uint size)
+size_t		HashMem(const byte* mem, uint size)
 {
 	const uint FNV_PRIME_32(16777619);
 	const uint FNV_OFFSET_BASIS_32(2166136261);

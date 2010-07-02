@@ -55,7 +55,7 @@ EEngine::EEngine(const wstring& rendererName)
 		wstring rendererLibName(_T("render_"));
 		rendererLibName.append(renderer);
 #if E_DEBUG
-		renderer.append(_T("_d"));
+		rendererLibName.append(_T("_d"));
 #endif
 		// attempt to load the renderer's dynamic library from disk.
 		_rendererLib = gSystem->LoadLib(rendererLibName);
