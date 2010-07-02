@@ -33,7 +33,7 @@ int main()
 	{
 		// startup system
 		new ESystem;
-		gSystem->DisplayMessage(_T("Startup"), _T("Congrats!  You have started the Arachnid engine."));
+		//gSystem->DisplayMessage(_T("Startup"), _T("Congrats!  You have started the Arachnid engine."));
 
 		// startup subsystems
 		new EFileManager;
@@ -57,9 +57,9 @@ int main()
 		delete gFileManager;
 
 		// shutdown system
-		gSystem->DisplayMessage(_T("Fission Mailed"), _T("Congrats!  You ran the Arachnid engine."));
-		gSystem->DisplayMessage(_T("WTF"), _T("Unfortunately, the engine doesn't even do anything yet."));
-		gSystem->DisplayMessage(_T("Q_Q"), _T("Owned."));
+		//gSystem->DisplayMessage(_T("Fission Mailed"), _T("Congrats!  You ran the Arachnid engine."));
+		//gSystem->DisplayMessage(_T("WTF"), _T("Unfortunately, the engine doesn't even do anything yet."));
+		//gSystem->DisplayMessage(_T("Q_Q"), _T("Owned."));
 		delete gSystem;
 	}
 	catch (const EException& ex)
