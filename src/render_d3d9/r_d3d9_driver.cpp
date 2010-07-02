@@ -31,6 +31,7 @@ RENDER_D3D9_EXPORT void*		RendererStartup(int version)
 {
 	E_VERIFY(version == GR_LIB_VERSION, return NULL);
 
+	// return an interface to the driver.
 	GrDriver* driver(E_NEW("d3d9", D3D9Driver));
 	return driver;
 }
