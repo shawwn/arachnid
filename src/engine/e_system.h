@@ -22,6 +22,7 @@ private:
 	wstring		_commandLine;
 	wstring		_rootDir;
 	wstring		_userDir;
+	wstring		_exePath;
 
 public:
 	ESystem();
@@ -30,6 +31,7 @@ public:
 	const wstring&		GetCommandLine() const	{ return _commandLine; }
 	const wstring&		GetRootDir() const		{ return _rootDir; }
 	const wstring&		GetUserDir() const		{ return _userDir; }
+	const wstring&		GetExePath() const		{ return _exePath; }
 
 	// loads a .dylib or .dll
 	void*				LoadLib(const wstring& libPath);
@@ -58,6 +60,9 @@ public:
 
 	// pop up a message box.
 	void				DisplayMessage(const wstring& caption, const wstring& msg);
+
+	// sleep for the specified number of milliseconds
+	void				Sleep(uint msec);
 };
 extern ENGINE_API ESystem*		gSystem;
 //========================================================================

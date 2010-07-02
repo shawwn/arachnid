@@ -27,4 +27,9 @@
 #else
 #define E_PLATFORM_RENDERER			_T("gl2")
 #endif
+
+// renderer defaults.
+#define E_DEFAULT_WINDOW_WIDTH		1024
+#define E_DEFAULT_WINDOW_HEIGHT		768
+#define E_DEFAULT_WINDOW_TITLE		_T("Arachnid")
 //========================================================================

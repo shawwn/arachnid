@@ -38,6 +38,7 @@ EEngine::EEngine(const wstring& rendererName)
 : _renderer(NULL)
 , _rendererLib(NULL)
 , _rendererLibShutdownFn(NULL)
+, _done(false)
 {
 	if (gSystem == NULL)
 		E_ERROR("engine", "ESystem not initialized.");
@@ -74,7 +75,9 @@ EEngine::EEngine(const wstring& rendererName)
 		_rendererLibShutdownFn = shutdownFn;
 
 		// initialize the renderer.
-		_renderer = (GrDriver*)(*startupFn)(GR_LIB_VERSION);
+		_renderer = (GrDriver*)(*startupFn)(GR_LIB_VERSION,
+			E_DEFAULT_WINDOW_WIDTH, E_DEFAULT_WINDOW_HEIGHT,
+			E_DEFAULT_WINDOW_TITLE);
 		if (_renderer == NULL)
 			E_ERROR("engine", _TS("Failed to initialize the renderer.  Please reinstall.  If the problem persists, you may need to upgrade your video card."));
 	}
@@ -132,5 +135,26 @@ EEngine::~EEngine()
 	_rendererLib = NULL;
 
 	gEngine = NULL;
+}
+
+
+//===================
+// EEngine::PerFrame
+//===================
+bool				EEngine::PerFrame()
+{
+	if (_done)
+		return true;
+
+	if (_renderer != NULL)
+	{
+		if (!_renderer->BeginFrame())
+			return false;
+
+		_renderer->Render();
+		_renderer->EndFrame();
+	}
+
+	return true;
 }
 

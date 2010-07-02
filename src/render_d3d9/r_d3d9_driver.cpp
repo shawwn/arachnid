@@ -19,7 +19,27 @@
 class D3D9Driver : public GrDriver
 {
 public:
+	//===================
+	// D3D9::BeginFrame
+	//===================
+	bool		BeginFrame()
+	{
+		return true;
+	}
+
+
+	//===================
+	// D3D9::Render
+	//===================
 	void		Render()
+	{
+	}
+
+	
+	//===================
+	// D3D9::EndFrame
+	//===================
+	void		EndFrame()
 	{
 	}
 };
@@ -27,7 +47,9 @@ public:
 //===================
 // RendererStartup
 //===================
-RENDER_D3D9_EXPORT void*		RendererStartup(int version)
+RENDER_D3D9_EXPORT void*		RendererStartup(int version,
+												int windowWidth, int windowHeight,
+												const wstring& windowTitle)
 {
 	E_VERIFY(version == GR_LIB_VERSION, return NULL);
 

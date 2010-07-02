@@ -15,7 +15,9 @@ class GrDriver;
 #define GR_LIB_VERSION				1
 
 #define GR_LIB_STARTUP_FUNC			_T("RendererStartup")
-typedef void*						(*RendererLibStartupFunc)(int version);
+typedef void*						(*RendererLibStartupFunc)(int version,
+															  int windowWidth, int windowHeight,
+															  const wstring& windowTitle);
 
 #define GR_LIB_SHUTDOWN_FUNC		_T("RendererShutdown")
 typedef bool						(*RendererLibShutdownFunc)(void* driver);
@@ -31,6 +33,16 @@ class ENGINE_API GrDriver
 public:
 	virtual ~GrDriver() { }
 
+	// returns whether the video driver has experienced a fatal error.
+	virtual bool			HasFatalError()		{ return false; }
+
+	// call at the start of each frame.
+	virtual bool			BeginFrame()=0;
+
+	// render the scene from the camera's point of view.
 	virtual void			Render()=0;
+
+	// call at the end of each frame.
+	virtual void			EndFrame()=0;
 };
 //========================================================================

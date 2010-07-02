@@ -35,12 +35,13 @@ ESystem::ESystem()
 	// store the command line.
 	_commandLine = GetCommandLine();
 
-	// store the root path
+	// store the exe path
 	wchar_t dir[MAX_PATH + 1];
 	GetModuleFileName(NULL, dir, MAX_PATH); 
-	_rootDir = EFileManager::SanitizePath(dir);
+	_exePath = EFileManager::SanitizePath(dir);
 
-	// strip off the executable name.
+	// strip off the executable name to get the root path
+	_rootDir = _exePath;
 	size_t pos(_rootDir.find_last_of(_T('/')));
 	if (pos != wstring::npos)
 		_rootDir = _rootDir.substr(0, pos+1);
@@ -176,6 +177,15 @@ void				ESystem::LeakMem(size_t numBytes)
 //===================
 void				ESystem::DisplayMessage(const wstring& caption, const wstring& msg)
 {
-	MessageBox(NULL, msg.c_str(), caption.c_str(), MB_OK);
+	::MessageBox(NULL, msg.c_str(), caption.c_str(), MB_OK);
+}
+
+
+//===================
+// ESystem::Sleep
+//===================
+void				ESystem::Sleep(uint msec)
+{
+	::Sleep(msec);
 }
 

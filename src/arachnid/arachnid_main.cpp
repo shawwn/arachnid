@@ -20,6 +20,7 @@
 // main
 //===================
 #if E_WINDOWS
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #undef GetMessage // goddamn windows.h macros
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -27,27 +28,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 int main()
 #endif
 {
-	// initialize the engine.
+	// initialize the engine
 	try
 	{
 		// startup system
 		new ESystem;
+		gSystem->DisplayMessage(_T("Startup"), _T("Congrats!  You have started the Arachnid engine."));
 
-		// startup subsystems.
+		// startup subsystems
 		new EFileManager;
 
-		// startup the engine.
+		// startup the engine
 		wstring renderer(E_PLATFORM_RENDERER);
-		renderer = _T("d3d9");
+		renderer = _T("gl2");
 		new EEngine(renderer);
 
-		// shutdown the engine.
+		// main engine loop
+		while (gEngine->PerFrame())
+		{
+			// relinquish some CPU time.
+			gSystem->Sleep(10);
+		}
+
+		// shutdown the engine
 		delete gEngine;
 
-		// shutdown subsystems.
+		// shutdown subsystems
 		delete gFileManager;
 
-		// shutdown system.
+		// shutdown system
 		gSystem->DisplayMessage(_T("Fission Mailed"), _T("Congrats!  You ran the Arachnid engine."));
 		gSystem->DisplayMessage(_T("WTF"), _T("Unfortunately, the engine doesn't even do anything yet."));
 		gSystem->DisplayMessage(_T("Q_Q"), _T("Owned."));
