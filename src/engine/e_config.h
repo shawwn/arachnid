@@ -29,7 +29,7 @@
 #endif
 
 // renderer defaults.
-#define E_DEFAULT_WINDOW_WIDTH		1024
-#define E_DEFAULT_WINDOW_HEIGHT		768
+#define E_DEFAULT_WINDOW_WIDTH		800
+#define E_DEFAULT_WINDOW_HEIGHT		600
 #define E_DEFAULT_WINDOW_TITLE		_T("Arachnid")
 //========================================================================

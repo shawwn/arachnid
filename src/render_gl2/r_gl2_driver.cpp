@@ -53,6 +53,21 @@ private:
 		// reset the current modelview matrix
 		glLoadIdentity();
 
+		// draw "hello world" primitives.
+		glTranslatef(-1.5f, 0.0f, -6.0f);
+		glBegin(GL_TRIANGLES);
+		glVertex3f( 0.0f, 1.0f, 0.0f);
+		glVertex3f(-1.0f,-1.0f, 0.0f);
+		glVertex3f( 1.0f,-1.0f, 0.0f);
+		glEnd();
+		glTranslatef(3.0f,0.0f,0.0f);
+		glBegin(GL_QUADS);
+		glVertex3f(-1.0f, 1.0f, 0.0f);
+		glVertex3f( 1.0f, 1.0f, 0.0f);
+		glVertex3f( 1.0f,-1.0f, 0.0f);
+		glVertex3f(-1.0f,-1.0f, 0.0f);
+		glEnd();
+
 		// display the backbuffer to the window.
 		if (!GL2_SwapBuffers())
 			driver->_fatalError = true;
@@ -64,6 +79,20 @@ private:
 	//===================
 	static void		GlutOnWindowResized(int width, int height)
 	{
+		height = E_MAX(1, height);
+		glViewport(0, 0, width, height);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		// calculate the aspect ratio of the window
+		const float fovy(60.0f);
+		const float aspect(width / (float)height);
+		const float znear(1.0f);
+		const float zfar(100.0f);
+		gluPerspective(fovy, aspect, znear, zfar);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 	}
 
 
