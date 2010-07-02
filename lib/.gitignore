@@ -1,0 +1,16 @@
+*.suo
+*.swp
+*.ilk
+*.ncb
+*.obj
+*.htm
+*.manifest
+*.dep
+*.idb
+*.pdb
+*.user
+*.pch
+*.exp
+glut*/man/*
+glut*/progs/*
+glut*/test/*/*.exe
