@@ -92,9 +92,6 @@ void*				ESystem::LoadLib(const wstring& libPath)
 	// attempt to load the library.
 	HMODULE module(LoadLibrary((libPath + _T(".dll")).c_str()));
 
-	// verify that the library was loaded successfully.
-	E_VERIFY(module != NULL, return NULL);
-
 	// return a handle to the module.
 	return module;
 }
