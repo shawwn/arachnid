@@ -285,6 +285,30 @@
 			Name="math"
 			>
 			<File
+				RelativePath=".\m_color.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_color.h"
+				>
+			</File>
+			<File
+				RelativePath=".\m_colors.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_colors.h"
+				>
+			</File>
+			<File
+				RelativePath=".\m_mat44.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_mat44.h"
+				>
+			</File>
+			<File
 				RelativePath=".\m_math.cpp"
 				>
 			</File>
