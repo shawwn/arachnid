@@ -49,7 +49,7 @@ size_t		EnHashMem(const char* mem, uint size)
 //===================
 byte*			TmpAlloc(uint size)
 {
-	if (gTmpBufferInUse)
+	if (gTmpBufferInUse || size > TMP_BUFFER_SIZE)
 		return MemAlloc(size);
 
 	if (gTmpBuffer == NULL)
