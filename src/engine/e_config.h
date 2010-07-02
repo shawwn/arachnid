@@ -1,32 +1,30 @@
 //========================================================================
-//	file:		e_engine.h
+//	file:		e_config.h
 //	author:		Shawn Presser 
-//	date:		6/30/10
+//	date:		7/1/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
 #pragma once
 
 //========================================================================
-// Declarations
+// Detect Compile-Time Settings
 //========================================================================
-class EFile;
-class GrDriver;
+#ifdef WIN32
+#define E_WINDOWS		1
+#endif
+
+#ifdef _DEBUG
+#define E_DEBUG			1
+#endif
 //========================================================================
 
 //========================================================================
-// EEngine
+// Compile-Time Configuration
 //========================================================================
-class ENGINE_API EEngine
-{
-private:
-	GrDriver*			_renderer;
-	void*				_rendererLib;
-	void*				_rendererLibShutdownFn;
-public:
-	// specify renderer "none", "gl2", or "d3d9"
-	EEngine(const wstring& renderer = _TS("none"));
-	~EEngine();
-};
-extern ENGINE_API EEngine*		gEngine;
+#if E_WINDOWS
+#define E_PLATFORM_RENDERER			_T("d3d9")
+#else
+#define E_PLATFORM_RENDERER			_T("gl2")
+#endif
 //========================================================================

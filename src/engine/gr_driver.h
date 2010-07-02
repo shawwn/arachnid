@@ -1,7 +1,7 @@
 //========================================================================
-//	file:		e_engine.h
+//	file:		gr_driver.h
 //	author:		Shawn Presser 
-//	date:		6/30/10
+//	date:		7/1/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -10,23 +10,27 @@
 //========================================================================
 // Declarations
 //========================================================================
-class EFile;
 class GrDriver;
+
+#define GR_LIB_VERSION				1
+
+#define GR_LIB_STARTUP_FUNC			_T("RendererStartup")
+typedef void*						(*RendererLibStartupFunc)(int version);
+
+#define GR_LIB_SHUTDOWN_FUNC		_T("RendererShutdown")
+typedef bool						(*RendererLibShutdownFunc)(void* driver);
 //========================================================================
 
 //========================================================================
-// EEngine
+// GrDriver
+//		each graphics driver function is defined for D3D9, D3D10,
+//		GL2, GL3, etc, allowing the engine to be cross-platform.
 //========================================================================
-class ENGINE_API EEngine
+class ENGINE_API GrDriver
 {
-private:
-	GrDriver*			_renderer;
-	void*				_rendererLib;
-	void*				_rendererLibShutdownFn;
 public:
-	// specify renderer "none", "gl2", or "d3d9"
-	EEngine(const wstring& renderer = _TS("none"));
-	~EEngine();
+	virtual ~GrDriver() { }
+
+	virtual void			Render()=0;
 };
-extern ENGINE_API EEngine*		gEngine;
 //========================================================================

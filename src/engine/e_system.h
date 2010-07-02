@@ -30,6 +30,34 @@ public:
 	const wstring&		GetCommandLine() const	{ return _commandLine; }
 	const wstring&		GetRootDir() const		{ return _rootDir; }
 	const wstring&		GetUserDir() const		{ return _userDir; }
+
+	// loads a .dylib or .dll
+	void*				LoadLib(const wstring& libPath);
+	bool				UnloadLib(void* lib);
+
+	// finds a function in a dynamic library
+	void*				GetLibFunction(void* lib, const wstring& funcName);
+
+	// prints a string to the debugger
+	void				OutputDebug(const wstring& msg);
+
+	// breaks execution
+	void				DebugBreak();
+
+	// immediately terminates execution
+	void				Exit(int exitCode = -1);
+
+	// immediately terminates execution with an error message
+	void				CriticalError(const wstring& errMsg, int errCode = -1);
+
+	// intentionally cause a crash
+	void				Crash();
+
+	// intentionally leak memory
+	void				LeakMem(size_t numBytes);
+
+	// pop up a message box.
+	void				DisplayMessage(const wstring& caption, const wstring& msg);
 };
 extern ENGINE_API ESystem*		gSystem;
 //========================================================================

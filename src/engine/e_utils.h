@@ -10,7 +10,22 @@
 //========================================================================
 // Macros
 //========================================================================
-#define BIT(x)				(1 << (x))
+#define BIT(x)							(1 << (x))
+
+// debug macros.
+#define	E_ASSERT(x)						assert(x)
+#define E_VERIFY(cond, ifFail)			{ assert(##cond); if (!(cond)) { ifFail; } }
+#define E_ERROR(ctx, msg)				{ throw EException(_TS(ctx), _TS(msg)); }
+#define E_WARN(ctx, msg)				assert(0 && ##ctx && ##msg)
+
+// memory macros.
+#define E_NEW(ctx, type)				new type
+#define E_NEW_ARRAY(ctx, type, count)	new type[count]
+#define E_DELETE(ctx, ptr)				{ delete ptr; ptr = NULL; }
+#define E_DELETE_ARRAY(ctx, ptr)		{ delete [] ptr; ptr = NULL; }
+
+//========================================================================
+
 //========================================================================
 
 //========================================================================

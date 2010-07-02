@@ -16,7 +16,7 @@
 //========================================================================
 // Globals
 //========================================================================
-#define TMP_BUFFER_SIZE			(1024 * 1024 * 1024) // 1MB temp buffer
+#define TMP_BUFFER_SIZE			(1024 * 1024) // 1MB temp buffer
 static byte*					gTmpBuffer;
 static bool						gTmpBufferInUse;
 //========================================================================
@@ -71,7 +71,7 @@ void			TmpFree(void* p)
 		return;
 	}
 
-	assert(gTmpBufferInUse);
+	E_ASSERT(gTmpBufferInUse);
 	gTmpBufferInUse = false;
 }
 

@@ -44,10 +44,10 @@ extern ENGINE_API bool				StrEndsWith(const string& str, const string& with);
 extern ENGINE_API bool				StrEndsWith(const wstring& str, const wstring& with);
 
 // converts a string to lower/upper case.
-extern ENGINE_API string			StrLowerString(const string& str);
-extern ENGINE_API wstring			StrLowerString(const wstring& str);
-extern ENGINE_API string			StrUpperString(const string& str);
-extern ENGINE_API wstring			StrUpperString(const wstring& str);
+extern ENGINE_API string			StrLower(const string& str);
+extern ENGINE_API wstring			StrLower(const wstring& str);
+extern ENGINE_API string			StrUpper(const string& str);
+extern ENGINE_API wstring			StrUpper(const wstring& str);
 
 // returns whether two strings are equal, ignoring case.
 extern ENGINE_API bool				StrEqualNum(const string& strA, const string& strB, size_t n, size_t off = 0);
@@ -101,4 +101,12 @@ extern ENGINE_API string			WStringToString(const wstring& str);
 // converts a UTF-8 multi-byte string to a UTF-16 wide-character string.
 extern ENGINE_API wstring			StringToWString(const string& str);
 
+// wide-string helpers.
+inline wstring						ToWideString(const char* str)			{ return StringToWString(str); }
+inline wstring						ToWideString(const wchar_t* str)		{ return wstring(str); }
+inline wstring						ToWideString(const string& str)			{ return StringToWString(str); }
+inline const wstring&				ToWideString(const wstring& str)		{ return str; }
+inline wstring						ToWideString(char c)					{ return StringToWString(string(1, c)); }
+inline wstring						ToWideString(wchar_t c)					{ return wstring(1, c); }
+#define _TS(x)						ToWideString(x)
 //========================================================================

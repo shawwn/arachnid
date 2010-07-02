@@ -44,7 +44,7 @@ EFileManager::~EFileManager()
 //===================
 wstring		EFileManager::SanitizePath(const wstring& path)
 {
-	wstring sUsePath(StrLowerString(StrTrim(path)));
+	wstring sUsePath(StrLower(StrTrim(path)));
 
 	// replace back slashes with forward slashes.
 	sUsePath = StrReplace(sUsePath, _T("\\"), _T("/"));
@@ -86,13 +86,15 @@ wstring		EFileManager::GetAbsolutePath(const wstring& dirtyPath)
 
 	switch (path[0])
 	{
-	case _T(':'):
+		// use root dir (e.g. "c:/arachnid/")
+	case E_PATH_ROOT:
 		path = path.substr(1);
 		if (!StrBeginsWith(path, gSystem->GetRootDir()))
 			path = gSystem->GetRootDir() + path;
 		break;
 
-	case _T('~'):
+		// use user dir (e.g. "c:/users/shawn/")
+	case E_PATH_USER:
 		path = path.substr(1);
 		if (!StrBeginsWith(path, gSystem->GetUserDir()))
 			path = gSystem->GetUserDir() + path;

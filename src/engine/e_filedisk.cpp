@@ -193,13 +193,13 @@ wstring		EFileDisk::ReadLine()
 
 	if (charSize == 0)
 	{
-		assert(!"Unsupported file text encoding.");
+		E_WARN("file", "ReadLine: unsupported file text encoding");
 		return WSNULL;
 	}
 
 	wstring result;
 
-	assert(charSize <= sizeof(uint32));
+	E_ASSERT(charSize <= sizeof(uint32));
 	uint32 buf;
 	while (!IsEOF())
 	{

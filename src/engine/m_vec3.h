@@ -34,10 +34,10 @@ public:
 	float			Z() const					{ return _v[2]; }
 	float&			Z()							{ return _v[2]; }
 	const float*	Get() const					{ return _v; }
-	float			Get(uint idx) const			{ assert(idx < 3); return _v[idx]; }
-	float&			Get(uint idx) 				{ assert(idx < 3); return _v[idx]; }
-	float			operator()(uint idx) const	{ assert(idx < 3); return _v[idx]; }
-	float&			operator()(uint idx) 		{ assert(idx < 3); return _v[idx]; }
+	float			Get(uint idx) const			{ E_ASSERT(idx < 3); return _v[idx]; }
+	float&			Get(uint idx) 				{ E_ASSERT(idx < 3); return _v[idx]; }
+	float			operator()(uint idx) const	{ E_ASSERT(idx < 3); return _v[idx]; }
+	float&			operator()(uint idx) 		{ E_ASSERT(idx < 3); return _v[idx]; }
 
 	// setters.
 	void			SetX(float v)				{ _v[0] = v; }

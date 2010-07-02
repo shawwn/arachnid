@@ -41,10 +41,10 @@ public:
 
 	// accessors.
 	const float*	Get() const							{ return _v; }
-	float			Get(int col, int row) const			{ assert(col < 3 && row < 3); return _v[3*col + row]; }
-	float&			Get(int col, int row)				{ assert(col < 3 && row < 3); return _v[3*col + row]; }
-	float			operator()(int col, int row) const	{ assert(col < 3 && row < 3); return _v[3*col + row]; }
-	float&			operator()(int col, int row)		{ assert(col < 3 && row < 3); return _v[3*col + row]; }
+	float			Get(int col, int row) const			{ E_ASSERT(col < 3 && row < 3); return _v[3*col + row]; }
+	float&			Get(int col, int row)				{ E_ASSERT(col < 3 && row < 3); return _v[3*col + row]; }
+	float			operator()(int col, int row) const	{ E_ASSERT(col < 3 && row < 3); return _v[3*col + row]; }
+	float&			operator()(int col, int row)		{ E_ASSERT(col < 3 && row < 3); return _v[3*col + row]; }
 	MVec3			GetXAxis() const;
 	MVec3			GetYAxis() const;
 	MVec3			GetZAxis() const;

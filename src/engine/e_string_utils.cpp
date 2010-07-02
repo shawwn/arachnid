@@ -360,9 +360,9 @@ bool			StrEndsWith(const wstring& str, const wstring& with)
 
 
 //===================
-// StrLowerString
+// StrLower
 //===================
-string			StrLowerString(const string& str)
+string			StrLower(const string& str)
 {
 	size_t len(str.size());
 	string result(len, ' ');
@@ -373,9 +373,9 @@ string			StrLowerString(const string& str)
 
 
 //===================
-// StrLowerString
+// StrLower
 //===================
-wstring			StrLowerString(const wstring& str)
+wstring			StrLower(const wstring& str)
 {
 	size_t len(str.size());
 	wstring result(len, _T(' '));
@@ -386,9 +386,9 @@ wstring			StrLowerString(const wstring& str)
 
 
 //===================
-// StrUpperString
+// StrUpper
 //===================
-string			StrUpperString(const string& str)
+string			StrUpper(const string& str)
 {
 	size_t len(str.size());
 	string result(len, ' ');
@@ -399,9 +399,9 @@ string			StrUpperString(const string& str)
 
 
 //===================
-// StrUpperString
+// StrUpper
 //===================
-wstring			StrUpperString(const wstring& str)
+wstring			StrUpper(const wstring& str)
 {
 	size_t len(str.size());
 	wstring result(len, _T(' '));
@@ -933,7 +933,7 @@ wstring			StringToWString(const string& str)
 	wchar_t* wbuf((wchar_t*)buf);
 
 	StrUTF8toUTF16(str.c_str(), str.size(), wbuf, unconv);
-	*((wchar_t*)(buf + bufSize)) = wchar_t(0);
+	*((wchar_t*)(buf + sizeof(wchar_t)*bufSize)) = wchar_t(0);
 	wstring result(wbuf);
 
 	TmpFree(buf);

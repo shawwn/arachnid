@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="engine"
-	ProjectGUID="{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}"
+	Name="render_gl2"
+	ProjectGUID="{35518FAA-89D5-4D9A-944E-3E6AAB0CB56A}"
 	RootNamespace="arach"
 	Keyword="Win32Proj"
 	>
@@ -40,12 +40,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ENGINE_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RENDER_GL2_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="e_common.h"
+				PrecompiledHeaderThrough="r_gl2_common.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
@@ -117,10 +117,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ENGINE_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RENDER_GL2_EXPORTS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="e_common.h"
+				PrecompiledHeaderThrough="r_gl2_common.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -177,11 +177,11 @@
 			Name="misc"
 			>
 			<File
-				RelativePath=".\e_api.h"
+				RelativePath=".\r_gl2_api.h"
 				>
 			</File>
 			<File
-				RelativePath=".\e_common.cpp"
+				RelativePath=".\r_gl2_common.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -201,155 +201,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\e_common.h"
+				RelativePath=".\r_gl2_common.h"
 				>
 			</File>
 			<File
-				RelativePath=".\e_config.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_engine.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\e_engine.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_exception.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_stl.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\e_stl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_string_utils.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\e_string_utils.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_types.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_utils.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\e_utils.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="filesystem"
-			>
-			<File
-				RelativePath=".\e_file.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\e_file.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_filedisk.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\e_filedisk.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_filemanager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\e_filemanager.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="platform-specific"
-			>
-			<File
-				RelativePath=".\e_system.h"
-				>
-			</File>
-			<File
-				RelativePath=".\e_system_win32.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="math"
-			>
-			<File
-				RelativePath=".\m_color.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\m_color.h"
-				>
-			</File>
-			<File
-				RelativePath=".\m_colors.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\m_colors.h"
-				>
-			</File>
-			<File
-				RelativePath=".\m_mat33.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\m_mat33.h"
-				>
-			</File>
-			<File
-				RelativePath=".\m_mat44.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\m_mat44.h"
-				>
-			</File>
-			<File
-				RelativePath=".\m_math.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\m_math.h"
-				>
-			</File>
-			<File
-				RelativePath=".\m_vec3.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\m_vec3.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="graphics"
-			>
-			<File
-				RelativePath=".\gr_driver.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\gr_driver.h"
+				RelativePath=".\r_gl2_driver.cpp"
 				>
 			</File>
 		</Filter>

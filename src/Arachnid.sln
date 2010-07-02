@@ -8,6 +8,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arachnid", "arachnid\arachn
 		{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6} = {1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "render_d3d9", "render_d3d9\render_d3d9.vcproj", "{1A6BC8F8-CCC5-4629-A029-E8FB2487DED6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6} = {1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "render_gl2", "render_gl2\render_gl2.vcproj", "{35518FAA-89D5-4D9A-944E-3E6AAB0CB56A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6} = {1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -22,6 +32,14 @@ Global
 		{3C9E39E7-205A-4625-B52A-FD92F2EEAE2D}.Debug|Win32.Build.0 = Debug|Win32
 		{3C9E39E7-205A-4625-B52A-FD92F2EEAE2D}.Release|Win32.ActiveCfg = Release|Win32
 		{3C9E39E7-205A-4625-B52A-FD92F2EEAE2D}.Release|Win32.Build.0 = Release|Win32
+		{1A6BC8F8-CCC5-4629-A029-E8FB2487DED6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1A6BC8F8-CCC5-4629-A029-E8FB2487DED6}.Debug|Win32.Build.0 = Debug|Win32
+		{1A6BC8F8-CCC5-4629-A029-E8FB2487DED6}.Release|Win32.ActiveCfg = Release|Win32
+		{1A6BC8F8-CCC5-4629-A029-E8FB2487DED6}.Release|Win32.Build.0 = Release|Win32
+		{35518FAA-89D5-4D9A-944E-3E6AAB0CB56A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{35518FAA-89D5-4D9A-944E-3E6AAB0CB56A}.Debug|Win32.Build.0 = Debug|Win32
+		{35518FAA-89D5-4D9A-944E-3E6AAB0CB56A}.Release|Win32.ActiveCfg = Release|Win32
+		{35518FAA-89D5-4D9A-944E-3E6AAB0CB56A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

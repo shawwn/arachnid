@@ -39,10 +39,10 @@ public:
 
 	// accessors.
 	const float*	Get() const								{ return _v; }
-	float			Get(uint col, uint row) const			{ assert(col < 4 && row < 4); return _v[4*col + row]; }
-	float&			Get(uint col, uint row)					{ assert(col < 4 && row < 4); return _v[4*col + row]; }
-	float			operator()(uint col, uint row) const	{ assert(col < 4 && row < 4); return _v[4*col + row]; }
-	float&			operator()(uint col, uint row)			{ assert(col < 4 && row < 4); return _v[4*col + row]; }
+	float			Get(uint col, uint row) const			{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
+	float&			Get(uint col, uint row)					{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
+	float			operator()(uint col, uint row) const	{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
+	float&			operator()(uint col, uint row)			{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
 
 	// setters.
 	void			Set(const float* p);

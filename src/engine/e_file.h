@@ -63,7 +63,7 @@ public:
 		byte r(0);
 		uint bytesRead(Read((byte*)&r, 1));
 		if (bytesRead != 1)
-			assert(!"ReadByte hit end of file.");
+			E_WARN("file", "ReadByte: hit end of file");
 		return r;
 	}
 
@@ -72,7 +72,7 @@ public:
 		int r(0);
 		uint bytesRead(Read((byte*)&r, 4));
 		if (bytesRead != 4)
-			assert(!"ReadInt hit end of file.");
+			E_WARN("file", "ReadInt: hit end of file");
 		return r;
 	}
 
@@ -81,7 +81,7 @@ public:
 		float r(0.0f);
 		uint bytesRead(Read((byte*)&r, 4));
 		if (bytesRead != 4)
-			assert(!"ReadFloat hit end of file.");
+			E_WARN("file", "ReadFloat: hit end of file");
 		return r;
 	}
 };
