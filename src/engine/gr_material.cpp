@@ -1,7 +1,7 @@
 //========================================================================
-//	file:		gr_driver.cpp
+//	file:		gr_material.cpp
 //	author:		Shawn Presser 
-//	date:		7/1/10
+//	date:		7/6/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -10,29 +10,23 @@
 // Headers
 //========================================================================
 #include "e_common.h"
-#include "gr_driver.h"
-
-// graphics headers.
-#include "gr_scene.h"
-#include "gr_camera.h"
+#include "gr_material.h"
 //========================================================================
 
 
 //===================
-// GrDriver::GrDriver
+// GrMaterial::GrMaterial
 //===================
-GrDriver::GrDriver()
-: _scene(E_NEW("renderer", GrScene)(_T("global")))
-, _camera(E_NEW("camera", GrCamera))
+GrMaterial::GrMaterial()
 {
 }
 
 
 //===================
-// GrDriver::~GrDriver
+// GrMaterial::~GrMaterial
 //===================
-GrDriver::~GrDriver()
+GrMaterial::~GrMaterial()
 {
-	E_DELETE("renderer", _scene);
-	E_DELETE("renderer", _camera);
 }
+
+

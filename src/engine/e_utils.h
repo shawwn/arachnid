@@ -99,4 +99,18 @@ inline void					MemCpy(void* dst, const void* src, uint size)
 {
 	memcpy(dst, src, size);
 }
+
+//===================
+// ArrayCpy
+//===================
+template<class T>
+inline T*					ArrayCpy(const wchar_t* ctx, const T* src, uint count)
+{
+	if (src == NULL)
+		return NULL;
+
+	T* result(E_NEW_ARRAY(ctx, T, count));
+	MemCpy(result, src, sizeof(T) * count);
+	return result;
+}
 //========================================================================

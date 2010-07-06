@@ -363,6 +363,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gr_material.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_material.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gr_mesh.cpp"
 				>
 			</File>
@@ -400,6 +408,14 @@
 			</File>
 			<File
 				RelativePath=".\gr_texture.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_types.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_types.h"
 				>
 			</File>
 		</Filter>

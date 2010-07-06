@@ -1,7 +1,7 @@
 //========================================================================
-//	file:		gr_scene.h
+//	file:		gr_material.h
 //	author:		Shawn Presser 
-//	date:		7/2/10
+//	date:		7/6/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -10,24 +10,18 @@
 //========================================================================
 // Declarations
 //========================================================================
-class GrModel;
 //========================================================================
 
 //========================================================================
-// GrScene
+// GrMaterial
 //========================================================================
-class GrScene
+class GrMaterial
 {
 private:
-	wstring			_name;
-	GrModel*		_model;
 public:
-	GrScene(const wstring& name);
-	~GrScene();
-
-	const wstring&			GetName() const		{ return _name; }
-
-	GrModel&				GetModel()			{ return *_model; }
-	const GrModel&			GetModel() const	{ return *_model; }
+	GrMaterial();
+	~GrMaterial();
 };
 //========================================================================
+
+

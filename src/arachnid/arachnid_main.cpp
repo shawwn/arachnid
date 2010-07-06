@@ -13,7 +13,105 @@
 #include "../engine/e_system.h"
 #include "../engine/e_filemanager.h"
 #include "../engine/e_engine.h"
+
+// graphics headers.
+#include "../engine/gr_scene.h"
+#include "../engine/gr_model.h"
+#include "../engine/gr_model_node.h"
+#include "../engine/gr_mesh.h"
+#include "../engine/gr_material.h"
+
+// math headers.
+#include "../engine/m_vec3.h"
 //========================================================================
+
+//========================================================================
+// Globals
+//========================================================================
+
+// square model.
+GrModel*	gSquare;
+GrMesh*		gMeshSquare;
+
+// triangle model.
+GrModel*	gTri;
+GrMesh*		gMeshTri;
+//========================================================================
+
+//===================
+// StartupRenderer
+//===================
+bool			StartupRenderer()
+{
+	E_VERIFY(gEngine != NULL, return false);
+	GrDriver& renderer(gEngine->GetRenderer());
+	GrModel& sceneModel(gEngine->GetScene().GetModel());
+
+	// create tri mesh.
+	{
+		SVec3 positions[] =
+		{
+			SVec3( 0.0f, 1.0f, 0.0f),
+			SVec3(-1.0f,-1.0f, 0.0f),
+			SVec3( 1.0f,-1.0f, 0.0f)
+		};
+		TriIdx triangles[] = {0, 1, 2};
+		gMeshTri = renderer.CreateMesh(
+			positions, NULL, sizeof(positions) / sizeof(SVec3),
+			triangles, (sizeof(triangles)/sizeof(TriIdx))/3);
+
+		if (gMeshTri != NULL)
+		{
+			gTri = GrModel::Create(_T("main"), _T("triangle"));
+			if (gTri != NULL)
+			{
+				gTri->GetRoot().SetTransform(MMat44::Translation(MVec3(-1.5f, 0.0f, -6.0f)));
+				gTri->GetRoot().SetMesh(gMeshTri);
+				sceneModel.AddChildModel(gTri);
+			}
+		}
+	}
+
+	// create square mesh.
+	{
+		SVec3 positions[] = {
+			SVec3(-1.0f, 1.0f, 0.0f),
+			SVec3( 1.0f, 1.0f, 0.0f),
+			SVec3( 1.0f,-1.0f, 0.0f),
+			SVec3(-1.0f,-1.0f, 0.0f)
+		};
+		TriIdx triangles[] = {
+			0, 1, 2,
+			0, 2, 3
+		};
+		gMeshSquare = renderer.CreateMesh(
+			positions, NULL, sizeof(positions) / sizeof(SVec3),
+			triangles, (sizeof(triangles)/sizeof(TriIdx))/3);
+
+		if (gMeshSquare != NULL)
+		{
+			gSquare = GrModel::Create(_T("main"), _T("square"));
+			if (gSquare != NULL)
+			{
+				gSquare->GetRoot().SetTransform(MMat44::Translation(MVec3(1.5f, 0.0f, -6.0f)));
+				gSquare->GetRoot().SetMesh(gMeshSquare);
+				sceneModel.AddChildModel(gSquare);
+			}
+		}
+	}
+
+	return true;
+}
+
+
+//===================
+// ShutdownRenderer
+//===================
+void			ShutdownRenderer()
+{
+	E_DELETE("main", gMeshTri);
+	E_DELETE("main", gMeshSquare);
+}
 
 
 //===================
@@ -22,9 +120,9 @@
 #if E_WINDOWS
 #include <windows.h>
 #undef GetMessage // goddamn windows.h macros
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int WINAPI		WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 #else
-int main()
+int				main()
 #endif
 {
 	// startup system
@@ -39,12 +137,19 @@ int main()
 	renderer = _T("gl2");
 	EEngine::Create(_T("main"), renderer);
 
-	// main engine loop
-	while (gEngine->PerFrame())
+	// startup the renderer.
+	if (StartupRenderer())
 	{
-		// relinquish some CPU time.
-		gSystem->Sleep(10);
+		// main engine loop
+		while (gEngine->PerFrame())
+		{
+			// relinquish some CPU time.
+			gSystem->Sleep(10);
+		}
 	}
+
+	// shutdown the renderer.
+	ShutdownRenderer();
 
 	// shutdown the engine
 	E_DELETE("main", gEngine);

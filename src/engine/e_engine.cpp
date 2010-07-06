@@ -173,10 +173,9 @@ bool				EEngine::PerFrame()
 		if (!_renderer->BeginFrame())
 			return false;
 
-		_renderer->Render();
+		_renderer->Render(GetScene(), GetCamera());
 		_renderer->EndFrame();
 	}
 
 	return true;
 }
-

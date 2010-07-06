@@ -17,7 +17,7 @@ class MMat33;
 //========================================================================
 // MMat44
 //========================================================================
-class MMat44
+class ENGINE_API MMat44
 {
 private:
 	float	_v[16];
@@ -37,6 +37,9 @@ public:
 	void			SetIdentity()							{ Set(Identity); }
 	void			SetZero()								{ Set(Zero); }
 
+	// constructs a matrix that represents a 3D translation.
+	static MMat44	Translation(const MVec3& delta);
+
 	// accessors.
 	const float*	Get() const								{ return _v; }
 	float			Get(uint col, uint row) const			{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
@@ -50,8 +53,8 @@ public:
 	MMat44&			operator =(const MMat44& m);
 
 	// matrix decomposition.
-	MVec3			GetTransform() const;
-	void			SetTransform(const MVec3& t);
+	MVec3			GetTranslation() const;
+	void			SetTranslation(const MVec3& t);
 
 	MMat33			GetRot() const;
 	void			SetRot(const MMat33& r);

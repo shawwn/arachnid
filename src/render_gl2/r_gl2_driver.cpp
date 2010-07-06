@@ -10,10 +10,19 @@
 // Headers
 //========================================================================
 #include "r_gl2_common.h"
+#include "r_gl2_driver.h"
 
 // engine headers.
 #include "../engine/e_system.h"
+
+// graphics headers.
 #include "../engine/gr_driver.h"
+#include "../engine/gr_scene.h"
+#include "../engine/gr_camera.h"
+#include "../engine/gr_model.h"
+#include "../engine/gr_model_node.h"
+#include "../engine/gr_mesh.h"
+#include "../engine/gr_material.h"
 
 // glut headers.
 #include "../../lib/freeglut-2.6.0/include/GL/freeglut.h"
@@ -33,171 +42,228 @@ extern bool					GL2_SwapBuffers();
 //========================================================================
 // GL2Driver
 //========================================================================
-class GL2Driver : public GrDriver
+
+//===================
+// GL2Driver::GlutOnDisplay
+//===================
+void		GL2Driver::GlutOnDisplay()
 {
-private:
-	bool		_fatalError;
-	int			_winIdx;
+	GL2Driver* driver(gDriver);
+	E_VERIFY(driver != NULL, return);
 
-	//===================
-	// GlutOnDisplay
-	//===================
-	static void		GlutOnDisplay()
+	// clear the screen and the depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// reset the current modelview matrix
+	glLoadIdentity();
+
+	// render the scene.
+	driver->RenderModel(driver->GetScene().GetModel());
+
+	// display the backbuffer to the window.
+	if (!GL2_SwapBuffers())
+		driver->_fatalError = true;
+}
+
+
+//===================
+// GL2Driver::GlutOnWindowResized
+//===================
+void		GL2Driver::GlutOnWindowResized(int width, int height)
+{
+	height = E_MAX(1, height);
+	glViewport(0, 0, width, height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	// calculate the aspect ratio of the window
+	const float fovy(60.0f);
+	const float aspect(width / (float)height);
+	const float znear(1.0f);
+	const float zfar(100.0f);
+	gluPerspective(fovy, aspect, znear, zfar);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+
+//===================
+// GL2Driver::GL2Driver
+//===================
+GL2Driver::GL2Driver(int windowWidth, int windowHeight, const wstring& windowTitle)
+: _fatalError(false)
+, _winIdx(0)
+{
+	// validate parameters.
+	windowWidth = E_MAX(640, windowWidth);
+	windowHeight = E_MAX(480, windowWidth);
+
+	// get the exe path.
+	string exePath(WStringToString(gSystem->GetExePath()));
+	char exePathBuf[1024];
+	MemCpy(exePathBuf, exePath.c_str(), exePath.size()+1);
+
+	// intialize glut.
+	int argc(1);
+	char* argv(exePathBuf);
+	glutInit(&argc, &argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitWindowSize(windowWidth, windowHeight);
+	glutInitWindowPosition(100, 100);
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+	// create the window.
+	_winIdx = glutCreateWindow(WStringToString(windowTitle).c_str());
+	if (_winIdx != 0)
 	{
-		GL2Driver* driver(gDriver);
-		E_VERIFY(driver != NULL, return);
+		// initialize GL2
+		glShadeModel(GL_SMOOTH);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearDepth(1.0f);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-		// clear the screen and the depth buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// set glut callbacks.
+		glutDisplayFunc(&GlutOnDisplay);
+		glutReshapeFunc(&GlutOnWindowResized);
 
-		// reset the current modelview matrix
-		glLoadIdentity();
-
-		// draw "hello world" primitives.
-		glTranslatef(-1.5f, 0.0f, -6.0f);
-		glBegin(GL_TRIANGLES);
-		glVertex3f( 0.0f, 1.0f, 0.0f);
-		glVertex3f(-1.0f,-1.0f, 0.0f);
-		glVertex3f( 1.0f,-1.0f, 0.0f);
-		glEnd();
-		glTranslatef(3.0f,0.0f,0.0f);
-		glBegin(GL_QUADS);
-		glVertex3f(-1.0f, 1.0f, 0.0f);
-		glVertex3f( 1.0f, 1.0f, 0.0f);
-		glVertex3f( 1.0f,-1.0f, 0.0f);
-		glVertex3f(-1.0f,-1.0f, 0.0f);
-		glEnd();
-
-		// display the backbuffer to the window.
-		if (!GL2_SwapBuffers())
-			driver->_fatalError = true;
-	}
-
-
-	//===================
-	// GlutOnWindowResized
-	//===================
-	static void		GlutOnWindowResized(int width, int height)
-	{
-		height = E_MAX(1, height);
-		glViewport(0, 0, width, height);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		// calculate the aspect ratio of the window
-		const float fovy(60.0f);
-		const float aspect(width / (float)height);
-		const float znear(1.0f);
-		const float zfar(100.0f);
-		gluPerspective(fovy, aspect, znear, zfar);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-
-
-public:
-	//===================
-	// GL2::GL2
-	//===================
-	GL2Driver(int windowWidth, int windowHeight, const wstring& windowTitle)
-		: _fatalError(false)
-		, _winIdx(0)
-	{
-		// validate parameters.
-		windowWidth = E_MAX(640, windowWidth);
-		windowHeight = E_MAX(480, windowWidth);
-
-		// get the exe path.
-		string exePath(WStringToString(gSystem->GetExePath()));
-		char exePathBuf[1024];
-		MemCpy(exePathBuf, exePath.c_str(), exePath.size()+1);
-
-		// intialize glut.
-		int argc(1);
-		char* argv(exePathBuf);
-		glutInit(&argc, &argv);
-		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-		glutInitWindowSize(windowWidth, windowHeight);
-		glutInitWindowPosition(100, 100);
-		glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-
-		// create the window.
-		_winIdx = glutCreateWindow(WStringToString(windowTitle).c_str());
-		if (_winIdx != 0)
+		if (!GL2_Startup(windowTitle))
 		{
-			// initialize GL2
-			glShadeModel(GL_SMOOTH);
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClearDepth(1.0f);
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LEQUAL);
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-			// set glut callbacks.
-			glutDisplayFunc(&GlutOnDisplay);
-			glutReshapeFunc(&GlutOnWindowResized);
-
-			if (!GL2_Startup(windowTitle))
-			{
-				E_WARN("gl2", "GL2_Startup failed");
-				glutDestroyWindow(_winIdx);
-				_winIdx = 0;
-			}
+			E_WARN("gl2", "GL2_Startup failed");
+			glutDestroyWindow(_winIdx);
+			_winIdx = 0;
 		}
 	}
+}
 
 
-	//===================
-	// GL2::~GL2
-	//===================
-	~GL2Driver()
+//===================
+// GL2Driver::RenderModelNode
+//===================
+void		GL2Driver::RenderModelNode(const GrModelNode& node)
+{
+	const MMat44& transform(node.GetTransform());
+
+	GrMesh* mesh(node.GetMesh());
+	if (mesh != NULL)
 	{
-		GL2_Shutdown();
+		glBegin(GL_TRIANGLES);
+		SVec3* positions(mesh->GetPositions());
+		TriIdx* indices(mesh->GetTriIndices());
+		for (uint tri = 0; tri < mesh->GetNumTriangles(); ++tri)
+		{
+			for (uint corner = 0; corner < 3; ++corner)
+			{
+				uint idx(indices[3*tri + corner]);
+				SVec3 pos(positions[idx]);
+				pos.RotateTranslate(transform);
+				glVertex3f(pos.X(), pos.Y(), pos.Z());
+			}
+		}
+		glEnd();
 	}
 
-
-	//===================
-	// GL2::HasFatalError
-	//===================
-	bool		HasFatalError()
+	// render each child.
+	for (uint i = 0; i < node.NumChildModelNodes(); ++i)
 	{
-		return _fatalError;
+		const GrModelNode& child(*node.GetChildModelNode(i));
+		RenderModelNode(child);
 	}
+}
 
-	//===================
-	// GL2::BeginFrame
-	//===================
-	bool		BeginFrame()
+
+//===================
+// GL2Driver::RenderModel
+//===================
+void		GL2Driver::RenderModel(const GrModel& model)
+{
+	// render the nodes.
+	RenderModelNode(model.GetRoot());
+
+	// render each child.
+	for (uint i = 0; i < model.NumChildModels(); ++i)
 	{
-		if (_fatalError)
-			return false;
-
-		// if the user has closed the window, abort.
-		if (glutGetWindow() == 0)
-			return false;
-
-		glutMainLoopEvent();
-
-		return true;
+		const GrModel& child(*model.GetChildModel(i));
+		RenderModel(child);
 	}
+}
 
-	//===================
-	// GL2::Render
-	//===================
-	void		Render()
-	{
-		E_VERIFY(!_fatalError, return);
-	}
 
-	//===================
-	// GL2::EndFrame
-	//===================
-	void		EndFrame()
-	{
-		E_VERIFY(!_fatalError, return);
-	}
-};
+//===================
+// GL2Driver::~GL2Driver
+//===================
+GL2Driver::~GL2Driver()
+{
+	GL2_Shutdown();
+}
+
+
+//===================
+// GL2Driver::BeginFrame
+//===================
+bool		GL2Driver::BeginFrame()
+{
+	if (_fatalError)
+		return false;
+
+	// if the user has closed the window, abort.
+	if (glutGetWindow() == 0)
+		return false;
+
+	glutMainLoopEvent();
+
+	return true;
+}
+
+
+//===================
+// GL2Driver::Render
+//===================
+void		GL2Driver::Render(const GrScene& scene, const GrCamera& camera)
+{
+	E_VERIFY(!_fatalError, return);
+}
+
+
+//===================
+// GL2Driver::EndFrame
+//===================
+void		GL2Driver::EndFrame()
+{
+	E_VERIFY(!_fatalError, return);
+}
+
+
+//===================
+// GL2Driver::CreateMesh
+//===================
+GrMesh*		GL2Driver::CreateMesh(
+					   const SVec3* positions, const SVec2* texcoords, uint numVerts,
+					   const TriIdx* triangles, uint numTris)
+{
+	// verify input.
+	E_VERIFY(numVerts != 0 && numTris != 0, return NULL);
+	E_VERIFY(positions != NULL && triangles != NULL, return NULL);
+
+	// prepare the result.
+	GrMesh* result(E_NEW("gl2", GrMesh)(this));
+
+	// store the vertex data.
+	result->_positions = ArrayCpy(_T("gl2"), positions, numVerts);
+	result->_texcoords = ArrayCpy(_T("gl2"), texcoords, numVerts);
+	result->_numVertices = numVerts;
+
+	// store the index data.
+	result->_triIndices = ArrayCpy(_T("gl2"), triangles, 3*numTris);
+	result->_numTriangles = numTris;
+
+	// return the result.
+	return result;
+}
+//========================================================================
+
 
 //===================
 // RendererStartup
@@ -223,6 +289,7 @@ RENDER_GL2_EXPORT void*			RendererStartup(int version,
 	gDriver = E_NEW("gl2", GL2Driver)(windowWidth, windowHeight, windowTitle);
 	return gDriver;
 }
+
 
 //===================
 // RendererShutdown

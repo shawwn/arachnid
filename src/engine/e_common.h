@@ -39,13 +39,22 @@
 //========================================================================
 // Headers
 //========================================================================
+
+// engine headers.
 #include "e_api.h"
 #include "e_types.h"
 #include "e_stl.h"
 #include "e_string_utils.h"
 #include "e_exception.h"
 #include "e_utils.h"
+
+// math headers.
 #include "m_math.h"
+
+// std headers.
 #include <cassert>
 #include <fstream>
+
+// graphics headers.
+#include "gr_types.h"
 //========================================================================

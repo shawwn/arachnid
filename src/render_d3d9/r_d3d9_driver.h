@@ -1,7 +1,7 @@
 //========================================================================
-//	file:		e_engine.h
+//	file:		d3d9_driver.h
 //	author:		Shawn Presser 
-//	date:		6/30/10
+//	date:		7/1/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -10,42 +10,43 @@
 //========================================================================
 // Headers
 //========================================================================
-#include "gr_driver.h"
+
+// graphics headers.
+#include "../engine/gr_types.h"
+#include "../engine/gr_driver.h"
 //========================================================================
 
 //========================================================================
 // Declarations
 //========================================================================
-class EFile;
 class GrScene;
 class GrCamera;
+class GrModel;
+class GrModelNode;
+class GrMesh;
+class GrMaterial;
 //========================================================================
 
 //========================================================================
-// EEngine
+// D3D9Driver
 //========================================================================
-class ENGINE_API EEngine
+class D3D9Driver : public Internal_GrDriver
 {
 private:
-	GrDriver*			_renderer;
-	void*				_rendererLib;
-	void*				_rendererLibShutdownFn;
+	bool		_fatalError;
+	int			_winIdx;
 
-	bool				_done;
-
-	EEngine();
 public:
-	// specify renderer "none", "gl2", or "d3d9"
-	static EEngine*		Create(const wstring& ctx, const wstring& renderer = _TS("none"));
-	~EEngine();
+	D3D9Driver(int windowWidth, int windowHeight, const wstring& windowTitle);
+	~D3D9Driver();
 
-	// provides access to the scene objects;
-	GrDriver&			GetRenderer()					{ return *_renderer; }
-	GrScene&			GetScene()						{ return _renderer->GetScene(); }
-	GrCamera&			GetCamera()						{ return _renderer->GetCamera(); }
+	bool		HasFatalError() const				{ return _fatalError; }
 
-	// call once per frame.  Returns false if the application should exit.
-	bool				PerFrame();
+	bool		BeginFrame();
+	void		Render(const GrScene& scene, const GrCamera& camera);
+	void		EndFrame();
+
+	GrMesh*		CreateMesh(
+		const SVec3* positions, const SVec2* texcoords, uint numVerts,
+		const TriIdx* triangles, uint numTris)		{ return NULL; }
 };
-extern ENGINE_API EEngine*		gEngine;
-//========================================================================

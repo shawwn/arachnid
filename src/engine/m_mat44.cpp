@@ -75,6 +75,17 @@ MMat44::MMat44(	float rotXx,	float rotYx,	float rotZx,	float Wx,
 
 
 //===================
+// MMat44::Translation
+//===================
+MMat44			MMat44::Translation(const MVec3& delta)
+{
+	MMat44 result;
+	result.SetTranslation(delta);
+	return result;
+}
+
+
+//===================
 // MMat44::Set
 //===================
 void			MMat44::Set(const float* p)
@@ -103,18 +114,18 @@ MMat44&			MMat44::operator =(const MMat44& m)
 
 
 //===================
-// MMat44::GetTransform
+// MMat44::GetTranslation
 //===================
-MVec3			MMat44::GetTransform() const
+MVec3			MMat44::GetTranslation() const
 {
 	return MVec3( Get(0, 3), Get(1, 3), Get(2, 3) );
 }
 
 
 //===================
-// MMat44::SetTransform
+// MMat44::SetTranslation
 //===================
-void			MMat44::SetTransform(const MVec3& t)
+void			MMat44::SetTranslation(const MVec3& t)
 {
 	Get(0, 3) = t.X();
 	Get(1, 3) = t.Y();

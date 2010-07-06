@@ -216,6 +216,10 @@
 				RelativePath=".\r_gl2_driver.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\r_gl2_driver.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="platform-specific"

@@ -210,6 +210,10 @@
 				RelativePath=".\r_d3d9_driver.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\r_d3d9_driver.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
