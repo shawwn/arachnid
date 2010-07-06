@@ -97,7 +97,7 @@ GL2Driver::GL2Driver(int windowWidth, int windowHeight, const wstring& windowTit
 {
 	// validate parameters.
 	windowWidth = E_MAX(640, windowWidth);
-	windowHeight = E_MAX(480, windowWidth);
+	windowHeight = E_MAX(480, windowHeight);
 
 	// get the exe path.
 	string exePath(WStringToString(gSystem->GetExePath()));
@@ -215,15 +215,6 @@ bool		GL2Driver::BeginFrame()
 	glutMainLoopEvent();
 
 	return true;
-}
-
-
-//===================
-// GL2Driver::Render
-//===================
-void		GL2Driver::Render(const GrScene& scene, const GrCamera& camera)
-{
-	E_VERIFY(!_fatalError, return);
 }
 
 

@@ -26,6 +26,12 @@
 //========================================================================
 
 //========================================================================
+// Constants
+//========================================================================
+#define ARACHNID_RENDERER			_T("d3d9")
+//========================================================================
+
+//========================================================================
 // Globals
 //========================================================================
 
@@ -52,8 +58,8 @@ bool			StartupRenderer()
 		SVec3 positions[] =
 		{
 			SVec3( 0.0f, 1.0f, 0.0f),
-			SVec3(-1.0f,-1.0f, 0.0f),
-			SVec3( 1.0f,-1.0f, 0.0f)
+			SVec3( 1.0f,-1.0f, 0.0f),
+			SVec3(-1.0f,-1.0f, 0.0f)
 		};
 		TriIdx triangles[] = {0, 1, 2};
 		gMeshTri = renderer.CreateMesh(
@@ -134,7 +140,7 @@ int				main()
 
 	// startup the engine
 	wstring renderer(E_PLATFORM_RENDERER);
-	renderer = _T("gl2");
+	renderer = ARACHNID_RENDERER;
 	EEngine::Create(_T("main"), renderer);
 
 	// startup the renderer.

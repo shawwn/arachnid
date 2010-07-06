@@ -58,9 +58,6 @@ public:
 	// call at the start of each frame.
 	virtual bool			BeginFrame()=0;
 
-	// render the scene from the camera's point of view.
-	virtual void			Render(const GrScene& scene, const GrCamera& camera)=0;
-
 	// call at the end of each frame.
 	virtual void			EndFrame()=0;
 

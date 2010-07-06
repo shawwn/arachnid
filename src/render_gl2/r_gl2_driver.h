@@ -48,13 +48,12 @@ public:
 	GL2Driver(int windowWidth, int windowHeight, const wstring& windowTitle);
 	~GL2Driver();
 
-	bool		HasFatalError() const				{ return _fatalError; }
+	bool			HasFatalError() const				{ return _fatalError; }
 
-	bool		BeginFrame();
-	void		Render(const GrScene& scene, const GrCamera& camera);
-	void		EndFrame();
+	bool			BeginFrame();
+	void			EndFrame();
 
-	GrMesh*		CreateMesh(
+	GrMesh*			CreateMesh(
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,
 		const TriIdx* triangles, uint numTris);
 };

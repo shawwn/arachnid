@@ -25,6 +25,7 @@ class GrModel;
 class GrModelNode;
 class GrMesh;
 class GrMaterial;
+struct D3D9Driver_impl;
 //========================================================================
 
 //========================================================================
@@ -33,20 +34,28 @@ class GrMaterial;
 class D3D9Driver : public Internal_GrDriver
 {
 private:
-	bool		_fatalError;
-	int			_winIdx;
+	bool				_fatalError;
+	int					_winIdx;
+	D3D9Driver_impl*	_impl;
+
+	// renderer functions.
+	void				RenderModelNode(const GrModelNode& node);
+	void				RenderModel(const GrModel& model);
 
 public:
 	D3D9Driver(int windowWidth, int windowHeight, const wstring& windowTitle);
 	~D3D9Driver();
 
-	bool		HasFatalError() const				{ return _fatalError; }
+	bool				HasFatalError() const				{ return _fatalError; }
 
-	bool		BeginFrame();
-	void		Render(const GrScene& scene, const GrCamera& camera);
-	void		EndFrame();
+	bool				BeginFrame();
+	void				EndFrame();
 
-	GrMesh*		CreateMesh(
+	GrMesh*				CreateMesh(
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,
-		const TriIdx* triangles, uint numTris)		{ return NULL; }
+		const TriIdx* triangles, uint numTris);
+
+	// internal use only.
+	void				OnResize(uint windowWidth, uint windowHeight);
+	void				OnPaint();
 };

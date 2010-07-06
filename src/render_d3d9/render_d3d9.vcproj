@@ -62,6 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="d3d9.lib d3dx9.lib"
 				OutputFile="$(SolutionDir)\..\$(SolutionName)\$(ProjectName)_d.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -138,6 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="d3d9.lib d3dx9.lib"
 				OutputFile="$(SolutionDir)\..\$(SolutionName)\$(ProjectName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
