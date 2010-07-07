@@ -62,6 +62,9 @@ public:
 	// call at the end of each frame.
 	virtual void			EndFrame()=0;
 
+	// set the mouse position.
+	virtual void			SetMousePos(int x, int y)=0;
+
 	// mesh management.
 	virtual GrMesh*			CreateMesh(const wchar_t* ctx,
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,

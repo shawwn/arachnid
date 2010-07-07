@@ -12,6 +12,9 @@
 #include "r_d3d9_common.h"
 #include "r_d3d9_driver.h"
 
+// engine headers.
+#include "../engine/e_engine.h"
+
 // graphics headers.
 #include "../engine/gr_driver.h"
 #include "../engine/gr_scene.h"
@@ -80,6 +83,31 @@ struct D3D9Driver_impl
 	}
 };
 //========================================================================
+
+
+//===================
+// D3D9Driver::ApplyCamera
+//===================
+void		D3D9Driver::ApplyCamera(const GrCamera& cam)
+{
+	const MMat33& rot(cam.GetRotation());
+	const MVec3& pos(cam.GetPosition());
+
+	MVec3 lookAt(0.0f, 0.0f, -1.0f);
+	rot.Rotate(lookAt);
+	lookAt += pos;
+
+	MVec3 up(0.0f, 1.0f, 0.0f);
+	rot.Rotate(up);
+
+	D3DXMATRIX mat;
+	D3DXMatrixLookAtRH(&mat,
+		(const D3DXVECTOR3*)pos.Get(),
+		(const D3DXVECTOR3*)lookAt.Get(),
+		(const D3DXVECTOR3*)up.Get());
+
+	_impl->device->SetTransform(D3DTS_VIEW, &mat);
+}
 
 
 //===================
@@ -278,6 +306,7 @@ D3D9Driver::D3D9Driver(int windowWidth, int windowHeight, const wstring& windowT
 		return;
 	}
 
+	SetMousePos((rect.right - rect.left)/2, (rect.bottom - rect.top)/2);
 	ShowWindow(_impl->hWnd, SW_SHOW);
 }
 
@@ -325,6 +354,8 @@ bool		D3D9Driver::BeginFrame()
 		return false;
 	}
 
+	InvalidateRect(_impl->hWnd, NULL, TRUE);
+
 	// process window messages.
 	if (_impl->hWnd != NULL)
 	{
@@ -336,6 +367,12 @@ bool		D3D9Driver::BeginFrame()
 		}
 	}
 
+	// cursor pos.
+	POINT pt;
+	GetCursorPos(&pt);
+	ScreenToClient(_impl->hWnd, &pt);
+	gEngine->OnMousePos(pt.x, pt.y);
+
 	return true;
 }
 
@@ -346,6 +383,22 @@ bool		D3D9Driver::BeginFrame()
 void		D3D9Driver::EndFrame()
 {
 	E_VERIFY(!_fatalError, return);
+}
+
+
+//===================
+// D3D9Driver::SetMousePos
+//===================
+void		D3D9Driver::SetMousePos(int x, int y)
+{
+	E_VERIFY(!_fatalError, return);
+
+	POINT pt;
+	pt.x = x;
+	pt.y = y;
+	ClientToScreen(_impl->hWnd, &pt);
+
+	SetCursorPos(pt.x, pt.y);
 }
 
 
@@ -501,6 +554,10 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 
 	_impl->device->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG1);
 	_impl->device->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
+
+	SetMousePos(windowWidth/2, windowHeight/2);
+	gEngine->OnMousePos(windowWidth/2, windowHeight/2);
+	gEngine->OnResize(windowWidth, windowHeight);
 }
 
 
@@ -512,6 +569,9 @@ void		D3D9Driver::OnPaint()
 	// render.
 	_impl->device->Clear(0, 0, D3DCLEAR_TARGET, 0x00000000, 1.0f, 0);
 	_impl->device->BeginScene();
+
+	// apply the camera.
+	ApplyCamera(GetCamera());
 
 	// render the scene.
 	RenderModel(GetScene().GetModel());

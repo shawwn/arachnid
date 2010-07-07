@@ -8,19 +8,30 @@
 #pragma once
 
 //========================================================================
-// Declarations
+// Headers
 //========================================================================
+#include "m_vec3.h"
+#include "m_mat33.h"
 //========================================================================
 
 //========================================================================
 // GrCamera
 //========================================================================
-class GrCamera
+class ENGINE_API GrCamera
 {
 private:
+	MVec3		_position;
+	MMat33		_rotation;
+
 public:
 	GrCamera();
 	~GrCamera();
+
+	const MVec3&		GetPosition() const					{ return _position; }
+	void				SetPosition(const MVec3& pos)		{ _position = pos; }
+
+	const MMat33&		GetRotation() const					{ return _rotation; }
+	void				SetRotation(const MMat33& pos)		{ _rotation = pos; }
 };
 //========================================================================
 

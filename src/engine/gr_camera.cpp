@@ -18,6 +18,7 @@
 // GrCamera::GrCamera
 //===================
 GrCamera::GrCamera()
+: _position(0.0f, 0.0f, 0.0f)
 {
 }
 

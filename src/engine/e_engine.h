@@ -31,6 +31,16 @@ private:
 	void*				_rendererLib;
 	void*				_rendererLibShutdownFn;
 
+	uint				_windowWidth;
+	uint				_windowHeight;
+
+	int					_mouseX;
+	int					_mouseY;
+
+	// in turns.  1 turn = 360deg
+	float				_camRotX;
+	float				_camRotY;
+
 	bool				_done;
 
 	EEngine();
@@ -46,6 +56,10 @@ public:
 
 	// call once per frame.  Returns false if the application should exit.
 	bool				PerFrame();
+
+	// internal use only.
+	void				OnResize(uint windowWidth, uint windowHeight);
+	void				OnMousePos(int x, int y);
 };
 extern ENGINE_API EEngine*		gEngine;
 //========================================================================

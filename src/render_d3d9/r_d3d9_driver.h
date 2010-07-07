@@ -39,6 +39,7 @@ private:
 	D3D9Driver_impl*	_impl;
 
 	// renderer functions.
+	void				ApplyCamera(const GrCamera& cam);
 	void				RenderModelNode(const GrModelNode& node);
 	void				RenderModel(const GrModel& model);
 
@@ -50,6 +51,8 @@ public:
 
 	bool				BeginFrame();
 	void				EndFrame();
+
+	void				SetMousePos(int x, int y);
 
 	GrMesh*				CreateMesh(const wchar_t* ctx,
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,

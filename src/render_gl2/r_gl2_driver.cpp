@@ -13,6 +13,7 @@
 #include "r_gl2_driver.h"
 
 // engine headers.
+#include "../engine/e_engine.h"
 #include "../engine/e_system.h"
 
 // graphics headers.
@@ -41,6 +42,7 @@ GL2Driver*					gDriver;
 extern bool					GL2_Startup(const wstring& windowTitle);
 extern bool					GL2_Shutdown();
 extern bool					GL2_SwapBuffers();
+extern bool					GL2_RefreshWindow();
 //========================================================================
 
 //========================================================================
@@ -60,6 +62,9 @@ void		GL2Driver::GlutOnDisplay()
 
 	// reset the current modelview matrix
 	glLoadIdentity();
+
+	// apply the camera.
+	driver->ApplyCamera(driver->GetCamera());
 
 	// render the scene.
 	driver->RenderModel(driver->GetScene().GetModel());
@@ -89,6 +94,15 @@ void		GL2Driver::GlutOnWindowResized(int width, int height)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+}
+
+
+//===================
+// GL2Driver::GlutOnMousePos
+//===================
+void		GL2Driver::GlutOnMousePos(int x, int y)
+{
+	gEngine->OnMousePos(x, y);
 }
 
 
@@ -133,6 +147,8 @@ GL2Driver::GL2Driver(int windowWidth, int windowHeight, const wstring& windowTit
 		// set glut callbacks.
 		glutDisplayFunc(&GlutOnDisplay);
 		glutReshapeFunc(&GlutOnWindowResized);
+		glutMotionFunc(&GlutOnMousePos);
+		glutPassiveMotionFunc(&GlutOnMousePos);
 
 		if (!GL2_Startup(windowTitle))
 		{
@@ -141,6 +157,30 @@ GL2Driver::GL2Driver(int windowWidth, int windowHeight, const wstring& windowTit
 			_winIdx = 0;
 		}
 	}
+}
+
+
+//===================
+// GL2Driver::ApplyCamera
+//===================
+void		GL2Driver::ApplyCamera(const GrCamera& cam)
+{
+	const MMat33& rot(cam.GetRotation());
+	const MVec3& pos(cam.GetPosition());
+
+	MVec3 lookAt(0.0f, 0.0f, -1.0f);
+	rot.Rotate(lookAt);
+	lookAt += pos;
+
+	MVec3 up(0.0f, 1.0f, 0.0f);
+	rot.Rotate(up);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(
+		pos.X(), pos.Y(), pos.Z(),
+		lookAt.X(), lookAt.Y(), lookAt.Z(),
+		up.X(), up.Y(), up.Z());
 }
 
 
@@ -170,6 +210,7 @@ void		GL2Driver::RenderModelNode(const GrModelNode& node)
 			else
 				glBindTexture(0, (GLuint)-1);
 
+			// draw each triangle.
 			glBegin(GL_TRIANGLES);
 			for (uint tri = range->triStart; tri < range->triStart + range->triCount; ++tri)
 			{
@@ -232,6 +273,10 @@ bool		GL2Driver::BeginFrame()
 	if (_fatalError)
 		return false;
 
+	// refresh the window.
+	if (!GL2_RefreshWindow())
+		return false;
+
 	// if the user has closed the window, abort.
 	if (glutGetWindow() == 0)
 		return false;
@@ -248,6 +293,15 @@ bool		GL2Driver::BeginFrame()
 void		GL2Driver::EndFrame()
 {
 	E_VERIFY(!_fatalError, return);
+}
+
+
+//===================
+// GL2Driver::SetMousePos
+//===================
+void		GL2Driver::SetMousePos(int x, int y)
+{
+	glutWarpPointer(x, y);
 }
 
 

@@ -74,3 +74,13 @@ bool							GL2_SwapBuffers()
 	return true;
 }
 
+
+//===================
+// GL2_RefreshWindow
+//===================
+bool							GL2_RefreshWindow()
+{
+	InvalidateRect(hWnd, NULL, TRUE);
+	return true;
+}
+

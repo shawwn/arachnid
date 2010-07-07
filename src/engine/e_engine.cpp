@@ -23,6 +23,7 @@
 
 // graphics headers.
 #include "gr_driver.h"
+#include "gr_camera.h"
 //========================================================================
 
 //========================================================================
@@ -38,6 +39,12 @@ EEngine::EEngine()
 	: _renderer(NULL)
 	, _rendererLib(NULL)
 	, _rendererLibShutdownFn(NULL)
+	, _windowWidth(E_DEFAULT_WINDOW_WIDTH)
+	, _windowHeight(E_DEFAULT_WINDOW_HEIGHT)
+	, _mouseX(_windowWidth/2)
+	, _mouseY(_windowHeight/2)
+	, _camRotX(0.0f)
+	, _camRotY(0.0f)
 	, _done(false)
 {
 }
@@ -170,14 +177,56 @@ bool				EEngine::PerFrame()
 
 	if (_renderer != NULL)
 	{
+		// update the renderer.
 		if (!_renderer->BeginFrame())
 		{
 			_done = true;
 			return false;
 		}
-
 		_renderer->EndFrame();
+
+
+		// rotate the camera.
+		if (_mouseX != _windowWidth/2 || _mouseY != _windowHeight/2)
+		{
+			float dX = ((int)_windowWidth/2 - _mouseX) / (float)_windowWidth;
+			float dY = ((int)_windowHeight/2 - _mouseY) / (float)_windowHeight;
+
+			_camRotX += dX;
+			_camRotY += dY;
+
+			MMat33 rotLeftRight(MMat33::YRot(M_2PI * _camRotX));
+			MMat33 rotUpDown(MMat33::XRot(M_2PI * _camRotY));
+			MMat33 rot(rotLeftRight * rotUpDown);
+
+			_renderer->GetCamera().SetRotation(rot);
+
+			_renderer->SetMousePos(_windowWidth/2, _windowHeight/2);
+			_mouseX = _windowWidth/2;
+			_mouseY = _windowHeight/2;
+		}
 	}
 
 	return true;
 }
+
+
+//===================
+// EEngine::OnResize
+//===================
+void				EEngine::OnResize(uint windowWidth, uint windowHeight)
+{
+	_windowWidth = windowWidth;
+	_windowHeight = windowHeight;
+}
+
+
+//===================
+// EEngine::OnMousePos
+//===================
+void				EEngine::OnMousePos(int x, int y)
+{
+	_mouseX = x;
+	_mouseY = y;
+}
+

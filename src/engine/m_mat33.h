@@ -16,7 +16,7 @@ class MVec3;
 //========================================================================
 // MMat33
 //========================================================================
-class MMat33
+class ENGINE_API MMat33
 {
 private:
 	float	_v[9];
@@ -31,7 +31,7 @@ public:
 
 	static MMat33	Identity;
 	static MMat33	Zero;
-	void			SetIdentity()						{ Set(Zero); }
+	void			SetIdentity()						{ Set(Identity); }
 	void			SetZero()							{ Set(Zero); }
 
 	// constructs a matrix that represents a rotation around the X, Y, or Z axis.
