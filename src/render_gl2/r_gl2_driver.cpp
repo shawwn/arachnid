@@ -23,9 +23,13 @@
 #include "../engine/gr_model_node.h"
 #include "../engine/gr_mesh.h"
 #include "../engine/gr_material.h"
+#include "../engine/gr_texture.h"
 
 // glut headers.
 #include "../../lib/freeglut-2.6.0/include/GL/freeglut.h"
+
+// GL headers.
+#include "glext.h"
 //========================================================================
 
 //========================================================================
@@ -118,6 +122,7 @@ GL2Driver::GL2Driver(int windowWidth, int windowHeight, const wstring& windowTit
 	if (_winIdx != 0)
 	{
 		// initialize GL2
+		glEnable(GL_TEXTURE_2D);
 		glShadeModel(GL_SMOOTH);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClearDepth(1.0f);
@@ -149,20 +154,39 @@ void		GL2Driver::RenderModelNode(const GrModelNode& node)
 	GrMesh* mesh(node.GetMesh());
 	if (mesh != NULL)
 	{
-		glBegin(GL_TRIANGLES);
-		SVec3* positions(mesh->GetPositions());
-		TriIdx* indices(mesh->GetTriIndices());
-		for (uint tri = 0; tri < mesh->GetNumTriangles(); ++tri)
+		const SVec3* positions(mesh->GetPositions());
+		const SVec2* texcoords(mesh->GetTexcoords());
+		const TriIdx* indices(mesh->GetTriIndices());
+
+		for (uint rangeIdx = 0; rangeIdx < node.NumMeshRanges(); ++rangeIdx)
 		{
-			for (uint corner = 0; corner < 3; ++corner)
+			GrModelNode::SMeshRange* range(node.GetMeshRange(rangeIdx));
+			E_VERIFY(range != NULL, continue);
+
+			// set texture.
+			GrTexture* diffuse(range->material->GetTexture(MT_DIFFUSE));
+			if (diffuse != NULL)
+				glBindTexture(0, (GLuint)(size_t)diffuse->_userdata);
+			else
+				glBindTexture(0, (GLuint)-1);
+
+			glBegin(GL_TRIANGLES);
+			for (uint tri = range->triStart; tri < range->triStart + range->triCount; ++tri)
 			{
-				uint idx(indices[3*tri + corner]);
-				SVec3 pos(positions[idx]);
-				pos.RotateTranslate(transform);
-				glVertex3f(pos.X(), pos.Y(), pos.Z());
+				for (uint corner = 0; corner < 3; ++corner)
+				{
+					uint idx(indices[3*tri + corner]);
+					SVec2 uv(texcoords[idx]);
+					SVec3 pos(positions[idx]);
+					uv.Y() = 1.0f - uv.Y();
+
+					pos.RotateTranslate(transform);
+					glTexCoord2f(uv.X(), uv.Y());
+					glVertex3f(pos.X(), pos.Y(), pos.Z());
+				}
 			}
+			glEnd();
 		}
-		glEnd();
 	}
 
 	// render each child.
@@ -230,7 +254,7 @@ void		GL2Driver::EndFrame()
 //===================
 // GL2Driver::CreateMesh
 //===================
-GrMesh*		GL2Driver::CreateMesh(
+GrMesh*		GL2Driver::CreateMesh(const wchar_t* ctx,
 					   const SVec3* positions, const SVec2* texcoords, uint numVerts,
 					   const TriIdx* triangles, uint numTris)
 {
@@ -252,6 +276,52 @@ GrMesh*		GL2Driver::CreateMesh(
 
 	// return the result.
 	return result;
+}
+
+
+//===================
+// GL2Driver::CreateTexture
+//===================
+GrTexture*	GL2Driver::CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height)
+{
+	E_VERIFY(!_fatalError, return NULL);
+
+	// verify input.
+	E_VERIFY(bgra != NULL, return NULL);
+	E_VERIFY(width > 0 && height > 0, return NULL);
+
+	// create the GL2 texture.
+	GLuint id(-1);
+	glGenTextures(1, &id);
+
+	// fill the texture.
+	glBindTexture(GL_TEXTURE_2D, id);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (const GLvoid*)bgra);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+
+	// prepare the result.
+	GrTexture* result(E_NEW(ctx, GrTexture)(this));
+	result->_userdata = (void*)(size_t)id;
+
+	// copy the texture data.
+	result->_width = width;
+	result->_height = height;
+	result->_pixels = ArrayCpy(ctx, bgra, 4*width*height);
+
+	// return the result.
+	return result;
+}
+
+
+//===================
+// GL2Driver::OnDestroyTexture
+//===================
+void		GL2Driver::OnDestroyTexture(GrTexture& texture)
+{
+	GLuint gl2id((GLuint)(size_t)texture._userdata);
+	if (gl2id != (GLuint)-1)
+		glDeleteTextures(1, &gl2id);
 }
 //========================================================================
 

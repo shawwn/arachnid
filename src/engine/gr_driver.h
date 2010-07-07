@@ -20,6 +20,7 @@ class GrDriver;
 class GrCamera;
 class GrScene;
 class GrMesh;
+class GrTexture;
 
 // renderer DLL functions.
 #define GR_LIB_VERSION				1
@@ -62,9 +63,12 @@ public:
 	virtual void			EndFrame()=0;
 
 	// mesh management.
-	virtual GrMesh*			CreateMesh(
+	virtual GrMesh*			CreateMesh(const wchar_t* ctx,
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,
 		const TriIdx* triangles, uint numTris)=0;
+
+	// texture management.
+	virtual GrTexture*		CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height)=0;
 };
 //========================================================================
 
@@ -75,6 +79,7 @@ public:
 class ENGINE_API Internal_GrDriver : public GrDriver
 {
 public:
-	virtual void			OnDestroyMesh(GrMesh& mesh) { }
+	virtual void			OnDestroyMesh(GrMesh& mesh)=0;
+	virtual void			OnDestroyTexture(GrTexture& texture)=0;
 };
 //========================================================================

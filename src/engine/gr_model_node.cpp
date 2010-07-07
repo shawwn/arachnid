@@ -47,7 +47,7 @@ GrModelNode::GrModelNode(const wstring& name)
 //===================
 GrModelNode::~GrModelNode()
 {
-	E_DELETE("modelNode", _mesh);
+	E_DELETE("model_node", _mesh);
 	E_DELETE("model_node", _stl);
 }
 
@@ -57,7 +57,7 @@ GrModelNode::~GrModelNode()
 //===================
 void				GrModelNode::SetMesh(GrMesh* mesh)
 {
-	E_DELETE("modelNode", _mesh);
+	E_DELETE("model_node", _mesh);
 	_mesh = mesh;
 }
 
@@ -126,7 +126,7 @@ uint				GrModelNode::NumChildModelNodes() const
 //===================
 // GrModelNode::GetMeshRange
 //===================
-GrModelNode::SMeshRange*	GrModelNode::GetMeshRange(uint idx)
+GrModelNode::SMeshRange*	GrModelNode::GetMeshRange(uint idx) const
 {
 	E_VERIFY(idx < _stl->meshRanges.size(), return NULL);
 	return &_stl->meshRanges[idx];

@@ -20,6 +20,7 @@
 #include "../engine/gr_model_node.h"
 #include "../engine/gr_mesh.h"
 #include "../engine/gr_material.h"
+#include "../engine/gr_texture.h"
 
 // math headers.
 #include "../engine/m_vec3.h"
@@ -28,7 +29,7 @@
 //========================================================================
 // Constants
 //========================================================================
-#define ARACHNID_RENDERER			_T("d3d9")
+#define ARACHNID_RENDERER			_T("gl2")
 //========================================================================
 
 //========================================================================
@@ -42,6 +43,10 @@ GrMesh*		gMeshSquare;
 // triangle model.
 GrModel*	gTri;
 GrMesh*		gMeshTri;
+
+// textures.
+GrTexture*	gCheckerTex;
+GrMaterial*	gChecker;
 //========================================================================
 
 //===================
@@ -53,26 +58,48 @@ bool			StartupRenderer()
 	GrDriver& renderer(gEngine->GetRenderer());
 	GrModel& sceneModel(gEngine->GetScene().GetModel());
 
+	// create checkerboard texture.
+	{
+		uint checker[] = {
+			0xFFFF0000,		0xFF00FF00,
+			0xFF0000FF,		0xFFFFFFF
+		};
+
+		gCheckerTex = renderer.CreateTexture(_T("main"), (const byte*)checker, 2, 2);
+		E_VERIFY(gCheckerTex != NULL, return false);
+
+		gChecker = E_NEW("main", GrMaterial);
+		gChecker->SetTexture(MT_DIFFUSE, gCheckerTex);
+	}
+
 	// create tri mesh.
 	{
-		SVec3 positions[] =
-		{
+		SVec3 positions[] = {
 			SVec3( 0.0f, 1.0f, 0.0f),
 			SVec3( 1.0f,-1.0f, 0.0f),
 			SVec3(-1.0f,-1.0f, 0.0f)
 		};
-		TriIdx triangles[] = {0, 1, 2};
-		gMeshTri = renderer.CreateMesh(
-			positions, NULL, sizeof(positions) / sizeof(SVec3),
-			triangles, (sizeof(triangles)/sizeof(TriIdx))/3);
+		SVec2 texcoords[] = {
+			SVec2( 0.5f, 1.0f),
+			SVec2( 1.0f, 0.0f),
+			SVec2( 0.0f, 0.0f)
+		};
+		TriIdx triangles[] = { 0, 1, 2 };
+		uint numVerts(sizeof(positions) / sizeof(SVec3));
+		uint numTris((sizeof(triangles)/sizeof(TriIdx)) / 3);
+		gMeshTri = renderer.CreateMesh(_T("main"),
+			positions, texcoords, numVerts,
+			triangles, numTris);
 
 		if (gMeshTri != NULL)
 		{
 			gTri = GrModel::Create(_T("main"), _T("triangle"));
 			if (gTri != NULL)
 			{
-				gTri->GetRoot().SetTransform(MMat44::Translation(MVec3(-1.5f, 0.0f, -6.0f)));
-				gTri->GetRoot().SetMesh(gMeshTri);
+				GrModelNode& root(gTri->GetRoot());
+				root.SetTransform(MMat44::Translation(MVec3(-1.5f, 0.0f, -6.0f)));
+				root.SetMesh(gMeshTri);
+				root.AddMeshRange(GrModelNode::SMeshRange(0, numTris, gChecker));
 				sceneModel.AddChildModel(gTri);
 			}
 		}
@@ -86,21 +113,31 @@ bool			StartupRenderer()
 			SVec3( 1.0f,-1.0f, 0.0f),
 			SVec3(-1.0f,-1.0f, 0.0f)
 		};
+		SVec2 texcoords[] = {
+			SVec2( 0.0f, 1.0f),
+			SVec2( 1.0f, 1.0f),
+			SVec2( 1.0f, 0.0f),
+			SVec2( 0.0f, 0.0f)
+		};
 		TriIdx triangles[] = {
 			0, 1, 2,
 			0, 2, 3
 		};
-		gMeshSquare = renderer.CreateMesh(
-			positions, NULL, sizeof(positions) / sizeof(SVec3),
-			triangles, (sizeof(triangles)/sizeof(TriIdx))/3);
+		uint numVerts(sizeof(positions) / sizeof(SVec3));
+		uint numTris((sizeof(triangles)/sizeof(TriIdx)) / 3);
+		gMeshSquare = renderer.CreateMesh(_T("main"),
+			positions, texcoords, numVerts,
+			triangles, numTris);
 
 		if (gMeshSquare != NULL)
 		{
 			gSquare = GrModel::Create(_T("main"), _T("square"));
 			if (gSquare != NULL)
 			{
-				gSquare->GetRoot().SetTransform(MMat44::Translation(MVec3(1.5f, 0.0f, -6.0f)));
-				gSquare->GetRoot().SetMesh(gMeshSquare);
+				GrModelNode& root(gSquare->GetRoot());
+				root.SetTransform(MMat44::Translation(MVec3(1.5f, 0.0f, -6.0f)));
+				root.SetMesh(gMeshSquare);
+				root.AddMeshRange(GrModelNode::SMeshRange(0, numTris, gChecker));
 				sceneModel.AddChildModel(gSquare);
 			}
 		}
@@ -115,6 +152,9 @@ bool			StartupRenderer()
 //===================
 void			ShutdownRenderer()
 {
+	E_DELETE("main", gChecker);
+	E_DELETE("main", gCheckerTex);
+
 	E_DELETE("main", gMeshTri);
 	E_DELETE("main", gMeshSquare);
 }

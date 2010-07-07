@@ -229,6 +229,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\glext.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

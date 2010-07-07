@@ -42,12 +42,12 @@ public:
 	~GrMesh();
 
 	// provide access to vertex data.
-	SVec3*				GetPositions() const		{ return _positions; }
-	SVec2*				GetTexcoords() const		{ return _texcoords; }
+	const SVec3*		GetPositions() const		{ return _positions; }
+	const SVec2*		GetTexcoords() const		{ return _texcoords; }
 	uint				GetNumVertices() const		{ return _numVertices; }
 
 	// provide access to index data.
-	TriIdx*				GetTriIndices() const		{ return _triIndices; }
+	const TriIdx*		GetTriIndices() const		{ return _triIndices; }
 	uint				GetNumTriangles() const		{ return _numTriangles; }
 };
 //========================================================================

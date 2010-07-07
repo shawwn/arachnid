@@ -53,7 +53,11 @@ public:
 	bool			BeginFrame();
 	void			EndFrame();
 
-	GrMesh*			CreateMesh(
+	GrMesh*			CreateMesh(const wchar_t* ctx,
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,
 		const TriIdx* triangles, uint numTris);
+	void			OnDestroyMesh(GrMesh& mesh) { }
+
+	GrTexture*		CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height);
+	void			OnDestroyTexture(GrTexture& texture);
 };

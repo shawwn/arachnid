@@ -39,6 +39,13 @@ public:
 		{
 		}
 
+		SMeshRange(uint triStart, uint triCount, GrMaterial* material)
+			: triStart(triStart)
+			, triCount(triCount)
+			, material(material)
+		{
+		}
+
 		uint		triStart;
 		uint		triCount;
 		GrMaterial*	material;
@@ -75,7 +82,7 @@ public:
 	uint				NumChildModelNodes() const;
 
 	// provides array access to the child mesh ranges.
-	SMeshRange*			GetMeshRange(uint idx);
+	SMeshRange*			GetMeshRange(uint idx) const;
 	void				AddMeshRange(const SMeshRange& range);
 	uint				NumMeshRanges() const;
 };
