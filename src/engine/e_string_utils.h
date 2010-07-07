@@ -97,6 +97,11 @@ extern ENGINE_API wstring			StrAfter(const wstring& str, const wstring& sequence
 // text encoding classification.
 extern ENGINE_API ETextEncoding		StrClassifyEncoding(uint& outBomSize, const byte* buf, uint bufSize);
 
+// returns the BOM for a given encoding.
+// 'bom' must be 4 bytes in size.
+// returns the number of bytes used in the BOM.
+extern ENGINE_API uint				StrGetEncodingBOM(byte* bom, ETextEncoding encoding);
+
 // get the length of UTF-8 byte sequence "p[size]".  Does not include any
 // following composing characters.
 // returns 1 for "".

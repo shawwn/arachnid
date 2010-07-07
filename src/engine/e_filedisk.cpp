@@ -19,6 +19,7 @@
 //===================
 EFileDisk::EFileDisk()
 : _fp(NULL)
+, _fileSize(0)
 {
 }
 
@@ -38,12 +39,10 @@ EFileDisk::~EFileDisk()
 bool		EFileDisk::Open(const wstring& path, uint mode)
 {
 	// if we're already open, abort.
-	if (_fp != NULL)
-		return false;
+	E_VERIFY(!IsOpen(), return false);
 
 	// validate the mode.
-	if (!IsModeValid(mode))
-		return false;
+	E_VERIFY(IsModeValid(mode), return false);
 
 	// store the file mode.
 	_mode = mode;
@@ -57,29 +56,18 @@ bool		EFileDisk::Open(const wstring& path, uint mode)
 		else
 			_fp = _wfopen(path.c_str(), _T("wb"));
 
-	if (_fp == NULL)
-		return false;
+	E_VERIFY(_fp != NULL, return false);
 
 	// determine the file size.
 	fseek(_fp, 0, SEEK_END);
 	_fileSize = (uint)ftell(_fp);
 	fseek(_fp, 0, SEEK_SET);
 
-	// for text mode, determine the file encoding.
-	_textEncoding = TE_UTF8;
-	if (HasMode(FILE_TEXT))
+	// determine text encoding.
+	if (!OnFileOpened())
 	{
-		if (_fileSize >= 4)
-		{
-			// read the byte-order mark.
-			byte bom[4];
-			uint bomSize(Read(bom, 4));
-			uint fileBomSize(0);
-			_textEncoding = StrClassifyEncoding(fileBomSize, bom, bomSize);
-
-			// skip over the byte-order mark.
-			Seek(fileBomSize);
-		}
+		Close();
+		return false;
 	}
 
 	return true;
@@ -91,12 +79,14 @@ bool		EFileDisk::Open(const wstring& path, uint mode)
 //===================
 void		EFileDisk::Close()
 {
-	if (_fp == NULL)
-		return;
+	if (_fp != NULL)
+	{
+		fclose(_fp);
+		_fp = NULL;
+	}
 
-	fclose(_fp);
-	_fp = NULL;
 	_fileSize = 0;
+	_mode = 0;
 }
 
 
@@ -116,11 +106,19 @@ bool		EFileDisk::IsOpen() const
 //===================
 bool		EFileDisk::IsEOF() const
 {
-	if (_fp == NULL)
-		return true;
+	if (HasMode(FILE_READ))
+	{
+		if (_fp == NULL)
+			return true;
 
-	if (GetPos() >= _fileSize)
-		return true;
+		if (GetPos() >= _fileSize)
+			return true;
+
+		return false;
+	}
+
+	E_VERIFY(HasMode(FILE_WRITE), return true);
+
 	return false;
 }
 
@@ -130,8 +128,7 @@ bool		EFileDisk::IsEOF() const
 //===================
 uint		EFileDisk::GetPos() const
 {
-	if (_fp == NULL)
-		return 0;
+	E_VERIFY(_fp != NULL, return 0);
 
 	uint pos((uint)ftell(_fp));
 	return pos;
@@ -141,12 +138,14 @@ uint		EFileDisk::GetPos() const
 //===================
 // EFileDisk::Seek
 //===================
-void		EFileDisk::Seek(uint pos)
+bool		EFileDisk::Seek(uint pos)
 {
-	if (_fp == NULL)
-		return;
+	E_VERIFY(_fp != NULL, return 0);
 
-	fseek(_fp, pos, SEEK_SET);
+	if (fseek(_fp, pos, SEEK_SET) != 0)
+		return false;
+
+	return true;
 }
 
 
@@ -155,11 +154,9 @@ void		EFileDisk::Seek(uint pos)
 //===================
 uint		EFileDisk::Read(byte* outBuf, uint count)
 {
-	if (_fp == NULL)
-		return 0;
+	E_VERIFY(_fp != NULL, return 0);
 
-	if (!(_mode & FILE_READ))
-		return 0;
+	E_VERIFY(HasMode(FILE_READ), return 0);
 
 	int bytesRead(fread(outBuf, 1, count, _fp));
 	if (bytesRead < 0)
@@ -170,93 +167,16 @@ uint		EFileDisk::Read(byte* outBuf, uint count)
 
 
 //===================
-// EFileDisk::ReadLine
-//===================
-wstring		EFileDisk::ReadLine()
-{
-	E_VERIFY(HasMode(FILE_TEXT), return WSNULL);
-
-	// determine how many bytes need to be read per character.
-	uint charSize(0);
-	switch (_textEncoding)
-	{
-	case TE_UTF8:
-	case TE_UTF8_WITH_BOM:
-		charSize = 1;
-		break;
-
-	case TE_UTF16:
-	case TE_UTF16_LITTLE_ENDIAN:
-		charSize = 2;
-		break;
-	}
-
-	if (charSize == 0)
-	{
-		E_WARN("file", "ReadLine: unsupported file text encoding");
-		return WSNULL;
-	}
-
-	wstring result;
-
-	E_ASSERT(charSize <= sizeof(uint32));
-	uint32 buf;
-	while (!IsEOF())
-	{
-		buf = 0;
-		uint bytesRead = Read((byte*)&buf, charSize);
-		if (bytesRead != charSize)
-			return result;
-
-		wchar_t c(buf);
-		if (c == _T('\r'))
-		{
-			uint prevPos(GetPos());
-			buf = 0;
-			bytesRead = Read((byte*)&buf, charSize);
-			if (bytesRead == charSize)
-			{
-				wchar_t c2(buf);
-				if (c2 == '\n')
-					break;
-			}
-			Seek(prevPos);
-		}
-
-		if (c == _T('\n'))
-			break;
-
-		result.append(1, c);
-	}
-
-	return result;
-}
-
-
-//===================
 // EFileDisk::Write
 //===================
 uint		EFileDisk::Write(const byte* buf, uint bufSize)
 {
-	return 0;
-}
+	E_VERIFY(_fp != NULL, return 0);
 
+	E_VERIFY(HasMode(FILE_WRITE), return 0);
 
-//===================
-// EFileDisk::WriteLine
-//===================
-uint		EFileDisk::WriteLine(const wstring& str)
-{
-	return 0;
-}
-
-
-//===================
-// EFileDisk::WriteLine
-//===================
-uint		EFileDisk::WriteLine(const string& str)
-{
-	return 0;
+	uint numWritten = (uint)fwrite(buf, 1, bufSize, _fp);
+	return numWritten;
 }
 
 
@@ -265,15 +185,5 @@ uint		EFileDisk::WriteLine(const string& str)
 //===================
 uint		EFileDisk::GetFileSize() const
 {
-	return 0;
+	return _fileSize;
 }
-
-
-//===================
-// EFileDisk::GetFileBuffer
-//===================
-const byte*	EFileDisk::GetFileBuffer() const
-{
-	return NULL;
-}
-

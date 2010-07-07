@@ -143,6 +143,9 @@ void					GrModel::SetTransform(const MMat44& m)
 //===================
 bool					GrModel::AddChildModel(GrModel* model, const wstring& dirtyChildPath)
 {
+	if (model == NULL)
+		return false;
+
 	wstring childPath(Sanitize(dirtyChildPath));
 	if (!childPath.empty())
 	{

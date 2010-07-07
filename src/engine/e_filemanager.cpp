@@ -13,6 +13,7 @@
 #include "e_filemanager.h"
 #include "e_system.h"
 #include "e_filedisk.h"
+#include "e_filemem.h"
 //========================================================================
 
 //========================================================================
@@ -116,7 +117,13 @@ EFile*		EFileManager::GetFile(const wstring& path, uint mode)
 	if (!Exists(absolutePath))
 		return NULL;
 
-	EFile* file(E_NEW("fileManager",EFileDisk)());
+	EFile* file(NULL);
+	
+	if ((mode & FILE_MEMORY) != 0)
+		file = E_NEW("fileManager",EFileMem)();
+	else
+		file = E_NEW("fileManager",EFileDisk)();
+
 	if (!file->Open(absolutePath, mode))
 	{
 		E_DELETE("fileManager", file);

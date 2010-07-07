@@ -54,12 +54,15 @@ public:
 
 	void				SetMousePos(int x, int y);
 
+	// mesh management.
 	GrMesh*				CreateMesh(const wchar_t* ctx,
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,
 		const TriIdx* triangles, uint numTris);
 	void				OnDestroyMesh(GrMesh& mesh);
 
+	// texture management.
 	GrTexture*			CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height);
+	GrTexture*			CreateTexture(const wchar_t* ctx, const wstring& filePath);
 	void				OnDestroyTexture(GrTexture& texture);
 
 	// internal use only.

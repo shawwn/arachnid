@@ -63,5 +63,6 @@ public:
 	void			OnDestroyMesh(GrMesh& mesh) { }
 
 	GrTexture*		CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height);
+	GrTexture*		CreateTexture(const wchar_t* ctx, const wstring& filePath)	{ return NULL; }
 	void			OnDestroyTexture(GrTexture& texture);
 };

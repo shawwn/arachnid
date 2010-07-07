@@ -14,6 +14,7 @@
 
 // engine headers.
 #include "../engine/e_engine.h"
+#include "../engine/e_filemanager.h"
 
 // graphics headers.
 #include "../engine/gr_driver.h"
@@ -126,6 +127,7 @@ void		D3D9Driver::RenderModelNode(const GrModelNode& node)
 		const SVec2* texcoords(mesh->GetTexcoords());
 		const TriIdx* indices(mesh->GetTriIndices());
 
+		E_ASSERT(node.NumMeshRanges() > 0);
 		for (uint rangeIdx = 0; rangeIdx < node.NumMeshRanges(); ++rangeIdx)
 		{
 			GrModelNode::SMeshRange* range(node.GetMeshRange(rangeIdx));
@@ -492,6 +494,45 @@ GrTexture*	D3D9Driver::CreateTexture(const wchar_t* ctx, const byte* bgra, uint 
 
 
 //===================
+// D3D9Driver::CreateTexture
+//===================
+GrTexture*	D3D9Driver::CreateTexture(const wchar_t* ctx, const wstring& filePath)
+{
+	E_VERIFY(!_fatalError, return NULL);
+	HRESULT hr;
+
+	wstring absFilePath(gFileManager->GetAbsolutePath(filePath));
+
+	// create the texture.
+	IDirect3DTexture9* tex(NULL);
+	hr = D3DXCreateTextureFromFile(_impl->device, absFilePath.c_str(), &tex);
+	E_VERIFY(SUCCEEDED(hr) && "CreateTexture",
+		return NULL);
+
+	// get its info.
+	D3DSURFACE_DESC desc;
+	hr = tex->GetLevelDesc(0, &desc);
+	E_VERIFY(SUCCEEDED(hr) && "GetLevelDesc",
+	{
+		tex->Release();
+		return NULL;
+	});
+
+	// prepare the result.
+	GrTexture* result(E_NEW(ctx, GrTexture)(this));
+	result->_userdata = (void*)tex;
+
+	// copy the texture data.
+	result->_width = desc.Width;
+	result->_height = desc.Height;
+	result->_pixels = NULL;
+
+	// return the result.
+	return result;
+}
+
+
+//===================
 // D3D9Driver::OnDestroyTexture
 //===================
 void		D3D9Driver::OnDestroyTexture(GrTexture& texture)
@@ -539,7 +580,7 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 	const float fovy(DEG2RAD(60.0f));
 	const float aspect(windowWidth / (float)windowHeight);
 	const float znear(1.0f);
-	const float zfar(100.0f);
+	const float zfar(10000.0f);
 	D3DXMATRIX mat;
 	D3DXMatrixPerspectiveFovRH(&mat, fovy, aspect, znear, zfar);
 	_impl->device->SetTransform(D3DTS_PROJECTION, &mat);

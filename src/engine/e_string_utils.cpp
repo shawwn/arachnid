@@ -891,6 +891,45 @@ ETextEncoding		StrClassifyEncoding(uint& outBomSize, const byte* buf, uint bufSi
 
 
 //===================
+// StrGetEncodingBOM
+//===================
+uint				StrGetEncodingBOM(byte* bom, ETextEncoding encoding)
+{
+	MemZero(bom, 4);
+
+	// determine the BOM.
+	const byte utf32[4]		= { 0x00, 0x00, 0xFE, 0xFF };
+	const byte utf32LE[4]	= { 0xFE, 0xFF, 0x00, 0x00 };
+	const byte utf16[2]		= { 0xFE, 0xFF };
+	const byte utf16LE[2]	= { 0xFF, 0xFE };
+	const byte utf8[3]		= { 0xEF, 0xBB, 0xBF };
+
+	switch(encoding)
+	{
+	case TE_UTF32:
+		MemCpy(bom, utf32, 4);
+		return 4;
+	case TE_UTF32_LITTLE_ENDIAN:
+		MemCpy(bom, utf32LE, 4);
+		return 4;
+	case TE_UTF16:
+		MemCpy(bom, utf16, 2);
+		return 2;
+	case TE_UTF16_LITTLE_ENDIAN:
+		MemCpy(bom, utf16LE, 2);
+		return 2;
+	case TE_UTF8_WITH_BOM:
+		MemCpy(bom, utf8, 3);
+		return 3;
+	}
+
+	// utf-8 without BOM.
+	E_VERIFY(encoding == TE_UTF8, return 0);
+	return 0;
+}
+
+
+//===================
 // StrUTF8CharLength
 //===================
 uint				StrUTF8CharLength(const byte* p, uint size)

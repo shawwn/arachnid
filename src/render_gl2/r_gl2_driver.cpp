@@ -89,7 +89,7 @@ void		GL2Driver::GlutOnWindowResized(int width, int height)
 	const float fovy(60.0f);
 	const float aspect(width / (float)height);
 	const float znear(1.0f);
-	const float zfar(100.0f);
+	const float zfar(10000.0f);
 	gluPerspective(fovy, aspect, znear, zfar);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -138,11 +138,12 @@ GL2Driver::GL2Driver(int windowWidth, int windowHeight, const wstring& windowTit
 		// initialize GL2
 		glEnable(GL_TEXTURE_2D);
 		glShadeModel(GL_SMOOTH);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClearDepth(1.0f);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+		glDisable(GL_CULL_FACE);
 
 		// set glut callbacks.
 		glutDisplayFunc(&GlutOnDisplay);
@@ -198,6 +199,7 @@ void		GL2Driver::RenderModelNode(const GrModelNode& node)
 		const SVec2* texcoords(mesh->GetTexcoords());
 		const TriIdx* indices(mesh->GetTriIndices());
 
+		E_ASSERT(node.NumMeshRanges() > 0);
 		for (uint rangeIdx = 0; rangeIdx < node.NumMeshRanges(); ++rangeIdx)
 		{
 			GrModelNode::SMeshRange* range(node.GetMeshRange(rangeIdx));

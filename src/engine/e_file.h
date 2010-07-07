@@ -15,6 +15,7 @@
 #define FILE_APPEND			BIT(2)
 #define FILE_BINARY			BIT(3)
 #define FILE_TEXT			BIT(4)
+#define FILE_MEMORY			BIT(5)
 //========================================================================
 
 //========================================================================
@@ -29,13 +30,15 @@ protected:
 	// check for conflicting mode flags.
 	bool				IsModeValid(uint mode) const;
 
+	bool				OnFileOpened();
+
 public:
 	// ctor & dtor.
 	EFile();
 	virtual ~EFile() { }
 
-	uint				GetMode() const		{ return _mode; }
-	bool				HasMode(uint flag)	{ return (_mode & flag) != 0; }
+	uint				GetMode() const				{ return _mode; }
+	bool				HasMode(uint flag) const	{ return (_mode & flag) != 0; }
 
 	// per-file methods.
 	virtual bool		Open(const wstring& path, uint mode = FILE_READ)=0;
@@ -44,17 +47,40 @@ public:
 	virtual bool		IsEOF() const=0;
 
 	virtual uint		GetPos() const=0;
-	virtual void		Seek(uint pos)=0;
+	virtual bool		Seek(uint pos)=0;
 
 	virtual uint		Read(byte* outBuf, uint count)=0;
-	virtual wstring		ReadLine()=0;
+	virtual wstring		ReadLine();
+
+	template<class T>
+	bool				ReadType(T& val)
+	{
+		if (Read((byte*)&val, sizeof(T)) == sizeof(T))
+			return true;
+		return false;
+	}
+
+	template<class T>
+	bool				ReadArray(T* vals, uint count)
+	{
+		E_VERIFY(vals != NULL && count > 0, return false);
+
+		do 
+		{
+			if (!ReadType(*vals++))
+				return false;
+		} while (--count != 0);
+
+		return true;
+	}
 
 	virtual uint		Write(const byte* buf, uint bufSize)=0;
-	virtual uint		WriteLine(const wstring& str)=0;
-	virtual uint		WriteLine(const string& str)=0;
+	virtual uint		WriteLine(const wstring& str)	{ return 0; }
+	virtual uint		WriteLine(const string& str)	{ return 0; }
 
 	virtual uint		GetFileSize() const=0;
-	virtual const byte*	GetFileBuffer() const=0;
+	virtual uint		GetRemainingSize() const;
+	virtual const byte*	GetFileBuf() const				{ return NULL; }
 
 	// general I/O methods.
 

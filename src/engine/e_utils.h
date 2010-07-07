@@ -48,8 +48,26 @@ ENGINE_API size_t			HashMem(const byte* mem, uint size);
 //===================
 inline int					MemCmp(const byte* memA, const byte* memB, uint size)
 {
+	if (memA == NULL && memB == NULL)
+		return 0;
+
+	if (size == 0)
+		return 0;
+
 	// use the standard memcmp for now.
 	return memcmp((const void*)memA, (const void*)memB, size);
+}
+
+
+//===================
+// MemZero
+//===================
+inline void					MemZero(byte* buf, uint size)
+{
+	if (buf == NULL || size == 0)
+		return;
+
+	memset(buf, 0, size);
 }
 
 
@@ -85,6 +103,9 @@ ENGINE_API void				TmpFree(void* p);
 template< typename T >
 inline T*					AlignPtr16(T* ptr)
 {
+	if (ptr == NULL)
+		return NULL;
+
 	size_t p((size_t)(void*)ptr);
 	p += 0xf;
 	p &= ~0xf;
@@ -97,8 +118,42 @@ inline T*					AlignPtr16(T* ptr)
 //===================
 inline void					MemCpy(void* dst, const void* src, uint size)
 {
+	E_VERIFY(src != NULL && size > 0, return);
 	memcpy(dst, src, size);
 }
+
+
+//===================
+// ArrayZero
+//===================
+template<class T>
+inline void					ArrayZero(const wchar_t* ctx, T* dst, uint count)
+{
+	if (dst == NULL || count == 0)
+		return;
+
+	MemZero((byte*)dst, sizeof(T)*count);
+}
+
+
+//===================
+// ArrayResize
+//===================
+template<class T>
+inline void					ArrayResize(const wchar_t* ctx, T*& dst, uint oldSize, uint newSize)
+{
+	T* result = E_NEW_ARRAY(ctx, T, newSize);
+
+	if (dst != NULL)
+	{
+		uint keepSize(E_MIN(oldSize, newSize));
+		MemCpy(result, dst, sizeof(T) * keepSize);
+	}
+
+	E_DELETE_ARRAY(ctx, dst);
+	dst = result;
+}
+
 
 //===================
 // ArrayCpy
@@ -112,5 +167,17 @@ inline T*					ArrayCpy(const wchar_t* ctx, const T* src, uint count)
 	T* result(E_NEW_ARRAY(ctx, T, count));
 	MemCpy(result, src, sizeof(T) * count);
 	return result;
+}
+
+
+//===================
+// ESwap
+//===================
+template<class T>
+inline void					ESwap(T& a, T& b)
+{
+	T tmp(a);
+	a = b;
+	b = tmp;
 }
 //========================================================================

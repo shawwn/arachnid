@@ -40,6 +40,10 @@
 // Headers
 //========================================================================
 
+// std headers.
+#include <cassert>
+#include <fstream>
+
 // engine headers.
 #include "e_api.h"
 #include "e_types.h"
@@ -50,10 +54,6 @@
 
 // math headers.
 #include "m_math.h"
-
-// std headers.
-#include <cassert>
-#include <fstream>
 
 // graphics headers.
 #include "gr_types.h"

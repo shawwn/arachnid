@@ -72,6 +72,7 @@ public:
 
 	// texture management.
 	virtual GrTexture*		CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height)=0;
+	virtual GrTexture*		CreateTexture(const wchar_t* ctx, const wstring& filePath)=0;
 };
 //========================================================================
 

@@ -278,6 +278,14 @@
 				RelativePath=".\e_filemanager.h"
 				>
 			</File>
+			<File
+				RelativePath=".\e_filemem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\e_filemem.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="platform-specific"
@@ -416,6 +424,26 @@
 			</File>
 			<File
 				RelativePath=".\gr_types.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="importers"
+			>
+			<File
+				RelativePath=".\import_k2_anim.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\import_k2_anim.h"
+				>
+			</File>
+			<File
+				RelativePath=".\import_k2_model.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\import_k2_model.h"
 				>
 			</File>
 		</Filter>

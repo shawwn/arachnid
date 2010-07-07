@@ -1,46 +1,44 @@
 //========================================================================
-//	file:		e_filedisk.h
+//	file:		import_k2_anim.h
 //	author:		Shawn Presser 
-//	date:		6/30/10
+//	date:		7/7/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
 #pragma once
 
 //========================================================================
-// Headers
+// Declarations
 //========================================================================
-#include "e_file.h"
+class GrDriver;
+class EFile;
+struct ImportK2Anim_impl;
 //========================================================================
 
 //========================================================================
-// EFileDisk
+// ImportK2Anim
 //========================================================================
-class EFileDisk : public EFile
+class ENGINE_API ImportK2Anim
 {
 private:
-	FILE*			_fp;
-	uint			_fileSize;
+	ImportK2Anim_impl*	_impl;
+
+	GrDriver&			_driver;
+	EFile*				_file;
+
+	bool				ParseHeader(GrDriver& driver, EFile* file, uint blockSize);
+	bool				ParseBoneMotion(GrDriver& driver, EFile* file, uint blockSize);
 public:
-	// ctor & dtor.
-	EFileDisk();
-	virtual ~EFileDisk();
+	ImportK2Anim(GrDriver& driver);
+	~ImportK2Anim();
 
-	// per-file methods.
-	virtual bool		Open(const wstring& path, uint mode = FILE_READ);
-	virtual void		Close();
-	virtual bool		IsOpen() const;
-	virtual bool		IsEOF() const;
+	bool				OnFinishReading(GrDriver& driver);
 
-	virtual uint		GetPos() const;
-	virtual bool		Seek(uint pos);
-
-	virtual uint		Read(byte* outBuf, uint count);
-
-	virtual uint		Write(const byte* buf, uint bufSize);
-
-	virtual uint		GetFileSize() const;
+	bool				Read(EFile* file);
 };
 //========================================================================
+
+
+
 
 

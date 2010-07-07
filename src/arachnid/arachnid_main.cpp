@@ -10,6 +10,8 @@
 // Headers
 //========================================================================
 #include "../engine/e_common.h"
+
+// engine headers.
 #include "../engine/e_system.h"
 #include "../engine/e_filemanager.h"
 #include "../engine/e_engine.h"
@@ -21,15 +23,20 @@
 #include "../engine/gr_mesh.h"
 #include "../engine/gr_material.h"
 #include "../engine/gr_texture.h"
+#include "../engine/gr_camera.h"
 
 // math headers.
 #include "../engine/m_vec3.h"
+
+// import headers.
+#include "../engine/import_k2_model.h"
+#include "../engine/import_k2_anim.h"
 //========================================================================
 
 //========================================================================
 // Constants
 //========================================================================
-#define ARACHNID_RENDERER			_T("gl2")
+#define ARACHNID_RENDERER			_T("d3d9")
 //========================================================================
 
 //========================================================================
@@ -44,9 +51,13 @@ GrMesh*		gMeshSquare;
 GrModel*	gTri;
 GrMesh*		gMeshTri;
 
-// textures.
+// checker material.
 GrTexture*	gCheckerTex;
 GrMaterial*	gChecker;
+
+// ws material.
+GrTexture*	gWsTex;
+GrMaterial*	gWsMat;
 //========================================================================
 
 //===================
@@ -143,6 +154,43 @@ bool			StartupRenderer()
 		}
 	}
 
+	// create material.
+	{
+		gWsMat = E_NEW(_T("main"), GrMaterial);
+		gWsTex = renderer.CreateTexture(_T("main"), _TS(E_PATH_ROOT) + _T("game/models/witch_slayer/color.tga"));
+		if (gWsTex != NULL)
+			gWsMat->SetTexture(MT_DIFFUSE, gWsTex);
+		else
+			gWsMat->SetTexture(MT_DIFFUSE, gCheckerTex);
+	}
+
+	// import model.
+	GrModel* model(NULL);
+	{
+		EFile* file = gFileManager->GetFile(_TS(E_PATH_ROOT) + _T("game/models/witch_slayer/high.model"), FILE_READ | FILE_MEMORY);
+
+		ImportK2Model import(renderer, gWsMat);
+		if (import.Read(file))
+		{
+			GrModel& sceneModel(renderer.GetScene().GetModel());
+			model = import.GetModel();
+			sceneModel.AddChildModel(model);
+		}
+	}
+
+	// import anim.
+	if (model != NULL)
+	{
+		EFile* file = gFileManager->GetFile(_TS(E_PATH_ROOT) + _T("game/models/witch_slayer/clips/walk_1.clip"), FILE_READ | FILE_MEMORY);
+
+		ImportK2Anim import(renderer);
+		if (import.Read(file))
+		{
+		}
+	}
+
+	renderer.GetCamera().SetPosition(MVec3(0.0f, 0.0f,150.0f));
+
 	return true;
 }
 
@@ -152,6 +200,9 @@ bool			StartupRenderer()
 //===================
 void			ShutdownRenderer()
 {
+	E_DELETE("main", gWsMat);
+	E_DELETE("main", gWsTex);
+
 	E_DELETE("main", gChecker);
 	E_DELETE("main", gCheckerTex);
 
