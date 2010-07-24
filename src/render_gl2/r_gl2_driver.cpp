@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		r_gl2_driver.cpp
 //	author:		Shawn Presser 
-//	date:		7/1/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -63,11 +62,15 @@ void		GL2Driver::GlutOnDisplay()
 	// reset the current modelview matrix
 	glLoadIdentity();
 
-	// apply the camera.
-	driver->ApplyCamera(driver->GetCamera());
+	GrCamera* cam(driver->GetCamera());
+	if (cam != NULL)
+	{
+		// apply the camera.
+		driver->ApplyCamera(*cam);
 
-	// render the scene.
-	driver->RenderModel(driver->GetScene().GetModel());
+		// render the scene.
+		driver->RenderModel(driver->GetScene().GetModel());
+	}
 
 	// display the backbuffer to the window.
 	if (!GL2_SwapBuffers())
@@ -166,15 +169,8 @@ GL2Driver::GL2Driver(int windowWidth, int windowHeight, const wstring& windowTit
 //===================
 void		GL2Driver::ApplyCamera(const GrCamera& cam)
 {
-	const MMat33& rot(cam.GetRotation());
-	const MVec3& pos(cam.GetPosition());
-
-	MVec3 lookAt(0.0f, 0.0f, -1.0f);
-	rot.Rotate(lookAt);
-	lookAt += pos;
-
-	MVec3 up(0.0f, 1.0f, 0.0f);
-	rot.Rotate(up);
+	MVec3 pos, lookAt, up;
+	cam.GetEyeInfo(pos, lookAt, up);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -188,9 +184,9 @@ void		GL2Driver::ApplyCamera(const GrCamera& cam)
 //===================
 // GL2Driver::RenderModelNode
 //===================
-void		GL2Driver::RenderModelNode(const GrModelNode& node)
+void		GL2Driver::RenderModelNode(GrModelNode& node)
 {
-	const MMat44& transform(node.GetTransform());
+	const MTransform& transform(node.GetWorld());
 
 	GrMesh* mesh(node.GetMesh());
 	if (mesh != NULL)
@@ -235,7 +231,7 @@ void		GL2Driver::RenderModelNode(const GrModelNode& node)
 	// render each child.
 	for (uint i = 0; i < node.NumChildModelNodes(); ++i)
 	{
-		const GrModelNode& child(*node.GetChildModelNode(i));
+		GrModelNode& child(*node.GetChildModelNode(i));
 		RenderModelNode(child);
 	}
 }
@@ -244,7 +240,7 @@ void		GL2Driver::RenderModelNode(const GrModelNode& node)
 //===================
 // GL2Driver::RenderModel
 //===================
-void		GL2Driver::RenderModel(const GrModel& model)
+void		GL2Driver::RenderModel(GrModel& model)
 {
 	// render the nodes.
 	RenderModelNode(model.GetRoot());
@@ -252,7 +248,7 @@ void		GL2Driver::RenderModel(const GrModel& model)
 	// render each child.
 	for (uint i = 0; i < model.NumChildModels(); ++i)
 	{
-		const GrModel& child(*model.GetChildModel(i));
+		GrModel& child(*model.GetChildModel(i));
 		RenderModel(child);
 	}
 }
@@ -311,8 +307,9 @@ void		GL2Driver::SetMousePos(int x, int y)
 // GL2Driver::CreateMesh
 //===================
 GrMesh*		GL2Driver::CreateMesh(const wchar_t* ctx,
-					   const SVec3* positions, const SVec2* texcoords, uint numVerts,
-					   const TriIdx* triangles, uint numTris)
+								  const SVec3* positions, const SVec2* texcoords, uint numVerts,
+								  const TriIdx* triangles, uint numTris,
+								  GrSkin* skin)
 {
 	// verify input.
 	E_VERIFY(numVerts != 0 && numTris != 0, return NULL);
@@ -329,6 +326,9 @@ GrMesh*		GL2Driver::CreateMesh(const wchar_t* ctx,
 	// store the index data.
 	result->_triIndices = ArrayCpy(_T("gl2"), triangles, 3*numTris);
 	result->_numTriangles = numTris;
+
+	// store the skinning data.
+	result->_skin = skin;
 
 	// return the result.
 	return result;

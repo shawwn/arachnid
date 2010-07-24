@@ -24,6 +24,7 @@
 #include "../engine/gr_material.h"
 #include "../engine/gr_texture.h"
 #include "../engine/gr_camera.h"
+#include "../engine/gr_anim_mixer.h"
 
 // math headers.
 #include "../engine/m_vec3.h"
@@ -37,6 +38,17 @@
 // Constants
 //========================================================================
 #define ARACHNID_RENDERER			_T("d3d9")
+
+#define WORLD_SIDE					MVec3(1.0f, 0.0f, 0.0f)
+#define WORLD_UP					MVec3(0.0f, 0.0f, 1.0f)
+#define WORLD_FORWARD				MVec3(0.0f, 1.0f, 0.0f)
+
+#define CAM_POS						MVec3(0.0f, -150.0f, 0.0f)
+
+#define MODEL_BASE_PATH				_TS("game/models/witch_slayer/")
+#define MODEL_TEXTURE				_TS("color.tga")
+#define MODEL_ANIM					_TS("clips/walk_1.clip")
+#define MODEL_MDL					_TS("high.model")
 //========================================================================
 
 //========================================================================
@@ -56,6 +68,7 @@ GrTexture*	gCheckerTex;
 GrMaterial*	gChecker;
 
 // ws material.
+GrModel*	gWsMdl;
 GrTexture*	gWsTex;
 GrMaterial*	gWsMat;
 //========================================================================
@@ -108,7 +121,7 @@ bool			StartupRenderer()
 			if (gTri != NULL)
 			{
 				GrModelNode& root(gTri->GetRoot());
-				root.SetTransform(MMat44::Translation(MVec3(-1.5f, 0.0f, -6.0f)));
+				root.SetLocal(MTransform(MVec3(-1.5f, 0.0f, -6.0f)));
 				root.SetMesh(gMeshTri);
 				root.AddMeshRange(GrModelNode::SMeshRange(0, numTris, gChecker));
 				sceneModel.AddChildModel(gTri);
@@ -146,7 +159,7 @@ bool			StartupRenderer()
 			if (gSquare != NULL)
 			{
 				GrModelNode& root(gSquare->GetRoot());
-				root.SetTransform(MMat44::Translation(MVec3(1.5f, 0.0f, -6.0f)));
+				root.SetLocal(MTransform(MVec3(1.5f, 0.0f, -6.0f)));
 				root.SetMesh(gMeshSquare);
 				root.AddMeshRange(GrModelNode::SMeshRange(0, numTris, gChecker));
 				sceneModel.AddChildModel(gSquare);
@@ -157,7 +170,7 @@ bool			StartupRenderer()
 	// create material.
 	{
 		gWsMat = E_NEW(_T("main"), GrMaterial);
-		gWsTex = renderer.CreateTexture(_T("main"), _TS(E_PATH_ROOT) + _T("game/models/witch_slayer/color.tga"));
+		gWsTex = renderer.CreateTexture(_T("main"), _TS(FILE_PATH_ROOT_DIR) + MODEL_BASE_PATH + MODEL_TEXTURE);
 		if (gWsTex != NULL)
 			gWsMat->SetTexture(MT_DIFFUSE, gWsTex);
 		else
@@ -167,7 +180,7 @@ bool			StartupRenderer()
 	// import model.
 	GrModel* model(NULL);
 	{
-		EFile* file = gFileManager->GetFile(_TS(E_PATH_ROOT) + _T("game/models/witch_slayer/high.model"), FILE_READ | FILE_MEMORY);
+		EFile* file = gFileManager->GetFile(_TS(FILE_PATH_ROOT_DIR) + MODEL_BASE_PATH + MODEL_MDL, FILE_READ | FILE_MEMORY);
 
 		ImportK2Model import(renderer, gWsMat);
 		if (import.Read(file))
@@ -175,21 +188,22 @@ bool			StartupRenderer()
 			GrModel& sceneModel(renderer.GetScene().GetModel());
 			model = import.GetModel();
 			sceneModel.AddChildModel(model);
+			gWsMdl = model;
 		}
 	}
 
 	// import anim.
 	if (model != NULL)
 	{
-		EFile* file = gFileManager->GetFile(_TS(E_PATH_ROOT) + _T("game/models/witch_slayer/clips/walk_1.clip"), FILE_READ | FILE_MEMORY);
+		EFile* file = gFileManager->GetFile(_TS(FILE_PATH_ROOT_DIR) + MODEL_BASE_PATH + MODEL_ANIM, FILE_READ | FILE_MEMORY);
 
 		ImportK2Anim import(renderer);
-		if (import.Read(file))
+		if (GrAnim* anim = import.Read(file))
 		{
+			gWsMdl->Animations()->PlayAnim(anim);
 		}
 	}
-
-	renderer.GetCamera().SetPosition(MVec3(0.0f, 0.0f,150.0f));
+	gEngine->GetCamera().SetPos(CAM_POS);
 
 	return true;
 }
@@ -224,7 +238,6 @@ int				main()
 {
 	// startup system
 	E_NEW("main", ESystem);
-	//gSystem->DisplayMessage(_T("Startup"), _T("Congrats!  You have started the Arachnid engine."));
 
 	// startup subsystems
 	E_NEW("main", EFileManager);
@@ -232,16 +245,33 @@ int				main()
 	// startup the engine
 	wstring renderer(E_PLATFORM_RENDERER);
 	renderer = ARACHNID_RENDERER;
-	EEngine::Create(_T("main"), renderer);
+
+	SEngineConfig config;
+	config.side = WORLD_SIDE;
+	config.up = WORLD_UP;
+	config.forward = WORLD_FORWARD;
+	config.renderer = renderer;
+
+	EEngine::Create(_T("main"), config);
 
 	// startup the renderer.
 	if (StartupRenderer())
 	{
+		gSystem->TimeStart();
+
+		uint timeLast = gSystem->TimeElapsed();
+		uint timeNow = timeLast;
+		uint dt = 0;
+
 		// main engine loop
-		while (gEngine->PerFrame())
+		while (gEngine->PerFrame(dt))
 		{
 			// relinquish some CPU time.
 			gSystem->Sleep(10);
+
+			timeLast = timeNow;
+			timeNow = gSystem->TimeElapsed();
+			dt = timeNow - timeLast;
 		}
 	}
 
@@ -255,12 +285,7 @@ int				main()
 	E_DELETE("main", gFileManager);
 
 	// shutdown system
-	//gSystem->DisplayMessage(_T("Fission Mailed"), _T("Congrats!  You ran the Arachnid engine."));
-	//gSystem->DisplayMessage(_T("WTF"), _T("Unfortunately, the engine doesn't even do anything yet."));
-	//gSystem->DisplayMessage(_T("Q_Q"), _T("Owned."));
 	E_DELETE("main", gSystem);
-
-	//gSystem->DisplayMessage(_T("Initialization Failed"), _TS("Failed to initialize the engine.  Error:\n\n") + ex.GetMessage());
 
 	return 0;
 }

@@ -23,6 +23,7 @@ private:
 	wstring		_rootDir;
 	wstring		_userDir;
 	wstring		_exePath;
+	uint		_timeStart;
 
 public:
 	ESystem();
@@ -66,6 +67,13 @@ public:
 
 	// prints a warning.
 	void				Warn(const wstring& context, const wstring& msg);
+
+	// returns the number of milliseconds since TimeStart was called.
+	uint				TimeElapsed();
+	void				TimeStart();
+
+	// returns whether a specific key is being pressed.
+	bool				IsKeyPressed(char c);
 };
 extern ENGINE_API ESystem*		gSystem;
 //========================================================================

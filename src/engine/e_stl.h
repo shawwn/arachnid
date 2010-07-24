@@ -36,5 +36,7 @@ using std::make_pair;
 
 typedef vector<string>		strvec;
 typedef vector<wstring>		wstrvec;
+
+typedef vector<uint>		uivec;
 //========================================================================
 

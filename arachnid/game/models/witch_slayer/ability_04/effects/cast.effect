@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect deferred="1" name="ability_02">
+	<definitions>
+	
+	
+
+		
+		<particlesystem name="system0" space="world">
+			
+
+		
+		<billboard
+			bone="_bone_fx_01"
+			material="/shared/effects/materials/whitedot.material"
+			life="1000"
+			startcolor="1 1 0"
+			midcolor="1 .2 0"
+			endcolor="0 0 0"			
+		/>
+		
+		
+		
+		<simpleemitter			
+			delay="0"
+			count="22"
+			spawnrate="11340"
+			minparticlelife="30"
+			maxparticlelife="100"
+			gravity="1.0"
+			speed="1800.0"
+			drag="0.0"
+			acceleration="0.0"
+			position="0 100 70"
+			minangle="0"
+			maxangle="25"
+			
+			direction="0 1 0"
+			offsetsphere="8 8 8"
+			
+			particledirectionalspace="local"	
+						
+		>
+					<particle>						
+						
+						<trailemitter
+							life="700"							
+							spawnrate="50"					
+						
+							
+							particlelife="700"
+							texpostime="700"
+							texposscale="0"
+							texstretchscale="1"
+							position="0 0 0"
+							material="/shared/effects/materials/arrow_trail.material"
+						>
+							<particle
+								startcolor=".8 .5 0"
+								midcolor=".5 .1 0"
+								endcolor="0 0 0"
+								midcolorpos=".2"
+								
+								startsize="0"
+								midsize="8"								
+								endsize="0"
+								midsizepos="0.2"
+							/>
+						</trailemitter>			
+									
+						
+					</particle>	
+
+		</simpleemitter>		
+		
+		
+		<simpleemitter			
+			delay="0"
+			count="122"
+			spawnrate="11340"
+			particlelife="530"
+			
+			gravity="12.0"
+			minspeed="600"
+			maxspeed="1800.0"
+			drag="0.03"
+			acceleration="0.0"
+			position="0 160 70"
+			minangle="0"
+			maxangle="25"			
+			direction="0 1 0"
+			offsetsphere="8 8 8"
+			material="/shared/effects/materials/whitedot.material"
+			particledirectionalspace="local"						
+		>
+			<particle
+				heightdistort="0.01"
+				startsize="5"
+				endsize="2"
+				startcolor="1 .2 0"
+				endcolor="0 0 0"
+				turn="1"
+			>	
+			</particle>				
+			
+		</simpleemitter>				
+				
+		<simpleemitter			
+			delay="0"
+			count="55"
+			spawnrate="2240"
+			particlelife="1530"
+			
+			gravity="-1.0"
+			minspeed="600"
+			maxspeed="1800.0"
+			drag="0.05"
+			acceleration="0.0"
+			position="0 100 70"
+			minangle="80"
+			maxangle="80"			
+			direction="0 1 0"
+			offsetsphere="8 8 8"		
+			particledirectionalspace="local"						
+			material="/shared/effects/materials/pyroclast_04.material"
+			>
+				<particle
+					minangle="-180"
+					maxangle="180"
+					minanglespeed="-150"
+					maxanglespeed="150"					
+					color=".2 .2 .2"
+					
+				
+					
+					startsize="50"
+					minendscale="6"
+					maxendscale="10"
+					startalpha=".45"
+					
+					endalpha="0"
+					midalphapos="0.1"
+				/>
+			
+		</simpleemitter>		
+
+		<simpleemitter
+			delay="0"
+			count="1"
+			spawnrate="110"
+			particlelife="1600"
+			gravity="1.0"
+			speed="10.0"
+			drag="0.0"
+			acceleration="0.0"
+			
+			minangle="0"
+			maxangle="0"
+			position="0 184 0"
+			direction="0 1 0"
+			offsetdirection="0 0 0"
+			offsetradial="0 0 0"
+			particledirectionalspace="local"	
+			inheritvelocity="0"
+			
+		>
+			<particle
+				
+			>
+				<billboard
+					life="100"
+					position="0 0 50"
+					material="/shared/effects/materials/flash.material"
+					lockup="1"
+					lockright="1"
+					pitch="90"
+					param=".012"
+					startsize="65"
+					endsize="180"
+					directionalspace="local"
+			
+				/>
+					
+			</particle>		
+
+		</simpleemitter>	
+
+	
+      </particlesystem>
+   </definitions>
+   <thread>
+      <spawnparticlesystem instance="instance0" particlesystem="system0" />
+	 
+      <waitfordeath instance="instance0" />
+      <!-- <die /> -->
+   </thread>
+</effect>
+
+<!-- [min|max][start|mid|end]property[speed][position] -->
+

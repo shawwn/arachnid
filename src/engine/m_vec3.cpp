@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		m_vec3.cpp
 //	author:		Shawn Presser 
-//	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -133,11 +132,11 @@ MVec3			MVec3::Dir(const MVec3& point)
 //===================
 // MVec3::Cross
 //===================
-MVec3			MVec3::Cross(const MVec3& v)
+MVec3			MVec3::Cross(const MVec3& v) const
 {
 	// verify that neither vector has a zero magnitude.
-	assert(!FloatSqrZero(MagSqr()));
-	assert(!FloatSqrZero(v.MagSqr()));
+	assert(!FloatZero(Mag()));
+	assert(!FloatZero(v.Mag()));
 
 	// | Ax Ay Az |
 	// | Bx By Bz |
@@ -146,6 +145,37 @@ MVec3			MVec3::Cross(const MVec3& v)
 	r.Y() = X()*v.Z() - Z()*v.X();
 	r.Z() = X()*v.Y() - Y()*v.X();
 	return r;
+}
+
+
+//===================
+// MVec3::Blend
+//===================
+MVec3			MVec3::Blend(const MVec3& dest, float t) const
+{
+	E_ASSERT(SATURATE(t) == t);
+
+	const float Ax(X());
+	const float Ay(Y());
+	const float Az(Z());
+
+	const float Bx(dest.X());
+	const float By(dest.Y());
+	const float Bz(dest.Z());
+
+	return MVec3(
+		LERP(Ax, Bx, t),
+		LERP(Ay, By, t),
+		LERP(Az, Bz, t));
+}
+
+
+//===================
+// MVec3::operator -
+//===================
+MVec3			MVec3::operator -() const
+{
+	return MVec3(-X(), -Y(), -Z());
 }
 
 
@@ -221,5 +251,23 @@ MVec3&			MVec3::operator *=(float s)
 	Y() *= s;
 	Z() *= s;
 	return *this;
+}
+
+
+//===================
+// MVec3::operator ==
+//===================
+bool			MVec3::operator ==(const MVec3& v) const
+{
+	return FloatsEqual(_v, v._v, 3);
+}
+
+
+//===================
+// MVec3::Compare
+//===================
+bool			MVec3::Compare(const MVec3& v, float epsilon) const
+{
+	return FloatsEqual(_v, v._v, 3, epsilon);
 }
 

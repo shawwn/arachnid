@@ -12,7 +12,10 @@
 //========================================================================
 class GrModel;
 class GrModelNode;
-class MMat44;
+class GrAnim;
+class GrAnimMixer;
+class MTransform;
+class EFile;
 struct GrModel_stl;
 //========================================================================
 
@@ -25,24 +28,29 @@ private:
 	wstring					_name;
 	GrModel_stl*			_stl;
 	GrModelNode*			_root;
+	GrAnimMixer*			_animMixer;
+	bool					_dirty;
 
 	static wstring			Sanitize(const wstring& pathName);
 	static bool				IsNameValid(const wstring& sanitizedName);
+
+	void					DoPrintDebug(EFile* file, const wstring& modelPath = _T(""), uint indent = 0) const;
 
 	GrModel();
 public:
 	static GrModel*			Create(const wchar_t* ctx, const wstring& modelName);
 	~GrModel();
 
+	void					PrintDebug(EFile* file = NULL, const wstring& donotset = _T(""), uint indent = 0) const;
+
 	const wstring&			GetName() const				{ return _name; }
 
 	// provides access to the model's skeleton.
 	GrModelNode&			GetRoot()					{ return *_root; }
 	const GrModelNode&		GetRoot() const				{ return *_root; }
-
-	// the model's transform.
-	const MMat44&			GetTransform() const;
-	void					SetTransform(const MMat44& m);
+	
+	void					SetDirty()					{ _dirty = true; }
+	bool					IsDirty() const				{ return _dirty; }
 
 	// adds a model to the tree.
 	// * returns true if the model is already in the tree.
@@ -61,6 +69,15 @@ public:
 	// provides array access to the child models.
 	GrModel*				GetChildModel(uint idx) const;
 	uint					NumChildModels() const;
+
+	// animation controls.
+	GrAnimMixer*			Animations();
+
+	// updates the model hierarchy (plays animations, etc)
+	void					Update(uint deltaTime);
+
+	// ensures that the transforms of the skeleton are up-to-date.
+	void					UpdateTransforms();
 };
 //========================================================================
 

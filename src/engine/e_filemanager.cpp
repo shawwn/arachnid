@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		e_filemanager.cpp
 //	author:		Shawn Presser 
-//	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -64,6 +63,17 @@ wstring		EFileManager::SanitizePath(const wstring& path)
 
 
 //===================
+// EFileManager::ParsePath
+//===================
+void		EFileManager::ParsePath(wstring& inOutPath, wstring& outName, wstring& outExtension)
+{
+	inOutPath = GetAbsolutePath(inOutPath);
+	outName = StrAfterLast(inOutPath, _T("/"));
+	outName = StrBeforeLast(outName, _T("."), &outExtension);
+}
+
+
+//===================
 // EFileManager::Exists
 //===================
 bool		EFileManager::Exists(const wstring& filePath)
@@ -88,14 +98,14 @@ wstring		EFileManager::GetAbsolutePath(const wstring& dirtyPath)
 	switch (path[0])
 	{
 		// use root dir (e.g. "c:/arachnid/")
-	case E_PATH_ROOT:
+	case FILE_PATH_ROOT_DIR:
 		path = path.substr(1);
 		if (!StrBeginsWith(path, gSystem->GetRootDir()))
 			path = gSystem->GetRootDir() + path;
 		break;
 
 		// use user dir (e.g. "c:/users/shawn/")
-	case E_PATH_USER:
+	case FILE_PATH_USER_DIR:
 		path = path.substr(1);
 		if (!StrBeginsWith(path, gSystem->GetUserDir()))
 			path = gSystem->GetUserDir() + path;
@@ -114,8 +124,9 @@ EFile*		EFileManager::GetFile(const wstring& path, uint mode)
 {
 	wstring absolutePath(GetAbsolutePath(path));
 
-	if (!Exists(absolutePath))
-		return NULL;
+	if ((mode & FILE_READ) != 0)
+		if (!Exists(absolutePath))
+			return NULL;
 
 	EFile* file(NULL);
 	

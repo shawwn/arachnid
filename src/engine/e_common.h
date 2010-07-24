@@ -23,7 +23,7 @@
 //========================================================================
 // Compile-Time Configuration
 //========================================================================
-#include "e_config.h"
+#include "e_constants.h"
 //========================================================================
 
 #if !E_EXCEPTIONS
@@ -48,13 +48,17 @@
 #include "e_api.h"
 #include "e_types.h"
 #include "e_stl.h"
+#include "e_utils.h"
 #include "e_string_utils.h"
 #include "e_exception.h"
-#include "e_utils.h"
+#include "e_string_converters.h"
+#include "e_ref.h"
 
 // math headers.
 #include "m_math.h"
 
 // graphics headers.
+#include "gr_config.h"
 #include "gr_types.h"
+#include "gr_utils.h"
 //========================================================================

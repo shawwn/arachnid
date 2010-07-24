@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		gr_driver.cpp
 //	author:		Shawn Presser 
-//	date:		7/1/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -23,7 +22,8 @@
 //===================
 GrDriver::GrDriver()
 : _scene(E_NEW("renderer", GrScene)(_T("global")))
-, _camera(E_NEW("camera", GrCamera))
+, _camera(NULL)
+, _isActive(false)
 {
 }
 
@@ -34,5 +34,4 @@ GrDriver::GrDriver()
 GrDriver::~GrDriver()
 {
 	E_DELETE("renderer", _scene);
-	E_DELETE("renderer", _camera);
 }

@@ -211,6 +211,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\e_constants.h"
+				>
+			</File>
+			<File
 				RelativePath=".\e_engine.cpp"
 				>
 			</File>
@@ -228,6 +232,14 @@
 			</File>
 			<File
 				RelativePath=".\e_stl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\e_string_converters.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\e_string_converters.h"
 				>
 			</File>
 			<File
@@ -291,6 +303,10 @@
 			Name="platform-specific"
 			>
 			<File
+				RelativePath=".\e_lean_windows.h"
+				>
+			</File>
+			<File
 				RelativePath=".\e_system.h"
 				>
 			</File>
@@ -343,6 +359,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\m_quat.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_quat.h"
+				>
+			</File>
+			<File
+				RelativePath=".\m_transform.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_transform.h"
+				>
+			</File>
+			<File
 				RelativePath=".\m_vec3.cpp"
 				>
 			</File>
@@ -355,11 +387,39 @@
 			Name="graphics"
 			>
 			<File
+				RelativePath=".\gr_anim.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_anim.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_anim_mixer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_anim_mixer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_anim_node.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_anim_node.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gr_camera.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\gr_camera.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_config.h"
 				>
 			</File>
 			<File
@@ -411,6 +471,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gr_skin.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_skin.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gr_texture.cpp"
 				>
 			</File>
@@ -424,6 +492,14 @@
 			</File>
 			<File
 				RelativePath=".\gr_types.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_utils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_utils.h"
 				>
 			</File>
 		</Filter>
@@ -444,6 +520,74 @@
 			</File>
 			<File
 				RelativePath=".\import_k2_model.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="tests"
+			>
+			<File
+				RelativePath=".\test_anim.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test_anim.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="expressions"
+			>
+			<File
+				RelativePath=".\e_expr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr_add.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr_add.h"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr_multiply.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr_multiply.h"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr_number.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr_number.h"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr_symbol.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\e_expr_symbol.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="refcount"
+			>
+			<File
+				RelativePath=".\e_ref.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\e_ref.h"
 				>
 			</File>
 		</Filter>

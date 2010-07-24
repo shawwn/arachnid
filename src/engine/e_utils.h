@@ -13,8 +13,8 @@
 
 // debug macros
 #define	E_ASSERT(x)							assert(x)
-#define E_VERIFY(cond, ifFail)				{ assert(##cond); if (!(cond)) { ifFail; } }
-#define E_VALIDATE(cond, ctx, msg, ifFail)	{ assert(##cond); if (!(cond)) { E_WARN(##ctx, ##msg); ifFail; } }
+#define E_VERIFY(cond, ifFail)				{ if (!(cond)) { assert(!""#cond); ifFail; } }
+#define E_VALIDATE(cond, ctx, msg, ifFail)	{ if (!(cond)) { E_WARN(##ctx, ##msg); ifFail; } }
 #define E_ERROR(ctx, msg)					{ E_WARN(##ctx, ##msg); exit(1); }
 #define E_WARN(ctx, msg)					assert(!"warning in "#ctx)
 
@@ -22,6 +22,7 @@
 #define E_NEW(ctx, type)					new type
 #define E_NEW_ARRAY(ctx, type, count)		new type[count]
 #define E_DELETE(ctx, ptr)					{ delete ptr; ptr = NULL; }
+#define E_DELETE_SELF(ctx, ptr)				{ delete ptr; }
 #define E_DELETE_ARRAY(ctx, ptr)			{ delete [] ptr; ptr = NULL; }
 
 // misc macros
@@ -127,7 +128,7 @@ inline void					MemCpy(void* dst, const void* src, uint size)
 // ArrayZero
 //===================
 template<class T>
-inline void					ArrayZero(const wchar_t* ctx, T* dst, uint count)
+inline void					ArrayZero(T* dst, uint count)
 {
 	if (dst == NULL || count == 0)
 		return;
@@ -171,10 +172,10 @@ inline T*					ArrayCpy(const wchar_t* ctx, const T* src, uint count)
 
 
 //===================
-// ESwap
+// Swap
 //===================
 template<class T>
-inline void					ESwap(T& a, T& b)
+inline void					Swap(T& a, T& b)
 {
 	T tmp(a);
 	a = b;

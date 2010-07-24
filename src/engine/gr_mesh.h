@@ -13,6 +13,7 @@
 class GL2Driver;
 class D3D9Driver;
 class Internal_GrDriver;
+class GrSkin;
 //========================================================================
 
 //========================================================================
@@ -35,6 +36,9 @@ private:
 	TriIdx*				_triIndices;
 	uint				_numTriangles;
 
+	// skin data.
+	GrSkin*				_skin;
+
 	void*				GetUserdata() const			{ return _userdata; }
 
 	GrMesh(Internal_GrDriver* driver);
@@ -49,6 +53,10 @@ public:
 	// provide access to index data.
 	const TriIdx*		GetTriIndices() const		{ return _triIndices; }
 	uint				GetNumTriangles() const		{ return _numTriangles; }
+
+	// provide access to skinning data.
+	const GrSkin*		GetSkin() const				{ return _skin; }
+	GrSkin*				GetSkin()					{ return _skin; }
 };
 //========================================================================
 

@@ -16,39 +16,71 @@
 //========================================================================
 // Constants
 //========================================================================
-#define M_PI			3.141592653579f
-#define M_2PI			6.283185307158f
+#define M_PI				3.141592653579f
+#define M_2PI				6.283185307158f
+#define M_HALF_PI			1.57079632267895f;
 
-#define M_FULL_TURN		M_2PI
-#define M_HALF_TURN		(0.5f   * M_FULL_TURN)
-#define M_QUARTER_TURN	(0.25f  * M_FULL_TURN)
-#define M_EIGTH_TURN	(0.125f * M_FULL_TURN)
+#define M_FULL_TURN			M_2PI
+#define M_HALF_TURN			(0.5f   * M_FULL_TURN)
+#define M_QUARTER_TURN		(0.25f  * M_FULL_TURN)
+#define M_EIGTH_TURN		(0.125f * M_FULL_TURN)
 
-#define M_ALMOST_ZERO	1e-7
+#define M_ALMOST_ZERO		1e-6
 //========================================================================
 
 //========================================================================
 // Definitions
 //========================================================================
-#define ABS(x)			abs(x)
-#define SQR(x)			((x)*(x))
-#define SQRT(x)			sqrtf(x)
 
-// trig functions
-#define SIN(x)			sinf(x)
-#define COS(x)			cosf(x)
-#define TAN(x)			tanf(x)
+// basic operations.
+#define ABS(x)				abs(x)
+#define SQR(x)				((x)*(x))
+#define SQRT(x)				sqrtf(x)
+#define MIN(a, b)			(((a) < (b)) ? (a) : (b))
+#define MAX(a, b)			(((a) > (b)) ? (a) : (b))
+#define CLAMP(lo, hi, v)	MAX(lo, MIN(hi, v))
+#define LERP(lo, hi, t)		((lo) + ((t)*((hi) - (lo))))
+#define SATURATE(v)			CLAMP(0, 1, v)
+#define FRAC(v)				fmod(v, 1.0f)
+#define MOD(val, div)		fmod(val, div)
+inline uint FLOOR(float v)	{ return (uint)v; }
+inline uint CEIL(float v)	{ return FLOOR(v + 1.0f); }
 
-#define ASIN(x)			asinf(x)
-#define ACOS(x)			acosf(x)
-#define ATAN(x)			atanf(x)
+// vector operations.
+#define DOT3(Ax, Ay, Az, Bx, By, Bz) \
+	((Ax)*(Bx) + (Ay)*(By) + (Az)*(Bz))
 
-#define ATAN2(x, y)		atan2f(x, y)
+// trig functions.
+#define SIN(x)				sinf(x)
+#define COS(x)				cosf(x)
+#define TAN(x)				tanf(x)
+inline void SINCOS(float theta, float& s, float& c)
+{
+	s = SIN(theta);
+	c = COS(theta);
+}
 
-// conversions
-#define RAD2DEG(theta)	((180.0f / M_PI) * theta)
-#define DEG2RAD(deg)	((M_PI / 180.0f) * deg)
-#define NEAR_ZERO(f)	(ABS(f) <= M_ALMOST_ZERO)
+#define ASIN(x)				asinf(x)
+#define ACOS(x)				acosf(x)
+#define ATAN(x)				atanf(x)
+
+#define ATAN2(x, y)			atan2f(x, y)
+
+// conversions.
+#define ANGLE_TO_DEGREES(theta)		((180.0f / M_PI) * (theta))
+#define DEGREES_TO_ANGLE(deg)		((M_PI / 180.0f) * (deg))
+
+// one turn = 2*PI radians
+#define ANGLE_TO_TURNS(theta)		((1.0f / M_FULL_TURN) * (theta))
+#define TURNS_TO_ANGLE(turns)		((M_FULL_TURN / 1.0f) * (turns))
+
+// 100% = 2*PI radians
+#define ANGLE_TO_PERCENT(theta)		((100.0f / M_FULL_TURN) * (theta))
+#define PERCENT_TO_ANGLE(percent)	((M_FULL_TURN / 100.0f) * (percent))
+
+// comparisons.
+#define BETWEEN(lo, hi, v)	(((v) >= lo) && ((v) <= hi))
+#define NEAR_ZERO(f)		(ABS(f) <= M_ALMOST_ZERO)
 //========================================================================
 
 //========================================================================
@@ -59,17 +91,39 @@
 // FloatZero
 //		returns whether 'f' is almost equivalent to zero.
 //===================
-inline bool				FloatZero(float f)
+inline bool					FloatZero(float f, float epsilon = M_ALMOST_ZERO)
 {
-	return ABS(f) <= M_ALMOST_ZERO;
+	if (ABS(f) > (2.0f * epsilon))
+		return false;
+
+	return true;
 }
 
+
 //===================
-// FloatZero
-//		returns whether 'sqrt(f)' is almost equivalent to zero.
+// FloatEqual
+//		returns whether 'a' is almost equivalent to 'b'.
 //===================
-inline bool				FloatSqrZero(float f)
+inline bool					FloatEqual(float a, float b, float epsilon = M_ALMOST_ZERO)
 {
-	return ABS(f) <= (M_ALMOST_ZERO * M_ALMOST_ZERO);
+	if (ABS(a - b) > (2.0f * epsilon))
+		return false;
+
+	return true;
+}
+
+
+//===================
+// FloatsEqual
+//		returns whether 'a' is almost equivalent to 'b'.
+//===================
+inline bool					FloatsEqual(const float* a, const float* b, uint count, float epsilon = M_ALMOST_ZERO)
+{
+	for (uint i = 0; i < count; ++i)
+	{
+		if (!FloatEqual((*a++), (*b++), epsilon))
+			return false;
+	}
+	return true;
 }
 //========================================================================

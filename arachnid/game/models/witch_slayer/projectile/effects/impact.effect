@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect useentityeffectscale="true">
+
+	<definitions>
+
+		<particlesystem name="system0" space="world" scale="1.25">
+			<sound
+				linearfalloff="true" 
+				falloffstart="1000"
+				falloffend="2500"
+				volume=".8"
+				sample="/shared/sounds/impacts/flesh_%.wav"
+			/>
+
+			<sound
+				linearfalloff="true" 
+				falloffstart="1000"
+				falloffend="2500"
+				volume=".3"
+				sample="../../sounds/impact_%.wav"
+			/>	
+			<simpleemitter
+				spawnrate="500"
+				bone="_bone_centerofchest"
+				timenudge="250"
+				count="20"
+				particlelife="425"
+				speed="100"
+				material="/shared/effects/materials/smoke_17.material"
+				offsetsphere="1 1 1"
+				minangle="360"
+				maxangle="180"
+				direction="1 0 0"
+			>
+				<particle 
+					minanglespeed="-50"
+					maxanglespeed="-150"
+					startsize="5"
+					midsize="20"
+					endsize="40"
+					startalpha="1"
+					midalpha=".8"
+					endalpha="0"
+					midalphapos=".5"
+				/>
+				<particle 
+					minanglespeed="50"
+					maxanglespeed="150"
+					startsize="5"
+					midsize="10"
+					endsize="25"
+					startalpha="0"
+					midalpha=".8"
+					endalpha="0"
+					midalphapos=".5"
+				/>
+			</simpleemitter>
+
+			<billboard
+				bone="_bone_centerofchest"	
+				material="/shared/effects/materials/blink.material"
+				startcolor=".4 .4 .8"
+				endcolor="0"
+				maxroll="360"
+				size="125"
+				depthbias="-30"
+				life="300"
+			/>
+
+			<billboard
+				bone="_bone_centerofchest"	
+				material="/shared/effects/materials/twirl_03.material"
+				startcolor="0 0.53 0.63"
+				endcolor="0"
+				maxroll="360"
+				size="100"
+				depthbias="-30"
+				life="300"
+			/>
+			
+			<simpleemitter
+				bone="_bone_centerofchest"
+				spawnrate="150"
+				count="10"
+				particlelife="1000"
+				gravity="25"
+				speed="600"
+				drag=".12"
+				acceleration="0"
+				position="0 0 0"
+				material="/shared/effects/materials/blood1.material"
+				offsetsphere="25 25 25"
+			>
+				<particle 
+					minangle="0"
+					maxangle="360"
+					minanglespeed="0"
+					maxanglespeed="0"
+					startcolor=".5 .5 .5"
+					midcolor=".3 .3 .3"
+					endcolor="0 0 0"
+					startframe="0"
+					endframe="1"
+					startsize="50"
+					midsize="75"
+					endsize="100"
+					startalpha="0"
+					midalpha="1"
+					endalpha="0"
+					midalphapos=".2"
+					startstickiness=".2"
+					endstickiness="0"
+				/>
+				
+				<particle 
+					minangle="0"
+					maxangle="360"
+					minanglespeed="0"
+					maxanglespeed="0"
+					startcolor=".75 .75 .75"
+					midcolor=".5 .5 .5"
+					endcolor="0 0 0"
+					startframe="0"
+					endframe="1"
+					startsize="50"
+					midsize="75"
+					endsize="100"
+					startalpha="0"
+					midalpha="1"
+					endalpha="0"
+					midalphapos=".2"
+					startstickiness=".2"
+					endstickiness="0"
+				/>
+			</simpleemitter>
+		</particlesystem>
+
+	</definitions>
+
+	<thread>
+		<spawnparticlesystem instance="instance0" particlesystem="system0" />
+		<waitfordeath instance="instance0" />
+	</thread>
+
+</effect>

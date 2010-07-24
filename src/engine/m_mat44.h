@@ -16,55 +16,62 @@ class MMat33;
 
 //========================================================================
 // MMat44
+//		Row-major 4x4 matrix.
 //========================================================================
 class ENGINE_API MMat44
 {
 private:
 	float	_v[16];
-
 public:
 	// ctors.
 	MMat44()												{ SetIdentity(); }
 	MMat44(const MMat44& m)									{ Set(m); }
-	MMat44(const float* p)									{ Set(p); }
-	MMat44(	float rotXx,	float rotYx,	float rotZx,	float Wx,
-			float rotXy,	float rotYy,	float rotZy,	float Wy,
-			float rotXz,	float rotYz,	float rotZz,	float Wz,
-			float Tx,		float Ty,		float Tz,		float Ww);
+	MMat44(	float _00,	float _01,	float _02,	float _03,
+			float _10,	float _11,	float _12,	float _13,
+			float _20,	float _21,	float _22,	float _23,
+			float _30,	float _31,	float _32,	float _33);
 
+	// constructs a matrix that represents a 3D rotation followed by a 3D translation.
+	explicit MMat44(const MMat33& rot, const MVec3& trans);
+
+	// constructs a matrix that represents a 3D rotation.
+	explicit MMat44(const MMat33& rot);
+
+	// constructs a matrix that represents a 3D translation.
+	explicit MMat44(const MVec3& trans);
+
+	// identity / zero.
 	static MMat44	Identity;
 	static MMat44	Zero;
 	void			SetIdentity()							{ Set(Identity); }
 	void			SetZero()								{ Set(Zero); }
 
-	// constructs a matrix that represents a 3D translation.
-	static MMat44	Translation(const MVec3& delta);
-
 	// accessors.
-	const float*	Get() const								{ return _v; }
-	float			Get(uint col, uint row) const			{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
-	float&			Get(uint col, uint row)					{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
-	float			operator()(uint col, uint row) const	{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
-	float&			operator()(uint col, uint row)			{ E_ASSERT(col < 4 && row < 4); return _v[4*col + row]; }
+	float			Get(uint y, uint x) const				{ E_ASSERT(y < 4 && x < 4); return _v[4*y + x]; }
+	float&			Get(uint y, uint x)						{ E_ASSERT(y < 4 && x < 4); return _v[4*y + x]; }
+	float			operator()(uint y, uint x) const		{ E_ASSERT(y < 4 && x < 4); return _v[4*y + x]; }
+	float&			operator()(uint y, uint x)				{ E_ASSERT(y < 4 && x < 4); return _v[4*y + x]; }
 
 	// setters.
-	void			Set(const float* p);
 	void			Set(const MMat44& m);
 	MMat44&			operator =(const MMat44& m);
 
-	// matrix decomposition.
-	MVec3			GetTranslation() const;
-	void			SetTranslation(const MVec3& t);
+	// computes whether the matrix is orthogonal.
+	bool			IsOrtho() const;
 
+	// matrix decomposition (could be slow, use carefully)
 	MMat33			GetRot() const;
-	void			SetRot(const MMat33& r);
+	void			SetRot(const MMat33& m);
+	MVec3			GetTrans() const;
+	void			SetTrans(const MVec3& v);
 
-	// rotates and translates the point.
-	MVec3			RotateTranslate(const MVec3& pt);
-	void			RotateTranslate(MVec3& pt);
+	// transposes the matrix.
+	MMat44			CalcTranspose();
 
-	// matrix multiplication.
+	// postmultiplies the matrix.  "A followed by B" is written (B * A)
 	MMat44			operator *(const MMat44& m) const;
-	MMat44&			operator *=(const MMat44& m);
+
+	// comparison.
+	bool			Compare(const MMat44& m, float epsilon) const;
 };
 //========================================================================

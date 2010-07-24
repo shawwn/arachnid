@@ -14,13 +14,6 @@
 //========================================================================
 
 //========================================================================
-// Constants
-//========================================================================
-#define E_PATH_ROOT		_T('#')
-#define E_PATH_USER		_T('~')
-//========================================================================
-
-//========================================================================
 // EFileManager
 //========================================================================
 class ENGINE_API EFileManager
@@ -30,6 +23,8 @@ public:
 	~EFileManager();
 
 	static wstring		SanitizePath(const wstring& path);
+
+	void				ParsePath(wstring& inOutPath, wstring& outName, wstring& outExtension);
 
 	bool				Exists(const wstring& filePath);
 

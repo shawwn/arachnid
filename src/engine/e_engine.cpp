@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		e_engine.cpp
 //	author:		Shawn Presser 
-//	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -20,10 +19,13 @@
 #include "m_vec3.h"
 #include "m_mat33.h"
 #include "m_mat44.h"
+#include "m_transform.h"
 
 // graphics headers.
 #include "gr_driver.h"
 #include "gr_camera.h"
+#include "gr_scene.h"
+#include "gr_model.h"
 //========================================================================
 
 //========================================================================
@@ -33,19 +35,30 @@ EEngine*	gEngine;
 //========================================================================
 
 //===================
+// EEngine::CenterMouse
+//===================
+void				EEngine::CenterMouse()
+{
+	_renderer->SetMousePos(_windowWidth/2, _windowHeight/2);
+	_mouseX = _windowWidth/2;
+	_mouseY = _windowHeight/2;
+}
+
+
+//===================
 // EEngine::EEngine
 //===================
 EEngine::EEngine()
 	: _renderer(NULL)
 	, _rendererLib(NULL)
 	, _rendererLibShutdownFn(NULL)
+	, _cam(NULL)
 	, _windowWidth(E_DEFAULT_WINDOW_WIDTH)
 	, _windowHeight(E_DEFAULT_WINDOW_HEIGHT)
 	, _mouseX(_windowWidth/2)
 	, _mouseY(_windowHeight/2)
-	, _camRotX(0.0f)
-	, _camRotY(0.0f)
 	, _done(false)
+	, _wasActive(false)
 {
 }
 
@@ -53,7 +66,7 @@ EEngine::EEngine()
 //===================
 // EEngine::Create
 //===================
-EEngine*			EEngine::Create(const wstring& ctx, const wstring& rendererName)
+EEngine*			EEngine::Create(const wstring& ctx, const SEngineConfig& config)
 {
 	E_VALIDATE(gSystem != NULL,
 		"engine", "system not initialized.",
@@ -68,9 +81,13 @@ EEngine*			EEngine::Create(const wstring& ctx, const wstring& rendererName)
 		return NULL);
 
 	EEngine* result(E_NEW(ctx, EEngine));
+	gEngine = result;
+
+	// create the camera.
+	result->_cam = E_NEW("engine", GrFirstPersonCamera)(config.side, config.up, config.forward);
 
 	// load the renderer.
-	wstring renderer(StrLower(StrTrim(rendererName)));
+	wstring renderer(StrLower(StrTrim(config.renderer)));
 	if (!renderer.empty()
 		&& renderer != _T("none")
 		&& renderer != _T("null"))
@@ -84,9 +101,12 @@ EEngine*			EEngine::Create(const wstring& ctx, const wstring& rendererName)
 		// attempt to load the renderer's dynamic library from disk.
 		result->_rendererLib = gSystem->LoadLib(rendererLibName);
 		E_VALIDATE(result->_rendererLib != NULL,
-			"engine", _TS("Failed to load the renderer '") + rendererName + _TS("': The DLL '") + rendererLibName + _T("' does not exist.  Please reinstall."),
+			"engine", _TS("Failed to load the renderer '") + config.renderer + _TS("': The DLL '") + rendererLibName + _T("' does not exist.  Please reinstall."),
+		{
+			gEngine = NULL;
 			E_DELETE("engine", result);
-			return NULL );
+			return NULL;
+		});
 
 		// find the entry point and exit point.
 		RendererLibStartupFunc startupFn(NULL);
@@ -96,8 +116,11 @@ EEngine*			EEngine::Create(const wstring& ctx, const wstring& rendererName)
 		shutdownFn = (RendererLibShutdownFunc)gSystem->GetLibFunction(result->_rendererLib, GR_LIB_SHUTDOWN_FUNC);
 		E_VALIDATE(startupFn != NULL && shutdownFn != NULL,
 			"engine", _TS("Failed to load the renderer DLL '") + renderer + _TS("': The DLL is invalid.  Please reinstall."),
+		{
+			gEngine = NULL;
 			E_DELETE("engine", result);
-			return NULL );
+			return NULL;
+		});
 
 		result->_rendererLibShutdownFn = shutdownFn;
 
@@ -107,45 +130,17 @@ EEngine*			EEngine::Create(const wstring& ctx, const wstring& rendererName)
 			E_DEFAULT_WINDOW_TITLE);
 		E_VALIDATE(result->_renderer != NULL,
 			"engine", _TS("Failed to initialize the renderer.  Please reinstall.  If the problem persists, you may need to upgrade your video card."),
-			E_DELETE("engine", result);
-			return NULL );
-	}
-
-	// unit tests.
-	if (0)
-	{
-		// test filesystem.
-		EFile* file(gFileManager->GetFile(_TS(E_PATH_ROOT) + _T("test.txt"), FILE_READ | FILE_TEXT));
-		if (file != NULL)
 		{
-			wstrvec lines;
-			while (!file->IsEOF())
-				lines.push_back(file->ReadLine());
-			file->Close();
-			E_DELETE("engine", file);
-		}
+			gEngine = NULL;
+			E_DELETE("engine", result);
+			return NULL;
+		});
 
-		// test matrices.
-		MVec3	pt(1.0f, 0.0f, 0.0f);
-		MMat33	rotX(MMat33::XRot(M_EIGTH_TURN));
-		MMat33	rotY(MMat33::YRot(M_EIGTH_TURN));
-		MMat33	rotZ(MMat33::ZRot(M_EIGTH_TURN));
-		MMat33	rotZY(rotY * rotZ);
-
-		rotZ.Rotate(pt);
-		rotY.Rotate(pt);
-
-		pt.Set(1.0f, 0.0f, 0.0f);
-		rotZY.Rotate(pt);
-
-		pt.Set(1.0f, 0.0f, 0.0f);
-		MMat44  trans;
-		trans.SetRot(rotZY);
-		trans.RotateTranslate(pt);
+		// set the camera.
+		result->_renderer->SetCamera(result->_cam);
 	}
 
 	// return the engine.
-	gEngine = result;
 	return result;
 }
 
@@ -162,6 +157,9 @@ EEngine::~EEngine()
 	// unload the renderer DLL.
 	gSystem->UnloadLib(_rendererLib);
 
+	// delete the camera.
+	E_DELETE("engine", _cam);
+
 	if (gEngine == this)
 		gEngine = NULL;
 }
@@ -170,13 +168,17 @@ EEngine::~EEngine()
 //===================
 // EEngine::PerFrame
 //===================
-bool				EEngine::PerFrame()
+bool				EEngine::PerFrame(uint dt)
 {
 	if (_done)
 		return true;
 
 	if (_renderer != NULL)
 	{
+		_renderer->GetScene().GetModel().Update(dt);
+		
+		GrFirstPersonCamera* cam((GrFirstPersonCamera*)_cam);
+
 		// update the renderer.
 		if (!_renderer->BeginFrame())
 		{
@@ -185,25 +187,47 @@ bool				EEngine::PerFrame()
 		}
 		_renderer->EndFrame();
 
+		bool isActive = _renderer->IsWindowActive();
+		if (isActive && !_wasActive)
+			CenterMouse();
+		_wasActive = isActive;
 
-		// rotate the camera.
-		if (_mouseX != _windowWidth/2 || _mouseY != _windowHeight/2)
+		if (isActive)
 		{
-			float dX = ((int)_windowWidth/2 - _mouseX) / (float)_windowWidth;
-			float dY = ((int)_windowHeight/2 - _mouseY) / (float)_windowHeight;
+			// rotate the camera.
+			if (_mouseX != _windowWidth/2 || _mouseY != _windowHeight/2)
+			{
+				float dX = ((int)_windowWidth/2 - _mouseX) / (float)_windowWidth;
+				float dY = ((int)_windowHeight/2 - _mouseY) / (float)_windowHeight;
 
-			_camRotX += dX;
-			_camRotY += dY;
+				cam->YawTilt(TURNS_TO_ANGLE(dX), TURNS_TO_ANGLE(dY));
+				CenterMouse();
+			}
 
-			MMat33 rotLeftRight(MMat33::YRot(M_2PI * _camRotX));
-			MMat33 rotUpDown(MMat33::XRot(M_2PI * _camRotY));
-			MMat33 rot(rotLeftRight * rotUpDown);
+			// move the camera.
+			const float speed = 100.0f;
+			float t = speed * (dt / 1000.0f);
 
-			_renderer->GetCamera().SetRotation(rot);
+			MVec3 impulse(0.0f, 0.0f, 0.0f);
 
-			_renderer->SetMousePos(_windowWidth/2, _windowHeight/2);
-			_mouseX = _windowWidth/2;
-			_mouseY = _windowHeight/2;
+			if (gSystem->IsKeyPressed('w'))
+				impulse.Z() += t;
+			if (gSystem->IsKeyPressed('s'))
+				impulse.Z() -= t;
+
+			if (gSystem->IsKeyPressed('d'))
+				impulse.X() += t;
+			if (gSystem->IsKeyPressed('a'))
+				impulse.X() -= t;
+
+			if (gSystem->IsKeyPressed(' '))
+				impulse.Y() += t;
+			if (gSystem->IsKeyPressed('c'))
+				impulse.Y() -= t;
+			cam->Impulse(impulse);
+
+			if (gSystem->IsKeyPressed(0x1B)) // Escape
+				return false;
 		}
 	}
 

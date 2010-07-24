@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		gr_model.cpp
 //	author:		Shawn Presser 
-//	date:		7/2/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -11,7 +10,14 @@
 //========================================================================
 #include "e_common.h"
 #include "gr_model.h"
+
+// graphics headers.
 #include "gr_model_node.h"
+#include "gr_anim_mixer.h"
+
+// debug headers.
+#include "e_filemanager.h"
+#include "gr_anim.h"
 //========================================================================
 
 //========================================================================
@@ -81,12 +87,51 @@ bool				GrModel::IsNameValid(const wstring& sanitizedName)
 
 
 //===================
+// GrModel::DoPrintDebug
+//===================
+void				GrModel::DoPrintDebug(EFile* file, const wstring& modelPath, uint indent) const
+{
+	wstring fullModelPath(_name);
+	if (!modelPath.empty())
+		fullModelPath = _TP("%s/%s", modelPath.c_str(), _name.c_str());
+
+	// set the indentation level.
+	file->SetIndent(indent);
+
+	// write the header.
+	file->BeginTextHeader();
+	file->WriteLine(_TP("Model [%s]", _name.c_str()));
+	file->EndTextHeader();
+
+	// write the info.
+	if (_animMixer != NULL)
+		if (GrAnim* anim = _animMixer->GetCurrentAnim())
+			file->WriteLine(_TP("Anim    %s", anim->GetName().c_str()));
+
+	file->WriteBlankLine();
+
+	// write the node hierarchy.
+	_root->PrintDebug(file, indent + 1);
+
+	// recurse to children.
+	for (ModelMap::const_iterator it(_stl->models.begin()), itEnd(_stl->models.end()); it != itEnd; ++it)
+	{
+		GrModel* child(it->second);
+		child->DoPrintDebug(file, fullModelPath, indent + 1);
+	}
+}
+
+
+//===================
 // GrModel::GrModel
 //===================
 GrModel::GrModel()
 : _root(E_NEW("model", GrModelNode)(_T("root")))
 , _stl(E_NEW("model", GrModel_stl))
+, _animMixer(NULL)
+, _dirty(false)
 {
+	_root->SetOwner(this);
 }
 
 
@@ -115,26 +160,30 @@ GrModel*				GrModel::Create(const wchar_t* ctx, const wstring& dirtyName)
 //===================
 GrModel::~GrModel()
 {
+	E_DELETE("model", _animMixer);
 	E_DELETE("model", _root);
 	E_DELETE("model", _stl);
 }
 
 
 //===================
-// GrModel::GetTransform
+// GrModel::PrintDebug
 //===================
-const MMat44&			GrModel::GetTransform() const
+void					GrModel::PrintDebug(EFile* file, const wstring& modelPath, uint indent) const
 {
-	return _root->GetTransform();
-}
+	if (file != NULL)
+	{
+		DoPrintDebug(file);
+		return;
+	}
 
-
-//===================
-// GrModel::SetTransform
-//===================
-void					GrModel::SetTransform(const MMat44& m)
-{
-	_root->SetTransform(m);
+	wstring fullModelPath(PRINT_STR(_T("%s[%s]"), modelPath.c_str(), _name.c_str()));
+	wstring filePath(PRINT_STR(_T("~model-%s.txt"), fullModelPath.c_str()));
+	if (file = gFileManager->GetFile(filePath, FILE_WRITE | FILE_TEXT))
+	{
+		DoPrintDebug(file);
+		E_DELETE("model", file);
+	}
 }
 
 
@@ -272,5 +321,50 @@ GrModel*				GrModel::GetChildModel(uint idx) const
 uint					GrModel::NumChildModels() const
 {
 	return _stl->modelsVec.size();
+}
+
+
+//===================
+// GrModel::Animations
+//===================
+GrAnimMixer*			GrModel::Animations()
+{
+	if (_animMixer == NULL)
+	{
+		_animMixer = new GrAnimMixer(_root);
+	}
+	return _animMixer;
+}
+
+
+//===================
+// GrModel::Update
+//===================
+void					GrModel::Update(uint deltaTime)
+{
+	if (_animMixer != NULL)
+	{
+		_animMixer->Update(deltaTime);
+	}
+
+	// recurse to children.
+	for (ModelMap::iterator it(_stl->models.begin()), itEnd(_stl->models.end()); it != itEnd; ++it)
+	{
+		GrModel* child(it->second);
+		child->Update(deltaTime);
+	}
+}
+
+
+//===================
+// GrModel::UpdateTransforms
+//===================
+void					GrModel::UpdateTransforms()
+{
+	if (!_dirty)
+		return;
+
+	_root->Update(MTransform::Identity);
+	_dirty = false;
 }
 

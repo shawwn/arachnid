@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		gr_mesh.cpp
 //	author:		Shawn Presser 
-//	date:		7/2/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -14,6 +13,7 @@
 
 // graphics headers.
 #include "gr_driver.h"
+#include "gr_skin.h"
 //========================================================================
 
 
@@ -28,6 +28,7 @@ GrMesh::GrMesh(Internal_GrDriver* driver)
 , _numVertices(0)
 , _triIndices(NULL)
 , _numTriangles(0)
+, _skin(NULL)
 {
 	E_ASSERT(driver);
 }
@@ -44,6 +45,9 @@ GrMesh::~GrMesh()
 	E_DELETE_ARRAY("mesh", _positions);
 	E_DELETE_ARRAY("mesh", _texcoords);
 	E_DELETE_ARRAY("mesh", _triIndices);
+
+	// delete skin data.
+	E_DELETE("mesh", _skin);
 }
 
 

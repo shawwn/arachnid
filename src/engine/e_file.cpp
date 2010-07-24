@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		e_file.cpp
 //	author:		Shawn Presser 
-//	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -11,6 +10,18 @@
 //========================================================================
 #include "e_common.h"
 #include "e_file.h"
+
+// engine headers.
+#include "e_filemanager.h"
+
+// graphics headers.
+#include "gr_types.h"
+
+// math headers.
+#include "m_vec3.h"
+#include "m_mat33.h"
+#include "m_mat44.h"
+#include "m_transform.h"
 //========================================================================
 
 //===================
@@ -82,12 +93,103 @@ bool		EFile::OnFileOpened()
 
 
 //===================
+// EFile::OnFileOpened
+//===================
+void				EFile::OnFileClosed()
+{
+	_mode = 0;
+	_indent = 0;
+	_textEncoding = TE_UTF8;
+
+	E_ASSERT(!_writingTextHeader);
+	_textHeaderPrefix.clear();
+	_textHeaderStr.clear();
+	_writingTextHeader = false;
+	_indentHeaderLines = false;
+}
+
+
+//===================
+// EFile::PrefixLine
+//===================
+uint				EFile::PrefixLine(uint numLineChars, uint indent)
+{
+	uint bytes(0);
+
+	if (_writingTextHeader)
+	{
+		// write the indentation.
+		while (indent != 0)
+		{
+			bytes += WriteText(E_INDENT, E_INDENT_CHARS);
+			--indent;
+		}
+
+		// write the header prefix.
+		bytes += WriteText(_textHeaderPrefix);
+
+		// write the padding.
+		bytes += WriteText(_textHeaderPadding);
+
+		// write the header indentation, if necessary.
+		if (_indentHeaderLines && numLineChars > 0)
+			bytes += WriteText("    ", 2);
+
+		// indent subsequent header lines.
+		_indentHeaderLines = true;
+	}
+	else
+	{
+		// if we're writing a blank line, then don't indent.
+		if (numLineChars > 0)
+		{
+			// write the indentation.
+			while (indent != 0)
+			{
+				bytes += WriteText(E_INDENT, E_INDENT_CHARS);
+				--indent;
+			}
+		}
+	}
+
+	return bytes;
+}
+
+
+//===================
 // EFile::EFile
 //===================
 EFile::EFile()
 : _mode(0)
+, _indent(0)
 , _textEncoding(TE_UTF8)
+, _writingTextHeader(false)
+, _indentHeaderLines(false)
 {
+}
+
+
+//===================
+// EFile::Open
+//===================
+bool		EFile::Open(const wstring& path, uint mode)
+{
+	E_VERIFY(gFileManager != NULL, return false);
+
+	// if we're already open, abort.
+	E_VERIFY(!IsOpen(), return false);
+
+	// validate the mode.
+	E_VERIFY(IsModeValid(mode), return false);
+
+	// store the file mode.
+	_mode = mode;
+
+	// store the file path.
+	_fullPath = path;
+	gFileManager->ParsePath(_fullPath, _name, _extension);
+
+	return true;
 }
 
 
@@ -156,9 +258,163 @@ wstring		EFile::ReadLine()
 
 
 //===================
+// EFile::WriteText
+//===================
+uint				EFile::WriteText(const wstring& str)
+{
+	// write UTF-8.
+	return WriteText(WStringToString(str));
+}
+
+
+//===================
+// EFile::WriteText
+//===================
+uint				EFile::WriteText(const string& str)
+{
+	if (str.empty())
+		return 0;
+
+	E_ASSERT(_textEncoding == TE_UTF8);
+	return Write((const byte*)str.c_str(), sizeof(char) * str.size());
+}
+
+
+//===================
+// EFile::WriteText
+//===================
+uint				EFile::WriteText(const char* str, uint count)
+{
+	if (count == 0)
+		return 0;
+
+	return Write((const byte*)str, sizeof(char) * count);
+}
+
+
+//===================
+// EFile::WriteLine
+//===================
+uint				EFile::WriteLine(const wstring& str)
+{
+	uint bytes(0);
+
+	// write the line prefix.
+	bytes += PrefixLine((uint)str.size(), _indent);
+
+	// write the string.
+	bytes += WriteText(str);
+
+	// write the newline.
+	bytes += WriteText(E_NEWLINE, E_NEWLINE_CHARS);
+
+	// return number of bytes written.
+	return bytes;
+}
+
+
+//===================
+// EFile::WriteLine
+//===================
+uint				EFile::WriteLine(const string& str)
+{
+	uint bytes(0);
+
+	// write the line prefix.
+	bytes += PrefixLine((uint)str.size(), _indent);
+
+	// write the string.
+	bytes += WriteText(str);
+
+	// write the newline.
+	bytes += WriteText(E_NEWLINE, E_NEWLINE_CHARS);
+
+	// return number of bytes written.
+	return bytes;
+}
+
+
+//===================
+// EFile::WriteBlankLine
+//===================
+uint				EFile::WriteBlankLine(uint count)
+{
+	uint bytes(0);
+
+	while (count > 0)
+	{
+		// write the line prefix.
+		PrefixLine(0, _indent);
+
+		// write the newline.
+		bytes += WriteText(E_NEWLINE, E_NEWLINE_CHARS);
+
+		// write the next blank line.
+		--count;
+	}
+
+	// return number of bytes written.
+	return bytes;
+}
+
+
+//===================
+// EFile::BeginTextHeader
+//===================
+uint				EFile::BeginTextHeader(const string& headerStr, const string& headerPrefix)
+{
+	uint bytes(0);
+
+	E_VERIFY(!_writingTextHeader, return 0);
+	_writingTextHeader = true;
+	_indentHeaderLines = false;
+
+	// store the text header info.
+	_textHeaderPrefix = headerPrefix;
+	_textHeaderStr = headerStr;
+
+	// write the header line.
+	bytes += WriteLine(headerStr);
+
+	// the header line doesn't count.
+	_indentHeaderLines = false;
+
+	// add padding.
+	_textHeaderPadding = " ";
+
+	return bytes;
+}
+
+
+//===================
+// EFile::EndTextHeader
+//===================
+uint				EFile::EndTextHeader()
+{
+	uint bytes(0);
+
+	E_VERIFY(_writingTextHeader, return 0);
+
+	// remove padding.
+	_textHeaderPadding.clear();
+
+	// don't indent the footer line.
+	_indentHeaderLines = false;
+
+	// write the footer line.
+	bytes += WriteLine(_textHeaderStr);
+
+	// we are no longer writing the text header.
+	_writingTextHeader = false;
+
+	return bytes;
+}
+
+
+//===================
 // EFile::GetRemainingSize
 //===================
-uint		EFile::GetRemainingSize() const
+uint				EFile::GetRemainingSize() const
 {
 	E_VERIFY(IsOpen(), return 0);
 	E_VERIFY(HasMode(FILE_READ), return 0);
@@ -167,6 +423,162 @@ uint		EFile::GetRemainingSize() const
 	uint size(GetFileSize());
 	E_VERIFY(pos <= size, return 0);
 	return size - pos;
+}
+
+
+//===================
+// EFile::ReadByte
+//===================
+byte				EFile::ReadByte()
+{
+	byte r(0);
+	uint bytesRead(ReadType(r));
+	E_VALIDATE(bytesRead == sizeof(byte),
+		"file", _T("ReadByte: hit end of file"),
+		return 0);
+	return r;
+}
+
+
+//===================
+// EFile::ReadShort
+//===================
+short				EFile::ReadShort()
+{
+	short r(0);
+	uint bytesRead(ReadType(r));
+	E_VALIDATE(bytesRead == sizeof(short),
+		"file", _T("ReadShort: hit end of file"),
+		return 0);
+	return r;
+}
+
+
+//===================
+// EFile::ReadInt
+//===================
+int					EFile::ReadInt()
+{
+	int r(0);
+	uint bytesRead(ReadType(r));
+	E_VALIDATE(bytesRead == sizeof(int),
+		"file", _T("ReadInt: hit end of file"),
+		return 0);
+	return r;
+}
+
+
+//===================
+// EFile::ReadFloat
+//===================
+float				EFile::ReadFloat()
+{
+	float r(0.0f);
+	uint bytesRead(ReadType(r));
+	E_VALIDATE(bytesRead == sizeof(float),
+		"file", _T("ReadFloat: hit end of file"),
+		return 0.0f);
+	return r;
+}
+
+
+//===================
+// EFile::ReadSVec3
+//===================
+SVec3				EFile::ReadSVec3()
+{
+	SVec3 r;
+	uint bytesRead(0);
+
+	bytesRead += ReadType(r.X());
+	bytesRead += ReadType(r.Y());
+	bytesRead += ReadType(r.Z());
+	E_VALIDATE(bytesRead == 3*sizeof(float),
+		"file", _T("ReadSVec3: hit end of file"),
+		return SVec3::Zero);
+	return r;
+}
+
+
+//===================
+// EFile::ReadMVec3
+//===================
+MVec3				EFile::ReadMVec3()
+{
+	MVec3 r;
+	uint bytesRead(0);
+
+	bytesRead += ReadType(r.X());
+	bytesRead += ReadType(r.Y());
+	bytesRead += ReadType(r.Z());
+	E_VALIDATE(bytesRead == 3*sizeof(float),
+		"file", _T("ReadMVec3: hit end of file"),
+		return MVec3::Zero);
+	return r;
+}
+
+
+//===================
+// EFile::ReadMMat33
+//===================
+MMat33				EFile::ReadMMat33(bool rowMajor)
+{
+	uint bytesRead(0);
+	float vals[3][3];
+	for (int i = 0; i < 3; ++i)
+		for (int j = 0; j < 3; ++j)
+			bytesRead += ReadType(vals[i][j]);
+
+	E_VALIDATE(bytesRead == 9*sizeof(float),
+		"file", _T("ReadMMat33: hit end of file"),
+		return MMat33::Identity);
+
+	MMat33 r;
+	if (rowMajor)
+	{
+		for (int row = 0; row < 3; ++row)
+			for (int col = 0; col < 3; ++col)
+				r(row, col) = vals[row][col];
+	}
+	else
+	{
+		for (int row = 0; row < 3; ++row)
+			for (int col = 0; col < 3; ++col)
+				r(row, col) = vals[col][row];
+	}
+	return r;
+}
+
+
+//===================
+// EFile::ReadMTransform
+//===================
+MTransform			EFile::ReadTransform(bool rowMajor)
+{
+	uint bytesRead(0);
+	float vals[4][3];
+	for (int i = 0; i < 4; ++i)
+		for (int j = 0; j < 3; ++j)
+			bytesRead += ReadType(vals[i][j]);
+
+	E_VALIDATE(bytesRead == 12*sizeof(float),
+		"file", _T("ReadTransform: hit end of file"),
+		return MTransform::Identity);
+
+	MMat44 r;
+	if (rowMajor)
+	{
+		for (int row = 0; row < 4; ++row)
+			for (int col = 0; col < 3; ++col)
+				r(row, col) = vals[row][col];
+	}
+	else
+	{
+		for (int row = 0; row < 3; ++row)
+			for (int col = 0; col < 4; ++col)
+				r(row, col) = vals[col][row];
+	}
+	return MTransform(r);
 }
 
 

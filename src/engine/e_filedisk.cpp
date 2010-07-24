@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		e_filedisk.cpp
 //	author:		Shawn Presser 
-//	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -38,14 +37,8 @@ EFileDisk::~EFileDisk()
 //===================
 bool		EFileDisk::Open(const wstring& path, uint mode)
 {
-	// if we're already open, abort.
-	E_VERIFY(!IsOpen(), return false);
-
-	// validate the mode.
-	E_VERIFY(IsModeValid(mode), return false);
-
-	// store the file mode.
-	_mode = mode;
+	if (!EFile::Open(path, mode))
+		return false;
 
 	// open the file.
 	if (HasMode(FILE_READ))

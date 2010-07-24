@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect deferred="true">
+	<definitions>
+		<particlesystem name="system0" space="local" scale="1.0">
+		
+			<light
+				bone="bullet"
+				life="1150"			
+				startcolor=".2 .5 3"			
+				endcolor="0 0 0"
+				midcolorpos=".2"
+				falloffstart="00"
+				falloffend="1055"	
+			    position="0 0 100"
+			/>	
+			
+			<trailemitter
+				spawnrate="50"
+				particlelife="800"
+				texpostime="800"
+			 	texposscale="0.0"
+			 	texstretchscale=".4"
+				material="/shared/effects/materials/arrow_trail.material"
+			>
+				<particle
+					 startcolor=".5 .5 1"
+					 midcolor=".3 0.6 1"
+					 endcolor="0 0 0"
+					 startsize="10"
+					 midsize="140"
+					 endsize="30"
+					 midsizepos="0.2"
+			 />
+
+			</trailemitter>		
+			
+		
+			
+			
+<!--
+			
+			<simpleemitter	
+				delay="264"
+				spawnrate="1325"				
+				particlelife="800"								
+				position="0 0 0"
+				drag="0.2"
+				speed="120"
+				count="122"
+				material="/shared/effects/materials/splatter_blend.material"				
+				particledirectionalspace="local"
+				offsetdirection="0 0 0"
+				offsetradial="0"
+				inheritvelocity="0.5"
+			>
+
+				<particle 
+					minanglespeed="-100"
+					maxanglespeed="100"
+					minangle="-360"
+					maxangle="360"
+					color=".5 0 0"
+					startsize="80"
+					minendsize="140"
+					maxendsize="220"
+					startalpha="0"
+				
+					midalpha="1"
+					endalpha="0"
+				/>
+			</simpleemitter>
+	-->
+
+
+
+
+			
+			
+			
+			
+			
+			<simpleemitter			
+				spawnrate="15"				
+				particlelife="800"								
+				position="0 0 0"
+				material="/shared/effects/materials/shieldstarfish.material"				
+				particledirectionalspace="local"
+				offsetdirection="0 0 0"
+				offsetradial="0"
+			>
+
+				<particle 
+					minangle="-15"
+					maxangle="-15"
+					minanglespeed="0"
+					startcolor=".3 .5 1"
+					endcolor="0 0 0"
+					maxanglespeed="00"
+					startframe="0"
+					endframe="1"
+									
+					startsize="20"				
+					endsize="500"				
+
+					startalpha=".3"
+					midalpha=".3"
+					endalpha="0"
+					midalphapos=".5"					
+					
+					lockup="true"
+					lockright="1"
+					pitch="0"
+					flare="0"
+					yaw="00"
+				
+				/>
+			</simpleemitter>
+				
+			
+			
+			<simpleemitter
+			
+				spawnrate="15"				
+				particlelife="800"								
+				position="0 0 0"
+				material="/shared/effects/materials/refract_swell.material"				
+				particledirectionalspace="local"
+				offsetdirection="0 0 0"
+				offsetradial="0"
+				param=".4"
+			>
+
+				<particle 		
+					startsize="520"				
+					endsize="800"				
+					param="0.5"
+					startalpha=".3"
+					midalpha=".3"
+					endalpha="0"
+					midalphapos=".5"					
+					
+					lockup="true"
+					lockright="1"
+					pitch="0"
+					flare="0"
+					yaw="00"
+				
+				/>
+			</simpleemitter>			
+		
+			
+			<billboard
+				life="400"
+				bone="_bone_maina"				
+				color="1.0 1.0 1.0"				
+				size="600"
+				startparam=".15"				
+				depthbias="100"				
+				material="/shared/effects/materials/refract_swell_directional.material"
+				lockup="true"
+				roll="270"
+				pitch="90"
+				turn="true"
+			/>				
+			<!--	-->
+			
+		</particlesystem>
+	</definitions>
+	<thread>
+		<spawnparticlesystem instance="instance0" particlesystem="system0" />
+		<waitfordeath instance="instance0" />
+		<!-- <die /> -->
+	</thread>
+</effect>
+
+<!-- [min|max][start|mid|end]property[speed][pos] -->
+

@@ -11,7 +11,7 @@
 // Headers
 //========================================================================
 #include "m_vec3.h"
-#include "m_mat33.h"
+#include "m_transform.h"
 //========================================================================
 
 //========================================================================
@@ -19,19 +19,53 @@
 //========================================================================
 class ENGINE_API GrCamera
 {
-private:
-	MVec3		_position;
-	MMat33		_rotation;
+protected:
+	MVec3					_pos;
+
+	MVec3					_side;
+	MVec3					_up;
+	MVec3					_forward;
 
 public:
-	GrCamera();
-	~GrCamera();
+	GrCamera(const MVec3& side, const MVec3& up, const MVec3& forward);
+	virtual ~GrCamera();
 
-	const MVec3&		GetPosition() const					{ return _position; }
-	void				SetPosition(const MVec3& pos)		{ _position = pos; }
+	virtual const MVec3&	GetPos() const					{ return _pos; }
+	virtual void			SetPos(const MVec3& pos)		{ _pos = pos; }
+	virtual void			AddPos(const MVec3& delta)		{ _pos += delta; }
 
-	const MMat33&		GetRotation() const					{ return _rotation; }
-	void				SetRotation(const MMat33& pos)		{ _rotation = pos; }
+	virtual MVec3			GetSideAxis() const				{ return _side; }
+	virtual MVec3			GetUpAxis() const				{ return _up; }
+	virtual MVec3			GetForwardAxis() const			{ return _forward; }
+
+	virtual void			GetEyeInfo(MVec3& pos, MVec3& lookAt, MVec3& up) const
+	{
+		pos = GetPos();
+		lookAt = pos + GetForwardAxis();
+		up = GetUpAxis();
+	}
 };
 //========================================================================
+
+
+//========================================================================
+// GrFirstPersonCamera
+//========================================================================
+class ENGINE_API GrFirstPersonCamera : public GrCamera
+{
+private:
+	MVec3					_worldSide;
+	MVec3					_worldForward;
+	float					_yaw;
+	float					_tilt;
+
+public:
+	GrFirstPersonCamera(const MVec3& worldSide, const MVec3& worldUp, const MVec3& worldForward);
+
+	virtual MVec3			GetUpAxis() const				{ return _up; }
+
+	virtual void			Impulse(const MVec3& sideUpForward);
+
+	virtual void			YawTilt(float dYaw, float dTilt);
+};
 

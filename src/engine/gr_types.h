@@ -10,7 +10,7 @@
 //========================================================================
 // Declarations
 //========================================================================
-class MMat44;
+class MTransform;
 
 typedef ushort		TriIdx;
 //========================================================================
@@ -53,7 +53,24 @@ public:
 	void			Set(const float* p);
 	void			Set(const SVec2& v);
 	SVec2&			operator =(const SVec2& v);
+
+	// magnitude.
+	float			MagSq() const				{ return SQR(X()) + SQR(Y()); }
+	float			Mag() const					{ return SQRT(MagSq()); }
+
+	// normalize.
+	float			Normalize();
+
+	// arithmetic operators.
+	SVec2						operator +(const SVec2& v) const;
+	SVec2&						operator +=(const SVec2& v);
+	SVec2						operator -(const SVec2& v) const;
+	SVec2&						operator -=(const SVec2& v);
+	friend ENGINE_API SVec2		operator *(float s, const SVec2& v);
+	SVec2&						operator *=(float s);
 };
+typedef vector<SVec2> SVec2vec;
+//========================================================================
 
 //========================================================================
 // SVec3
@@ -97,8 +114,28 @@ public:
 	void			Set(const SVec3& v);
 	SVec3&			operator =(const SVec3& v);
 
-	void			RotateTranslate(const MMat44& m);
+	// magnitude.
+	float			MagSq() const				{ return SQR(X()) + SQR(Y()) + SQR(Z()); }
+	float			Mag() const					{ return SQRT(MagSq()); }
+
+	// normalize.
+	float			Normalize();
+
+	// cross.
+	SVec3			Cross(const SVec3& v) const;
+
+	// transform.
+	void			RotateTranslate(const MTransform& m);
+
+	// arithmetic operators.
+	SVec3						operator +(const SVec3& v) const;
+	SVec3&						operator +=(const SVec3& v);
+	SVec3						operator -(const SVec3& v) const;
+	SVec3&						operator -=(const SVec3& v);
+	friend ENGINE_API SVec3		operator *(float s, const SVec3& v);
+	SVec3&						operator *=(float s);
 };
+typedef vector<SVec3> SVec3vec;
 //========================================================================
 
 

@@ -43,8 +43,8 @@ private:
 
 	// renderer functions.
 	void			ApplyCamera(const GrCamera& cam);
-	void			RenderModelNode(const GrModelNode& node);
-	void			RenderModel(const GrModel& model);
+	void			RenderModelNode(GrModelNode& node);
+	void			RenderModel(GrModel& model);
 
 public:
 	GL2Driver(int windowWidth, int windowHeight, const wstring& windowTitle);
@@ -59,7 +59,8 @@ public:
 
 	GrMesh*			CreateMesh(const wchar_t* ctx,
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,
-		const TriIdx* triangles, uint numTris);
+		const TriIdx* triangles, uint numTris,
+		GrSkin* skin);
 	void			OnDestroyMesh(GrMesh& mesh) { }
 
 	GrTexture*		CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height);

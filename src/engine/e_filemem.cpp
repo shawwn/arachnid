@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		e_filemem.cpp
 //	author:		Shawn Presser 
-//	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -78,17 +77,12 @@ EFileMem::~EFileMem()
 //===================
 bool		EFileMem::Open(const wstring& path, uint mode)
 {
-	// if we're already open, abort.
-	E_VERIFY(!IsOpen(), return false);
-
-	// validate the mode.
-	E_VERIFY(IsModeValid(mode), return false);
-
 	// sanity check.
 	E_VERIFY(_fileBuf == NULL, E_DELETE_ARRAY("filemem", _fileBuf));
 
-	// store the file mode.
-	_mode = mode;
+	if (!EFile::Open(path, mode))
+		return false;
+
 	_fileSize = 0;
 	_fileBufReserved = 0;
 	_growSize = FILE_MEM_GROW_SIZE;
@@ -323,8 +317,6 @@ uint		EFileMem::Read(byte* outBuf, uint count)
 		MemCpy(outBuf, _fileBuf + _filePos, bytesRead);
 		_filePos += bytesRead;
 	}
-	else
-		int a = 42;
 	return bytesRead;
 }
 
@@ -335,7 +327,9 @@ uint		EFileMem::Read(byte* outBuf, uint count)
 uint		EFileMem::Write(const byte* buf, uint bufSize)
 {
 	E_VERIFY(HasMode(FILE_WRITE), return 0);
-	E_VERIFY(buf != NULL && bufSize > 0, return 0);
+	E_VERIFY(buf != NULL, return 0);
+	if (bufSize == 0)
+		return 0;
 
 	// grow the write buffer.
 	uint remainingSize(Grow(GetPos() + bufSize));

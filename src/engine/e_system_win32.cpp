@@ -12,9 +12,15 @@
 #include "e_common.h"
 #include "e_system.h"
 #include "e_filemanager.h"
-#include <windows.h>
+#include "e_lean_windows.h"
 #include <shlobj.h> // SHGetFolderPath
 #include <mmsystem.h> // OutputDebugString
+//========================================================================
+
+//========================================================================
+// Libraries
+//========================================================================
+#pragma comment(lib, "winmm.lib")
 //========================================================================
 
 //========================================================================
@@ -28,6 +34,7 @@ ESystem*	gSystem;
 // ESystem::ESystem
 //===================
 ESystem::ESystem()
+: _timeStart(uint(-1))
 {
 	// store the command line.
 	_commandLine = GetCommandLine();
@@ -47,6 +54,9 @@ ESystem::ESystem()
 	SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, dir);
 	_userDir = EFileManager::SanitizePath(dir);
 	_userDir += _T("/");
+
+	// make TimeElapsed be relative to now.
+	_timeStart = timeGetTime();
 
 	gSystem = this;
 }
@@ -193,5 +203,40 @@ void				ESystem::Sleep(uint msec)
 void				ESystem::Warn(const wstring& context, const wstring& msg)
 {
 	DisplayMessage(context, msg);
+}
+
+
+//===================
+// ESystem::ElapsedTime
+//===================
+uint				ESystem::TimeElapsed()
+{
+	E_VERIFY(_timeStart != uint(-1), return 0);
+	return timeGetTime() - _timeStart;
+}
+
+
+//===================
+// ESystem::TimeStart
+//===================
+void				ESystem::TimeStart()
+{
+	_timeStart = timeGetTime();
+}
+
+
+//===================
+// ESystem::IsKeyPressed
+//===================
+bool				ESystem::IsKeyPressed(char c)
+{
+	c = toupper(c);
+	SHORT s(GetAsyncKeyState((int)c));
+
+	// "if the most significant bit is set, the key is down"
+	if (s & (1 << (8*sizeof(SHORT) - 1)))
+		return true;
+
+	return false;
 }
 

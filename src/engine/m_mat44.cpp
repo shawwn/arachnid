@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		m_mat44.cpp
 //	author:		Shawn Presser 
-//	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -35,62 +34,68 @@ MMat44	MMat44::Zero(		0.0f, 0.0f, 0.0f, 0.0f,
 							0.0f, 0.0f, 0.0f, 0.0f );
 //========================================================================
 
-
 //===================
 // MMat44::MMat44
 //===================
-MMat44::MMat44(	float rotXx,	float rotYx,	float rotZx,	float Wx,
-				float rotXy,	float rotYy,	float rotZy,	float Wy,
-				float rotXz,	float rotYz,	float rotZz,	float Wz,
-				float Tx,		float Ty,		float Tz,		float Ww )
+MMat44::MMat44(	float _00,	float _01,	float _02,	float _03,
+				float _10,	float _11,	float _12,	float _13,
+				float _20,	float _21,	float _22,	float _23,
+				float _30,	float _31,	float _32,	float _33)
 {
-	// row 0
-	_v[ 0] = rotXx;
-	_v[ 1] = rotYx;
-	_v[ 2] = rotZx;
-	_v[ 3] = Wx;
+	// X basis
+	Get(0, 0) = _00;
+	Get(0, 1) = _01;
+	Get(0, 2) = _02;
+	Get(0, 3) = _03;
 
-	// row 1
-	_v[ 4] = rotXy;
-	_v[ 5] = rotYy;
-	_v[ 6] = rotZy;
-	_v[ 7] = Wy;
+	// Y basis
+	Get(1, 0) = _10;
+	Get(1, 1) = _11;
+	Get(1, 2) = _12;
+	Get(1, 3) = _13;
 
-	// row 2
-	_v[ 8] = rotXz;
-	_v[ 9] = rotYz;
-	_v[10] = rotZz;
-	_v[11] = Wz;
+	// Z basis
+	Get(2, 0) = _20;
+	Get(2, 1) = _21;
+	Get(2, 2) = _22;
+	Get(2, 3) = _23;
 
-	// row 3
-	_v[12] = Tx;
-	_v[13] = Ty;
-	_v[14] = Tz;
-	_v[15] = Ww;
-
-	// regardless of whether we're using DirectX or OpenGL,
-	// the translation component (Tx, Ty, Tz) of the matrix
-	// is always stored at memory locations [12] [13] [14].
+	// projection basis
+	Get(3, 0) = _30;
+	Get(3, 1) = _31;
+	Get(3, 2) = _32;
+	Get(3, 3) = _33;
 }
 
 
 //===================
-// MMat44::Translation
+// MMat44::MMat44(rot, trans)
 //===================
-MMat44			MMat44::Translation(const MVec3& delta)
+MMat44::MMat44(const MMat33& rot, const MVec3& trans)
 {
-	MMat44 result;
-	result.SetTranslation(delta);
-	return result;
+	SetIdentity();
+	SetRot(rot);
+	SetTrans(trans);
 }
 
 
 //===================
-// MMat44::Set
+// MMat44::MMat44(rot)
 //===================
-void			MMat44::Set(const float* p)
+MMat44::MMat44(const MMat33& rot)
 {
-	MemCpy(_v, p, MAT44_SIZE);
+	SetIdentity();
+	SetRot(rot);
+}
+
+
+//===================
+// MMat44::MMat44(trans)
+//===================
+MMat44::MMat44(const MVec3& trans)
+{
+	SetIdentity();
+	SetTrans(trans);
 }
 
 
@@ -100,6 +105,27 @@ void			MMat44::Set(const float* p)
 void			MMat44::Set(const MMat44& m)
 {
 	MemCpy(_v, m._v, MAT44_SIZE);
+}
+
+
+//===================
+// MMat44::IsOrtho
+//===================
+bool			MMat44::IsOrtho() const
+{
+	// TODO: Clean this up.
+	
+	// verify that there is no projection.
+	if (!FloatZero(Get(3, 0)))
+		return false;
+	if (!FloatZero(Get(3, 1)))
+		return false;
+	if (!FloatZero(Get(3, 2)))
+		return false;
+	if (!FloatEqual(Get(3, 3), 1.0f))
+		return false;
+
+	return GetRot().IsOrtho();
 }
 
 
@@ -114,18 +140,52 @@ MMat44&			MMat44::operator =(const MMat44& m)
 
 
 //===================
-// MMat44::GetTranslation
+// MMat44::GetRot
 //===================
-MVec3			MMat44::GetTranslation() const
+MMat33			MMat44::GetRot() const
 {
-	return MVec3( Get(0, 3), Get(1, 3), Get(2, 3) );
+	return MMat33( 
+		Get(0, 0), Get(0, 1), Get(0, 2),
+		Get(1, 0), Get(1, 1), Get(1, 2),
+		Get(2, 0), Get(2, 1), Get(2, 2) );
 }
 
 
 //===================
-// MMat44::SetTranslation
+// MMat44::SetRot
 //===================
-void			MMat44::SetTranslation(const MVec3& t)
+void			MMat44::SetRot(const MMat33& m)
+{
+	// X axis
+	Get(0, 0) = m(0, 0);
+	Get(0, 1) = m(0, 1);
+	Get(0, 2) = m(0, 2);
+
+	// Y axis
+	Get(1, 0) = m(1, 0);
+	Get(1, 1) = m(1, 1);
+	Get(1, 2) = m(1, 2);
+
+	// Y axis
+	Get(2, 0) = m(2, 0);
+	Get(2, 1) = m(2, 1);
+	Get(2, 2) = m(2, 2);
+}
+
+
+//===================
+// MMat44::GetTrans
+//===================
+MVec3			MMat44::GetTrans() const
+{
+	return MVec3(Get(0, 3), Get(1, 3), Get(2, 3));
+}
+
+
+//===================
+// MMat44::SetTrans
+//===================
+void			MMat44::SetTrans(const MVec3& t)
 {
 	Get(0, 3) = t.X();
 	Get(1, 3) = t.Y();
@@ -134,66 +194,15 @@ void			MMat44::SetTranslation(const MVec3& t)
 
 
 //===================
-// MMat44::GetRot
+// MMat44::CalcTranspose
 //===================
-MMat33			MMat44::GetRot() const
+MMat44			MMat44::CalcTranspose()
 {
-	return MMat33( 
-		Get(0, 0), Get(1, 0), Get(2, 0),
-		Get(0, 1), Get(1, 1), Get(2, 1),
-		Get(0, 2), Get(1, 2), Get(2, 2) );
-}
-
-
-//===================
-// MMat44::SetRot
-//===================
-void			MMat44::SetRot(const MMat33& r)
-{
-	// X axis
-	Get(0, 0) = r(0, 0);
-	Get(0, 1) = r(0, 1);
-	Get(0, 2) = r(0, 2);
-
-	// Y axis
-	Get(1, 0) = r(1, 0);
-	Get(1, 1) = r(1, 1);
-	Get(1, 2) = r(1, 2);
-
-	// Y axis
-	Get(2, 0) = r(2, 0);
-	Get(2, 1) = r(2, 1);
-	Get(2, 2) = r(2, 2);
-}
-
-
-//===================
-// MMat44::TransformAffine
-//===================
-MVec3			MMat44::RotateTranslate(const MVec3& pt)
-{
-	MVec3 r;
-	float x = pt.X();
-	float y = pt.Y();
-	float z = pt.Z();
-	r.X() = x*Get(0, 0) + y*Get(0, 1) + z*Get(0, 2) + Get(0, 3);
-	r.Y() = x*Get(1, 0) + y*Get(1, 1) + z*Get(1, 2) + Get(1, 3);
-	r.Z() = x*Get(2, 0) + y*Get(2, 1) + z*Get(2, 2) + Get(2, 3);
+	MMat44 r(Zero);
+	for (int row = 0; row < 4; ++row)
+		for (int col = 0; col < 4; ++col)
+			r(row, col) = Get(col, row);
 	return r;
-}
-
-
-//===================
-// MMat44::TransformAffine
-//===================
-void			MMat44::RotateTranslate(MVec3& pt)
-{
-	float x = pt.X();
-	float y = pt.Y();
-	float z = pt.Z();
-	pt.X() = x*Get(0, 0) + y*Get(0, 1) + z*Get(0, 2) + Get(0, 3);
-	pt.Y() = x*Get(1, 0) + y*Get(1, 1) + z*Get(1, 2) + Get(1, 3);
-	pt.Z() = x*Get(2, 0) + y*Get(2, 1) + z*Get(2, 2) + Get(2, 3);
 }
 
 
@@ -202,25 +211,23 @@ void			MMat44::RotateTranslate(MVec3& pt)
 //===================
 MMat44			MMat44::operator *(const MMat44& m) const
 {
+	// the incoming matrix is applied first, followed by us (postmultiply).
+	const MMat44& appliedFirst(m);
+	const MMat44& appliedSecond(*this);
+
 	MMat44 r(Zero);
 	for (int i = 0; i < 4; ++i)
 		for (int j = 0; j < 4; ++j)
 			for (int k = 0; k < 4; ++k)
-				r(i, j) += Get(i, k) * m(k, j);
+				r(i, j) += appliedSecond(i, k) * appliedFirst(k, j);
 	return r;
 }
 
 
 //===================
-// MMat44::operator(col, row)
+// MMat44::Compare
 //===================
-MMat44&			MMat44::operator *=(const MMat44& m)
+bool			MMat44::Compare(const MMat44& m, float epsilon) const
 {
-	SetZero();
-	for (int i = 0; i < 4; ++i)
-		for (int j = 0; j < 4; ++j)
-			for (int k = 0; k < 4; ++k)
-				Get(i, j) += Get(i, k) * m(k, j);
-	return *this;
+	return FloatsEqual(_v, m._v, 4 * 4, epsilon);
 }
-

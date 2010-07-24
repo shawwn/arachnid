@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="trail" deferred="true">
+	<definitions>
+		<particlesystem name="system0" space="world">
+
+			<billboard
+				bone="_bone_fx_01"
+				material="/shared/effects/materials/whitedot.material"
+				color="0 .1 .4"
+				size="20"
+				depthbias="-30"
+			/>
+
+			<billboard
+				bone="_bone_fx_02"
+				material="/shared/effects/materials/whitedot.material"
+				color="0 .1 .4"
+				size="20"
+				depthbias="-30"
+			/>
+			
+			<billboard
+				bone="_bone_fx_02"
+				life="400"
+				material="/shared/effects/materials/blink.material"
+				startcolor="0 0 0"
+				midcolor=".3"
+				endcolor="0 .1 .4"
+				midcolorpos=".2"
+				size="70"
+				depthbias="-30"
+				rollspeed="500"
+			/>
+			
+			<billboard
+				bone="_bone_fx_02"	
+				material="/shared/effects/materials/blink.material"
+				startcolor=".3"
+				midcolor="0"
+				endcolor="0"
+				maxroll="360"
+				size="70"
+				depthbias="-30"
+				life="300"
+			/>
+			
+			<template name="streaks">
+				<trailemitter
+					bone="{bone}"			
+					spawnrate="50"
+					particlelife="300"
+					texpostime="300"
+					texposscale="0.0"
+					texstretchscale=".4"
+					position="0 0 0"
+					material="/shared/effects/materials/arrow_trail.material"
+				>
+					<particle				
+						 startcolor="0 0 0"
+						 midcolor=".025 .14 .165"
+						 endcolor="0 0 0"
+						 midcolorpos=".25"
+						 startsize="35"
+						 midsize="25"
+						 endsize="10"
+						 midsizepos="0.2"
+				 />
+				</trailemitter>
+			</template>
+				
+			<instance name="streaks" bone="_bone_fx_01"/>
+			<instance name="streaks" bone="_bone_fx_02"/>
+
+				
+			
+			<model
+				life="150"
+				model="blade_blur/model.mdf"
+				anim="idle"
+				startcolor="1 1 1"
+				midcolor="1 1 1"
+				endcolor="1 1 1"
+				midcolorpos=".5"
+				alpha=".5"
+				pitch="0"
+				yaw="0"
+				scale="1.25"
+			/>
+
+		</particlesystem>
+	</definitions>
+	<thread>
+		<spawnparticlesystem instance="instance0" particlesystem="system0" />
+		<waitfordeath instance="instance0" />
+	</thread>
+</effect>
+

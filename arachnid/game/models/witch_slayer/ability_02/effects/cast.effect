@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect deferred="true">
+	<definitions>
+	
+		<modifier
+			name="modifier0"
+		/>
+
+		<particlesystem name="system0" space="world" scale="1">
+		
+			<simpleemitter
+				bone="Bip01 L Hand"
+				life="400"
+				spawnrate="650"
+				count="10"
+				minparticlelife="0"
+				maxparticlelife="1000"
+				gravity="0"
+				minspeed="0"
+				maxspeed="0"
+				drag="0.06"
+				offsetsphere="10 10 10"
+				depthbias="-30"
+				material="/shared/effects/materials/phantom_smoke_04.material"
+			>
+				<particle
+					minangle="-180"
+					maxangle="180"
+					minanglespeed="-150"
+					maxanglespeed="150"
+					turn="1"
+					startcolor="0 0 0"
+					midcolor="0 .5 1"
+					endcolor="0 0 0"
+					size="8"
+					minendscale="2"
+					maxendscale="8"
+					anchor="1"
+				/>
+			</simpleemitter>		
+			
+			<simpleemitter
+				bone="Bip01 L Hand"
+				life="2500"
+				spawnrate="380"
+				count="20"
+				particlelife="250"			
+				gravity="0"
+				speed="40"
+				drag="0"
+				acceleration="0"
+				position="0 0 0"
+				material="/shared/effects/materials/lightning_01.material"
+				offsetsphere="16 16 16"
+				minangle="360"
+				maxangle="180"
+				direction="0 0 0"
+			>
+				<particle 
+					minangle="0"
+					maxangle="360"
+					minanglespeed="50"
+					maxanglespeed="190"
+					color="0 .25 .5"
+					midcolorpos=".8"
+					startframe="0"
+					endframe="1"
+					startsize="10"
+					midsize="15"
+					endsize="15"
+					anchor=".5"
+				/>
+			</simpleemitter>
+			
+			
+			<twopointtrailemitter
+				delay="50"
+				name="trail01"
+				bone_a="Bip01 L Hand"
+				bone_b="Bip01 L Forearm"
+				spawnrate="50"
+				particlelife="150"
+				texpostime="150"
+				texposscale="0"
+				texstretchscale="1"
+				material="/shared/effects/materials/swoosh_white.material"
+			>
+				<particle
+					startcolor="0 .015 .03"
+					midcolor="0 .015 .03"
+					endcolor="0"
+				/>
+			</twopointtrailemitter>
+			
+			<simpleemitter
+				count="25"
+				life="1000"
+				bone="Bip01 L Hand"
+				owner="source"
+				depthbias="-55"
+				spawnrate="1000"
+				minparticlelife="500"
+				maxparticlelife="1000"
+				offsetsphere="0 0 0"
+				angle="10"
+				speed="30"
+				material="/shared/effects/materials/mysticenergy.material"
+				loop="true"
+			>
+				<particle
+					startcolor="0 .3 .5"
+					endcolor="0"
+					startsize="10"
+					endsize="20"
+					maxangle="360"
+					minendscale="2"
+					maxendscale="3"
+					startanchor=".1"
+					endanchor="0"
+				/>
+			</simpleemitter>
+			
+			<simpleemitter
+			delay="250"
+				count="25"
+				life="1000"
+				bone="Bip01 L Hand"
+				owner="source"
+				depthbias="-55"
+				spawnrate="1000"
+				minparticlelife="500"
+				maxparticlelife="1000"
+				offsetsphere="0 0 0"
+				angle="10"
+				speed="30"
+				material="/shared/effects/materials/mysticenergy.material"
+				loop="true"
+			>
+				<particle
+					startcolor="0 .3 .5"
+					endcolor="0"
+					startsize="10"
+					endsize="20"
+					maxangle="360"
+					minendscale="2"
+					maxendscale="3"
+					startanchor=".1"
+					endanchor="0"
+				/>
+			</simpleemitter>
+			
+			<simpleemitter
+				bone="Bip01 L Hand"
+				minangle="-90"
+				maxangle="-90"
+				life="400"
+				spawnrate="1000"
+				count="25"
+				minparticlelife="250"
+				maxparticlelife="2000"
+				speed="2000"
+				drag="0.05"
+				offsetsphere="25 25 0"
+				depthbias="-40"
+				material="/shared/effects/materials/mysticenergy.material"
+			>
+				<particle
+					minangle="-180"
+					maxangle="180"
+					minanglespeed="-150"
+					maxanglespeed="150"
+					turn="1"
+					startcolor="0 0 0"
+					midcolor="0 .2 .4"
+					endcolor="0"
+					midcolorpos=".75"
+					startsize="50"
+					endsize="0"
+					startalpha=".3"
+					midalpha="1"
+					midalphapos="0.1"
+					endalpha="0"
+				/>
+			</simpleemitter>
+	
+		</particlesystem>
+	</definitions>
+	<thread>
+		<spawnparticlesystem instance="instance0" particlesystem="system0"/>
+		<spawnmodifier instance="instance1" modifier="modifier0"/> 
+		<waitfordeath instance="instance0" />
+	</thread>
+</effect>

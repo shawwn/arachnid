@@ -10,9 +10,11 @@
 //========================================================================
 // Declarations
 //========================================================================
-class GrDriver;
 class EFile;
-struct ImportK2Anim_impl;
+class GrDriver;
+class GrAnim;
+class MQuat;
+class MVec3;
 //========================================================================
 
 //========================================================================
@@ -21,10 +23,17 @@ struct ImportK2Anim_impl;
 class ENGINE_API ImportK2Anim
 {
 private:
-	ImportK2Anim_impl*	_impl;
-
+	int					_version;
+	int					_numMotions;
+	int					_numFrames;
 	GrDriver&			_driver;
 	EFile*				_file;
+
+	GrAnim*				_anim;
+
+	static MQuat		AnglesToQuat(float pitch, float roll, float yaw);
+
+	bool				ReadKeys(float* dst, uint stride, EFile* file, uint count);
 
 	bool				ParseHeader(GrDriver& driver, EFile* file, uint blockSize);
 	bool				ParseBoneMotion(GrDriver& driver, EFile* file, uint blockSize);
@@ -32,9 +41,7 @@ public:
 	ImportK2Anim(GrDriver& driver);
 	~ImportK2Anim();
 
-	bool				OnFinishReading(GrDriver& driver);
-
-	bool				Read(EFile* file);
+	GrAnim*				Read(EFile* file);
 };
 //========================================================================
 

@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		e_string_utils.cpp
 //	author:		Shawn Presser 
-//	date:		6/30/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -620,7 +619,7 @@ string			StrReplace(const string& str, const string& replacing, const string& re
 	{
 		result.append(str.substr(curPos, findPos - curPos));
 		result.append(replaceWith);
-		curPos = findPos + replaceWith.size();
+		curPos = findPos + E_MAX(1, replaceWith.size());
 		findPos = str.find(replacing, curPos);
 	}
 	if (curPos < str.size())
@@ -643,7 +642,7 @@ wstring			StrReplace(const wstring& str, const wstring& replacing, const wstring
 	{
 		result.append(str.substr(curPos, findPos - curPos));
 		result.append(replaceWith);
-		curPos = findPos + replaceWith.size();
+		curPos = findPos + E_MAX(1, replaceWith.size());
 		findPos = str.find(replacing, curPos);
 	}
 	if (curPos < str.size())
@@ -803,6 +802,46 @@ wstring				StrBefore(const wstring& str, const wstring& sequence, wstring* remai
 
 
 //===================
+// StrBeforeLast
+//===================
+string				StrBeforeLast(const string& str, const string& sequence, string* remainder)
+{
+	size_t pos(str.find_last_of(sequence));
+	if (pos == string::npos)
+	{
+		if (remainder != NULL)
+			*remainder = SNULL;
+		return str;
+	}
+
+	if (remainder != NULL)
+		*remainder = str.substr(pos + 1);
+
+	return str.substr(0, pos);
+}
+
+
+//===================
+// StrBeforeLast
+//===================
+wstring				StrBeforeLast(const wstring& str, const wstring& sequence, wstring* remainder)
+{
+	size_t pos(str.find_last_of(sequence));
+	if (pos == wstring::npos)
+	{
+		if (remainder != NULL)
+			*remainder = WSNULL;
+		return str;
+	}
+
+	if (remainder != NULL)
+		*remainder = str.substr(pos + 1);
+
+	return str.substr(0, pos);
+}
+
+
+//===================
 // StrAfter
 //===================
 string				StrAfter(const string& str, const string& sequence, string* before)
@@ -828,6 +867,46 @@ string				StrAfter(const string& str, const string& sequence, string* before)
 wstring				StrAfter(const wstring& str, const wstring& sequence, wstring* before)
 {
 	size_t pos(str.find(sequence));
+	if (pos == wstring::npos)
+	{
+		if (before != NULL)
+			*before = str;
+		return WSNULL;
+	}
+
+	if (before != NULL)
+		*before = str.substr(0, pos);
+
+	return str.substr(pos + 1);
+}
+
+
+//===================
+// StrAfterLast
+//===================
+string				StrAfterLast(const string& str, const string& sequence, string* before)
+{
+	size_t pos(str.find_last_of(sequence));
+	if (pos == string::npos)
+	{
+		if (before != NULL)
+			*before = str;
+		return SNULL;
+	}
+
+	if (before != NULL)
+		*before = str.substr(0, pos);
+
+	return str.substr(pos + 1);
+}
+
+
+//===================
+// StrAfterLast
+//===================
+wstring				StrAfterLast(const wstring& str, const wstring& sequence, wstring* before)
+{
+	size_t pos(str.find_last_of(sequence));
 	if (pos == wstring::npos)
 	{
 		if (before != NULL)

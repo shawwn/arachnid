@@ -24,8 +24,25 @@ enum	ETextEncoding
 //========================================================================
 
 //========================================================================
+// String Macros
+//========================================================================
+#define _TS(x)						ToWideString(x)
+#define _TP(fmt, ...)				PRINT_STR(_T(fmt), __VA_ARGS__)
+#define _TF(fmt, ...)				PRINT_STR(fmt, __VA_ARGS__)
+//========================================================================
+
+//========================================================================
 // String Utils
 //========================================================================
+
+// returns the size of a string.
+inline uint							StrLen(const char* str)
+{
+	uint count = 0;
+	for (str; *str; ++str)
+		++count;
+	return count;
+}
 
 // trims whitespace from a string.
 extern ENGINE_API bool				StrIsWhitespace(char c);
@@ -84,6 +101,10 @@ extern ENGINE_API wstring			StrCompact(const wstring& str, const wstring& sequen
 extern ENGINE_API string			StrBefore(const string& str, const string& sequence, string* remainder = NULL);
 extern ENGINE_API wstring			StrBefore(const wstring& str, const wstring& sequence, wstring* remainder = NULL);
 
+// same as StrBefore, except it finds the -last- instance of 'sequence'.
+extern ENGINE_API string			StrBeforeLast(const string& str, const string& sequence, string* remainder = NULL);
+extern ENGINE_API wstring			StrBeforeLast(const wstring& str, const wstring& sequence, wstring* remainder = NULL);
+
 // returns a substring AFTER the first instance of 'sequence'.
 // if 'before' is not NULL, then it is set to the substring before the
 // first instance of 'sequence'.  Examples:
@@ -93,6 +114,10 @@ extern ENGINE_API wstring			StrBefore(const wstring& str, const wstring& sequenc
 //		StrAfter("/foo", "/")			=> "foo" with before ""
 extern ENGINE_API string			StrAfter(const string& str, const string& sequence, string* before = NULL);
 extern ENGINE_API wstring			StrAfter(const wstring& str, const wstring& sequence, string* before = NULL);
+
+// same as StrAfter, except it finds the -last- instance of 'sequence'.
+extern ENGINE_API string			StrAfterLast(const string& str, const string& sequence, string* remainder = NULL);
+extern ENGINE_API wstring			StrAfterLast(const wstring& str, const wstring& sequence, wstring* remainder = NULL);
 
 // text encoding classification.
 extern ENGINE_API ETextEncoding		StrClassifyEncoding(uint& outBomSize, const byte* buf, uint bufSize);
@@ -136,5 +161,51 @@ inline wstring						ToWideString(const string& str)			{ return StringToWString(s
 inline const wstring&				ToWideString(const wstring& str)		{ return str; }
 inline wstring						ToWideString(char c)					{ return StringToWString(string(1, c)); }
 inline wstring						ToWideString(wchar_t c)					{ return wstring(1, c); }
-#define _TS(x)						ToWideString(x)
+
+// prints to a string buffer.  Returns the number of characters written (not including the NULL-terminator).
+// bufSize must include space for the NULL-terminator.
+inline int							PRINT_STR_BUF(wchar_t* buf, int bufSize, const wchar_t* fmt, ...)
+{
+	E_ASSERT(bufSize > 1);
+	int count = _vsnwprintf(buf, bufSize - 1, fmt, (char*)(&fmt + 1));
+	buf[count] = 0;
+	return count;
+}
+inline int							PRINT_STR_BUF(char* buf, int bufSize, const char* fmt, ...)
+{
+	E_ASSERT(bufSize > 1);
+	int count = _vsnprintf(buf, bufSize - 1, fmt, (char*)(&fmt + 1));
+	buf[count] = 0;
+	return count;
+}
+
+// builds and returns a string.
+inline wstring						PRINT_STR(const wchar_t* fmt, ...)
+{
+	const int kBufSize(256 * 1024);
+	wchar_t buf[kBufSize];
+
+	int count = _vsnwprintf(buf, kBufSize - 1, fmt, (char*)(&fmt + 1));
+	buf[count] = 0;
+
+	// verify that the string wasn't truncated.
+	E_ASSERT(count < (kBufSize - 1));
+
+	// return the result.
+	return buf;
+}
+inline string						PRINT_STR(const char* fmt, ...)
+{
+	const int kBufSize(256 * 1024);
+	char buf[kBufSize];
+
+	int count = _vsnprintf(buf, kBufSize - 1, fmt, (char*)(&fmt + 1));
+	buf[count] = 0;
+
+	// verify that the string wasn't truncated.
+	E_ASSERT(count < (kBufSize - 1));
+
+	// return the result.
+	return buf;
+}
 //========================================================================

@@ -21,6 +21,7 @@ class GrCamera;
 class GrScene;
 class GrMesh;
 class GrTexture;
+class GrSkin;
 
 // renderer DLL functions.
 #define GR_LIB_VERSION				1
@@ -45,16 +46,24 @@ private:
 	GrScene*				_scene;
 	GrCamera*				_camera;
 
+protected:
+	bool					_isActive;
+
 public:
 	GrDriver();
 	virtual ~GrDriver();
 
+	virtual void			SetCamera(GrCamera* cam)	{ _camera = cam; }
+
 	// returns whether the video driver has experienced a fatal error.
 	virtual bool			HasFatalError() const 		{ return false; }
 
+	// returns whether the renderer window has focus.
+	virtual bool			IsWindowActive() const		{ return _isActive; }
+
 	// scene objects.
 	GrScene&				GetScene()					{ return *_scene; }
-	GrCamera&				GetCamera()					{ return *_camera; }
+	GrCamera*				GetCamera()					{ return _camera; }
 
 	// call at the start of each frame.
 	virtual bool			BeginFrame()=0;
@@ -68,7 +77,8 @@ public:
 	// mesh management.
 	virtual GrMesh*			CreateMesh(const wchar_t* ctx,
 		const SVec3* positions, const SVec2* texcoords, uint numVerts,
-		const TriIdx* triangles, uint numTris)=0;
+		const TriIdx* triangles, uint numTris,
+		GrSkin* skin = NULL)=0;
 
 	// texture management.
 	virtual GrTexture*		CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height)=0;

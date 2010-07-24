@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		gr_types.cpp
 //	author:		Shawn Presser 
-//	date:		7/6/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -11,7 +10,7 @@
 //========================================================================
 #include "e_common.h"
 #include "gr_types.h"
-#include "m_mat44.h"
+#include "m_transform.h"
 //========================================================================
 
 
@@ -69,6 +68,89 @@ SVec2&			SVec2::operator =(const SVec2& v)
 	MemCpy(_v, v._v, VEC2_SIZE);
 	return *this;
 }
+
+
+//===================
+// SVec2::Normalize
+//===================
+float			SVec2::Normalize()
+{
+	float mag(Mag());
+	E_ASSERT(!FloatZero(mag));
+
+	float invMag = 1.0f / mag;
+	X() *= invMag;
+	Y() *= invMag;
+
+	return mag;
+}
+
+
+//===================
+// SVec2::operator +
+//===================
+SVec2			SVec2::operator +(const SVec2& v) const
+{
+	return SVec2(
+		_v[0] + v._v[0],
+		_v[1] + v._v[1]);
+}
+
+
+//===================
+// SVec2::operator +=
+//===================
+SVec2&			SVec2::operator +=(const SVec2& v)
+{
+	_v[0] += v._v[0];
+	_v[1] += v._v[1];
+	return *this;
+}
+
+
+//===================
+// SVec2::operator -
+//===================
+SVec2			SVec2::operator -(const SVec2& v) const
+{
+	return SVec2(
+		_v[0] - v._v[0],
+		_v[1] - v._v[1]);
+}
+
+
+//===================
+// SVec2::operator -=
+//===================
+SVec2&			SVec2::operator -=(const SVec2& v)
+{
+	_v[0] -= v._v[0];
+	_v[1] -= v._v[1];
+	return *this;
+}
+
+
+//===================
+// SVec2::operator *
+//===================
+SVec2	operator *(float s, const SVec2& v)
+{
+	SVec2 r;
+	r.X() = s * v.X();
+	r.Y() = s * v.Y();
+	return r;
+}
+
+
+//===================
+// SVec2::operator *=
+//===================
+SVec2&			SVec2::operator *=(float s)
+{
+	_v[0] *= s;
+	_v[1] *= s;
+	return *this;
+}
 //========================================================================
 
 
@@ -117,16 +199,124 @@ SVec3&			SVec3::operator =(const SVec3& v)
 
 
 //===================
+// SVec3::Normalize
+//===================
+float			SVec3::Normalize()
+{
+	float mag(Mag());
+	E_ASSERT(!FloatZero(mag));
+
+	float invMag = 1.0f / mag;
+	X() *= invMag;
+	Y() *= invMag;
+	Z() *= invMag;
+
+	return mag;
+}
+
+
+//===================
+// SVec3::Cross
+//===================
+SVec3			SVec3::Cross(const SVec3& v) const
+{
+	// verify that neither vector has a zero magnitude.
+	assert(!FloatZero(Mag()));
+	assert(!FloatZero(v.Mag()));
+
+	// | Ax Ay Az |
+	// | Bx By Bz |
+	SVec3 r;
+	r.X() = Y()*v.Z() - Z()*v.Y();
+	r.Y() = X()*v.Z() - Z()*v.X();
+	r.Z() = X()*v.Y() - Y()*v.X();
+	return r;
+}
+
+
+//===================
 // SVec3::RotateTranslate
 //===================
-void			SVec3::RotateTranslate(const MMat44& m)
+void			SVec3::RotateTranslate(const MTransform& m)
 {
-	float x = X();
-	float y = Y();
-	float z = Z();
-	X() = x*m.Get(0, 0) + y*m.Get(0, 1) + z*m.Get(0, 2) + m.Get(0, 3);
-	Y() = x*m.Get(1, 0) + y*m.Get(1, 1) + z*m.Get(1, 2) + m.Get(1, 3);
-	Z() = x*m.Get(2, 0) + y*m.Get(2, 1) + z*m.Get(2, 2) + m.Get(2, 3);
+	MVec3 v(X(), Y(), Z());
+	v = m.RotateTranslate(v);
+	X() = v.X();
+	Y() = v.Y();
+	Z() = v.Z();
+}
+
+
+//===================
+// SVec3::operator +
+//===================
+SVec3			SVec3::operator +(const SVec3& v) const
+{
+	return SVec3(
+		_v[0] + v._v[0],
+		_v[1] + v._v[1],
+		_v[2] + v._v[2]);
+}
+
+
+//===================
+// SVec3::operator +=
+//===================
+SVec3&			SVec3::operator +=(const SVec3& v)
+{
+	_v[0] += v._v[0];
+	_v[1] += v._v[1];
+	_v[2] += v._v[2];
+	return *this;
+}
+
+
+//===================
+// SVec3::operator -
+//===================
+SVec3			SVec3::operator -(const SVec3& v) const
+{
+	return SVec3(
+		_v[0] - v._v[0],
+		_v[1] - v._v[1],
+		_v[2] - v._v[2]);
+}
+
+
+//===================
+// SVec3::operator -=
+//===================
+SVec3&			SVec3::operator -=(const SVec3& v)
+{
+	_v[0] -= v._v[0];
+	_v[1] -= v._v[1];
+	_v[2] -= v._v[2];
+	return *this;
+}
+
+
+//===================
+// SVec3::operator *
+//===================
+SVec3	operator *(float s, const SVec3& v)
+{
+	SVec3 r;
+	r.X() = s * v.X();
+	r.Y() = s * v.Y();
+	r.Z() = s * v.Z();
+	return r;
+}
+
+
+//===================
+// SVec3::operator *=
+//===================
+SVec3&			SVec3::operator *=(float s)
+{
+	_v[0] *= s;
+	_v[1] *= s;
+	_v[2] *= s;
+	return *this;
 }
 //========================================================================
 

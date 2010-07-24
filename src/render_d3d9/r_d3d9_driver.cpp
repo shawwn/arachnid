@@ -1,7 +1,6 @@
 //========================================================================
 //	file:		r_d3d9_driver.cpp
 //	author:		Shawn Presser 
-//	date:		7/1/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -13,6 +12,7 @@
 #include "r_d3d9_driver.h"
 
 // engine headers.
+#include "../engine/e_system.h"
 #include "../engine/e_engine.h"
 #include "../engine/e_filemanager.h"
 
@@ -25,12 +25,18 @@
 #include "../engine/gr_mesh.h"
 #include "../engine/gr_texture.h"
 #include "../engine/gr_material.h"
+#include "../engine/gr_skin.h"
 
 // d3d9 headers.
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "../engine/e_lean_windows.h"
 #include <d3d9.h>
 #include <d3dx9.h>
+//========================================================================
+
+//========================================================================
+// Constants
+//========================================================================
+#define USE_D3D9EX		1
 //========================================================================
 
 //========================================================================
@@ -48,6 +54,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 D3D9Driver*			gDriver;
 D3D9Driver_impl*	gDriver_impl;
 IDirect3DTexture9*	gNullTex;
+D3DPOOL				gManagedPool(D3DPOOL_MANAGED);
+DWORD				gManagedUsage(0);
 //========================================================================
 
 //========================================================================
@@ -56,8 +64,31 @@ IDirect3DTexture9*	gNullTex;
 struct D3D9Vertex
 {
 	SVec3			pos;
+
+	union
+	{
+		byte			bgra[4];
+		uint			color;
+	};
+
 	SVec2			uv;
 };
+//========================================================================
+
+//========================================================================
+// D3D9UntexturedVertex
+//========================================================================
+struct D3D9UntexturedVertex
+{
+	SVec3			pos;
+
+	union
+	{
+		byte			bgra[4];
+		uint			color;
+	};
+};
+//========================================================================
 
 //========================================================================
 // D3D9Driver_impl
@@ -82,6 +113,33 @@ struct D3D9Driver_impl
 		, done(false)
 	{
 	}
+
+	static IDirect3D9*		StartupD3D9()
+	{
+#if USE_D3D9EX
+		E_ASSERT(gSystem != NULL);
+		void* libHandle(gSystem->LoadLib(_T("d3d9")));
+		if (libHandle != NULL)
+		{
+			typedef HRESULT (WINAPI *Direct3DCreate9ExFunc)(UINT SDKVersion, IDirect3D9Ex **d3d9ex);
+			Direct3DCreate9ExFunc pDirect3DCreate9Ex(NULL);
+
+			pDirect3DCreate9Ex = (Direct3DCreate9ExFunc)gSystem->GetLibFunction(libHandle, _T("Direct3DCreate9Ex"));
+			if (pDirect3DCreate9Ex != NULL)
+			{
+				IDirect3D9Ex* pOut(NULL);
+				HRESULT hr = pDirect3DCreate9Ex(D3D_SDK_VERSION, &pOut);
+				E_VERIFY(SUCCEEDED(hr), return NULL);
+
+				gManagedPool = D3DPOOL_DEFAULT;
+				gManagedUsage = D3DUSAGE_DYNAMIC;
+				return pOut;
+			}
+		}
+#endif
+
+		return Direct3DCreate9(D3D_SDK_VERSION);
+	}
 };
 //========================================================================
 
@@ -91,15 +149,8 @@ struct D3D9Driver_impl
 //===================
 void		D3D9Driver::ApplyCamera(const GrCamera& cam)
 {
-	const MMat33& rot(cam.GetRotation());
-	const MVec3& pos(cam.GetPosition());
-
-	MVec3 lookAt(0.0f, 0.0f, -1.0f);
-	rot.Rotate(lookAt);
-	lookAt += pos;
-
-	MVec3 up(0.0f, 1.0f, 0.0f);
-	rot.Rotate(up);
+	MVec3 pos, lookAt, up;
+	cam.GetEyeInfo(pos, lookAt, up);
 
 	D3DXMATRIX mat;
 	D3DXMatrixLookAtRH(&mat,
@@ -112,18 +163,112 @@ void		D3D9Driver::ApplyCamera(const GrCamera& cam)
 
 
 //===================
+// D3D9Driver::RenderMeshNormals
+//===================
+void		D3D9Driver::RenderMeshNormals(GrMesh* mesh)
+{
+	if (mesh == NULL)
+		return;
+
+	GrSkin* skin(mesh->GetSkin());
+	const byte* boneIndices(NULL);
+	const float* boneWeights(NULL);
+	const MTransform** skeleton = NULL;
+	const SVec3* positions(mesh->GetPositions());
+	const SVec3* normals(NULL);
+	const SVec3* binormals(NULL);
+	const SVec3* tangents(NULL);
+	if (skin != NULL)
+	{
+		positions = skin->GetPositions();
+		normals = skin->GetNormals();
+		binormals = skin->GetBinormals();
+		tangents = skin->GetTangents();
+	}
+
+	if (normals == NULL && binormals == NULL && tangents == NULL)
+		return;
+
+	_impl->device->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG1);
+	_impl->device->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_DIFFUSE);
+	_impl->device->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+
+	uint numVerts(mesh->GetNumVertices());
+	for (uint vertIdx = 0; vertIdx < numVerts; ++vertIdx)
+	{
+		const SVec3& pos(positions[vertIdx]);
+
+		int numVecs = 0;
+		SVec3 vecs[3];
+		uint colors[3];
+
+		if (normals != NULL)
+		{
+			uint i = numVecs++;
+			vecs[i] = normals[vertIdx];
+			colors[i] = 0xFF00FF00;
+		}
+
+		if (binormals != NULL)
+		{
+			uint i = numVecs++;
+			vecs[i] = binormals[vertIdx];
+			colors[i] = 0xFF0000FF;
+		}
+
+		if (tangents != NULL)
+		{
+			uint i = numVecs++;
+			vecs[i] = tangents[vertIdx];
+			colors[i] = 0xFFFF0000;
+		}
+
+		E_ASSERT(numVecs > 0);
+		for (int i = 0; i < numVecs; ++i)
+		{
+			D3D9UntexturedVertex verts[2];
+
+			verts[0].color = colors[i];
+			verts[1].color = colors[i];
+
+			verts[0].pos = pos;
+			verts[1].pos = pos + 3.0f*vecs[i];
+
+			HRESULT hr = _impl->device->DrawPrimitiveUP(D3DPT_LINELIST, 1, (const void*)verts, sizeof(D3D9UntexturedVertex));
+			if (FAILED(hr))
+			{
+				_fatalError = true;
+				return;
+			}
+		}
+	}
+}
+
+
+//===================
 // D3D9Driver::RenderModelNode
 //===================
-void		D3D9Driver::RenderModelNode(const GrModelNode& node)
+void		D3D9Driver::RenderModelNode(GrModel& parent, GrModelNode& node)
 {
-	const MMat44& transform(node.GetTransform());
-
 	GrMesh* mesh(node.GetMesh());
 	if (mesh != NULL)
 	{
-		_impl->device->SetFVF(D3DFVF_XYZ | D3DFVF_TEX1);
-
+		GrSkin* skin(mesh->GetSkin());
+		const byte* boneIndices(NULL);
+		const float* boneWeights(NULL);
+		const MTransform** skeleton = NULL;
 		const SVec3* positions(mesh->GetPositions());
+		if (skin != NULL)
+		{
+			skeleton = node.GetSkeleton();
+			positions = skin->DeformVerts(skeleton);
+		}
+
+		_impl->device->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
+		_impl->device->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
+		_impl->device->SetTextureStageState(0,D3DTSS_COLORARG2,D3DTA_DIFFUSE);
+		_impl->device->SetFVF(D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_DIFFUSE);
+
 		const SVec2* texcoords(mesh->GetTexcoords());
 		const TriIdx* indices(mesh->GetTriIndices());
 
@@ -143,14 +288,19 @@ void		D3D9Driver::RenderModelNode(const GrModelNode& node)
 			for (uint tri = range->triStart; tri < range->triStart + range->triCount; ++tri)
 			{
 				D3D9Vertex vert[3];
+
+				const MTransform& xform(node.GetWorld());
+
 				for (uint corner = 0; corner < 3; ++corner)
 				{
 					uint idx(indices[3*tri + corner]);
 					vert[corner].pos = positions[idx];
 					vert[corner].uv = texcoords[idx];
-					vert[corner].pos.RotateTranslate(transform);
+					vert[corner].pos.RotateTranslate(xform);
 					vert[corner].uv.Y() = 1.0f - vert[corner].uv.Y();
+					vert[corner].color = 0xFFFFFFFF;
 				}
+
 				HRESULT hr = _impl->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 1, (const void*)vert, sizeof(D3D9Vertex));
 				if (FAILED(hr))
 				{
@@ -159,13 +309,15 @@ void		D3D9Driver::RenderModelNode(const GrModelNode& node)
 				}
 			}
 		}
+
+		RenderMeshNormals(mesh);
 	}
 
 	// render each child.
 	for (uint i = 0; i < node.NumChildModelNodes(); ++i)
 	{
-		const GrModelNode& child(*node.GetChildModelNode(i));
-		RenderModelNode(child);
+		GrModelNode& child(*node.GetChildModelNode(i));
+		RenderModelNode(parent, child);
 	}
 }
 
@@ -173,17 +325,22 @@ void		D3D9Driver::RenderModelNode(const GrModelNode& node)
 //===================
 // D3D9Driver::RenderModel
 //===================
-void		D3D9Driver::RenderModel(const GrModel& model)
+void		D3D9Driver::RenderModel(GrModel& model)
 {
 	// render the nodes.
-	RenderModelNode(model.GetRoot());
+	RenderModelNode(model, model.GetRoot());
 
 	// render each child.
 	for (uint i = 0; i < model.NumChildModels(); ++i)
 	{
-		const GrModel& child(*model.GetChildModel(i));
+		GrModel& child(*model.GetChildModel(i));
 		RenderModel(child);
 	}
+
+#if E_PRINT_DEBUG_INFO
+	model.PrintDebug();
+#endif
+
 }
 
 //===================
@@ -271,7 +428,7 @@ D3D9Driver::D3D9Driver(int windowWidth, int windowHeight, const wstring& windowT
 	}
 
 	// startup D3D9.
-	_impl->d3d9 = Direct3DCreate9(D3D_SDK_VERSION);
+	_impl->d3d9 = D3D9Driver_impl::StartupD3D9();
 	if (_impl->d3d9== NULL)
 	{
 		_fatalError = true;
@@ -289,7 +446,8 @@ D3D9Driver::D3D9Driver(int windowWidth, int windowHeight, const wstring& windowT
 	pp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
 	pp.PresentationInterval		= D3DPRESENT_INTERVAL_DEFAULT;
 	pp.BackBufferFormat			= D3DFMT_R5G6B5; // for simplicity we'll hard-code this for now.
-	pp.EnableAutoDepthStencil	= FALSE;
+	pp.EnableAutoDepthStencil	= TRUE;
+	pp.AutoDepthStencilFormat	= D3DFMT_D24S8;
 	pp.BackBufferWidth			= windowWidth;
 	pp.BackBufferHeight			= windowHeight;
 	pp.Windowed					= TRUE;
@@ -356,7 +514,8 @@ bool		D3D9Driver::BeginFrame()
 		return false;
 	}
 
-	InvalidateRect(_impl->hWnd, NULL, TRUE);
+	if (IsWindowActive())
+		OnPaint();
 
 	// process window messages.
 	if (_impl->hWnd != NULL)
@@ -408,8 +567,9 @@ void		D3D9Driver::SetMousePos(int x, int y)
 // D3D9Driver::CreateMesh
 //===================
 GrMesh*		D3D9Driver::CreateMesh(const wchar_t* ctx,
-							   const SVec3* positions, const SVec2* texcoords, uint numVerts,
-							   const TriIdx* triangles, uint numTris)
+								   const SVec3* positions, const SVec2* texcoords, uint numVerts,
+								   const TriIdx* triangles, uint numTris,
+								   GrSkin* skin)
 {
 	E_VERIFY(!_fatalError, return NULL);
 
@@ -428,6 +588,9 @@ GrMesh*		D3D9Driver::CreateMesh(const wchar_t* ctx,
 	// store the index data.
 	result->_triIndices = ArrayCpy(ctx, triangles, 3*numTris);
 	result->_numTriangles = numTris;
+
+	// store the skinning data.
+	result->_skin = skin;
 
 	// return the result.
 	return result;
@@ -457,7 +620,7 @@ GrTexture*	D3D9Driver::CreateTexture(const wchar_t* ctx, const byte* bgra, uint 
 	// create the Direct3D9 texture.
 	IDirect3DTexture9* tex(NULL);
 
-	hr = _impl->device->CreateTexture(width, height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &tex, NULL);
+	hr = _impl->device->CreateTexture(width, height, 1, gManagedUsage, D3DFMT_A8R8G8B8, gManagedPool, &tex, NULL);
 	E_VERIFY(SUCCEEDED(hr) && "CreateTexture",
 		return NULL);
 
@@ -565,7 +728,8 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 	pp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
 	pp.PresentationInterval		= D3DPRESENT_INTERVAL_DEFAULT;
 	pp.BackBufferFormat			= D3DFMT_R5G6B5; // for simplicity we'll hard-code this for now.
-	pp.EnableAutoDepthStencil	= FALSE;
+	pp.EnableAutoDepthStencil	= TRUE;
+	pp.AutoDepthStencilFormat	= D3DFMT_D24S8;
 	pp.BackBufferWidth			= windowWidth;
 	pp.BackBufferHeight			= windowHeight;
 	pp.Windowed					= TRUE;
@@ -577,7 +741,7 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 		return;
 	}
 
-	const float fovy(DEG2RAD(60.0f));
+	const float fovy(DEGREES_TO_ANGLE(60.0f));
 	const float aspect(windowWidth / (float)windowHeight);
 	const float znear(1.0f);
 	const float zfar(10000.0f);
@@ -592,9 +756,9 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 	_impl->device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	_impl->device->SetRenderState(D3DRS_LIGHTING, FALSE);
 	_impl->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-
-	_impl->device->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG1);
-	_impl->device->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
+	_impl->device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	_impl->device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+	_impl->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
 	SetMousePos(windowWidth/2, windowHeight/2);
 	gEngine->OnMousePos(windowWidth/2, windowHeight/2);
@@ -608,21 +772,25 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 void		D3D9Driver::OnPaint()
 {
 	// render.
-	_impl->device->Clear(0, 0, D3DCLEAR_TARGET, 0x00000000, 1.0f, 0);
+	_impl->device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x10101010, 1.0f, 0);
 	_impl->device->BeginScene();
 
 	// apply the camera.
-	ApplyCamera(GetCamera());
+	GrCamera* cam(GetCamera());
+	if (cam != NULL)
+	{
+		ApplyCamera(*cam);
 
-	// render the scene.
-	RenderModel(GetScene().GetModel());
+		// render the scene.
+		RenderModel(GetScene().GetModel());
+	}
 
 	_impl->device->EndScene();
 	_impl->device->Present(0, 0, 0, 0);
 
 	// swap front/back buffer.
-	if (_impl->hDC != NULL)
-		SwapBuffers(_impl->hDC);
+	//if (_impl->hDC != NULL)
+		//SwapBuffers(_impl->hDC);
 }
 
 
@@ -638,18 +806,23 @@ LRESULT CALLBACK WndProc(HWND hWnd,
 	{
 		switch (uMsg)
 		{
+		case WM_ACTIVATE:
+			{
+				if (wParam != WA_INACTIVE)
+					gDriver->SetActive(true);
+				else
+					gDriver->SetActive(false);
+			}
+			return TRUE;
+
 		case WM_QUIT:
 		case WM_CLOSE:
 			gDriver_impl->done = true;
-			break;
-
-		case WM_PAINT:
-			gDriver->OnPaint();
-			break;
+			return TRUE;
 
 		case WM_SIZE:
 			gDriver->OnResize(LOWORD(lParam), HIWORD(lParam));
-			break;
+			return TRUE;
 		}
 	}
 
