@@ -37,7 +37,7 @@
 //========================================================================
 // Constants
 //========================================================================
-#define ARACHNID_RENDERER			_T("gl2")
+#define ARACHNID_RENDERER			_T("d3d9")
 
 #define WORLD_SIDE					MVec3(1.0f, 0.0f, 0.0f)
 #define WORLD_UP					MVec3(0.0f, 0.0f, 1.0f)

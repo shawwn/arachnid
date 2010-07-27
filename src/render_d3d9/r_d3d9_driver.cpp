@@ -28,15 +28,15 @@
 #include "../engine/gr_skin.h"
 
 // d3d9 headers.
-#include "../engine/e_lean_windows.h"
-#include <d3d9.h>
-#include <d3dx9.h>
+#include "r_d3d9_shader_constants.h"
+#include "r_d3d9_shader.h"
 //========================================================================
 
 //========================================================================
 // Constants
 //========================================================================
 #define USE_D3D9EX		1
+#define RENDER_NORMALS	0
 //========================================================================
 
 //========================================================================
@@ -51,11 +51,18 @@ static LRESULT CALLBACK WndProc(HWND hWnd,
 //========================================================================
 // Globals
 //========================================================================
+IDirect3DDevice9*	gDevice;
 D3D9Driver*			gDriver;
 D3D9Driver_impl*	gDriver_impl;
 IDirect3DTexture9*	gNullTex;
 D3DPOOL				gManagedPool(D3DPOOL_MANAGED);
 DWORD				gManagedUsage(0);
+
+D3DXMATRIX			gWorld;
+D3DXMATRIX			gView;
+D3DXMATRIX			gProj;
+
+RD3D9Shader*		gShaderSimple;
 //========================================================================
 
 //========================================================================
@@ -159,6 +166,7 @@ void		D3D9Driver::ApplyCamera(const GrCamera& cam)
 		(const D3DXVECTOR3*)up.Get());
 
 	_impl->device->SetTransform(D3DTS_VIEW, &mat);
+	gView = mat;
 }
 
 
@@ -274,9 +282,18 @@ void		D3D9Driver::RenderModelNode(GrModel& parent, GrModelNode& node)
 			// set texture.
 			GrTexture* diffuse(range->material->GetTexture(MT_DIFFUSE));
 			if (diffuse != NULL)
+			{
 				_impl->device->SetTexture(0, (IDirect3DBaseTexture9*)diffuse->_userdata);
+				gShaderConstants->GetPixelConstant(PC_DIFFUSE).SetTexture((IDirect3DBaseTexture9*)diffuse->_userdata);
+			}
 			else
+			{
 				_impl->device->SetTexture(0, gNullTex);
+				gShaderConstants->GetPixelConstant(PC_DIFFUSE).SetTexture(gNullTex);
+			}
+
+			// set shader.
+			gShaderSimple->Apply();
 
 			for (uint tri = range->triStart; tri < range->triStart + range->triCount; ++tri)
 			{
@@ -301,9 +318,14 @@ void		D3D9Driver::RenderModelNode(GrModel& parent, GrModelNode& node)
 					return;
 				}
 			}
+
+			gDevice->SetVertexShader(NULL);
+			gDevice->SetPixelShader(NULL);
 		}
 
+#if RENDER_NORMALS
 		RenderMeshNormals(mesh);
+#endif
 	}
 
 	// render each child.
@@ -458,9 +480,16 @@ D3D9Driver::D3D9Driver(int windowWidth, int windowHeight, const wstring& windowT
 		_fatalError = true;
 		return;
 	}
+	gDevice = _impl->device;
 
 	SetMousePos((rect.right - rect.left)/2, (rect.bottom - rect.top)/2);
 	ShowWindow(_impl->hWnd, SW_SHOW);
+
+	E_NEW("d3d9", RD3D9ShaderConstants);
+
+	// create a shader.
+	wstring shaderErrors;
+	gShaderSimple = RD3D9Shader::Create(_T("simple"), shaderErrors);
 }
 
 
@@ -469,6 +498,8 @@ D3D9Driver::D3D9Driver(int windowWidth, int windowHeight, const wstring& windowT
 //===================
 D3D9Driver::~D3D9Driver()
 {
+	E_DELETE("d3d9", gShaderConstants);
+
 	// shutdown d3d9.
 	if (_impl->device != NULL)
 		_impl->device->Release();
@@ -488,6 +519,7 @@ D3D9Driver::~D3D9Driver()
 	}
 
 	E_ASSERT(gDriver != NULL);
+	gDevice = NULL;
 	gDriver = NULL;
 	gDriver_impl = NULL;
 	E_DELETE("renderer", _impl);
@@ -714,7 +746,7 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 	pp.BackBufferHeight			= windowHeight;
 	pp.Windowed					= TRUE;
 
-	HRESULT hr = _impl->device->Reset(&pp);
+	HRESULT hr = gDevice->Reset(&pp);
 	if (FAILED(hr))
 	{
 		_fatalError = true;
@@ -727,18 +759,19 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 	const float zfar(10000.0f);
 	D3DXMATRIX mat;
 	D3DXMatrixPerspectiveFovRH(&mat, fovy, aspect, znear, zfar);
-	_impl->device->SetTransform(D3DTS_PROJECTION, &mat);
+	gDevice->SetTransform(D3DTS_PROJECTION, &mat);
+	gProj = mat;
 
 	D3DXMatrixIdentity(&mat);
-	_impl->device->SetTransform(D3DTS_VIEW, &mat);
-	_impl->device->SetTransform(D3DTS_WORLD, &mat);
+	gDevice->SetTransform(D3DTS_VIEW, &mat);
+	gDevice->SetTransform(D3DTS_WORLD, &mat);
 
-	_impl->device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-	_impl->device->SetRenderState(D3DRS_LIGHTING, FALSE);
-	_impl->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-	_impl->device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	_impl->device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-	_impl->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	gDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	gDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	gDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	gDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+	gDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+	gDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
 	SetMousePos(windowWidth/2, windowHeight/2);
 	gEngine->OnMousePos(windowWidth/2, windowHeight/2);
@@ -761,16 +794,16 @@ void		D3D9Driver::OnPaint()
 	{
 		ApplyCamera(*cam);
 
+		// set shader constants.
+		gShaderConstants->GetVertexConstant(VC_WORLD_VIEW_PROJ).SetMatrix(gView * gProj);
+		gShaderConstants->GetPixelConstant(PC_DIFFUSE_COLOR).SetVector(D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+
 		// render the scene.
 		RenderModel(GetScene().GetModel());
 	}
 
 	_impl->device->EndScene();
 	_impl->device->Present(0, 0, 0, 0);
-
-	// swap front/back buffer.
-	//if (_impl->hDC != NULL)
-		//SwapBuffers(_impl->hDC);
 }
 
 

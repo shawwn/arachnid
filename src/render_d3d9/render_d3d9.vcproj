@@ -216,6 +216,22 @@
 				RelativePath=".\r_d3d9_driver.h"
 				>
 			</File>
+			<File
+				RelativePath=".\r_d3d9_shader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\r_d3d9_shader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\r_d3d9_shader_constants.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\r_d3d9_shader_constants.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
