@@ -160,15 +160,18 @@ public:
 
 	// provides array access to the child nodes.
 	GrModelNode*		GetChildModelNode(uint idx) const;
-	uint				NumChildModelNodes() const;
+	uint				GetNumChildModelNodes() const;
 
 	// provides array access to the child mesh ranges.
 	SMeshRange*			GetMeshRange(uint idx) const;
 	void				AddMeshRange(const SMeshRange& range);
-	uint				NumMeshRanges() const;
+	uint				GetNumMeshRanges() const;
 
 	// builds a skeleton hierarchy out of the child node hierarchy.
 	const MTransform**	GetSkeleton();
+
+	// animates meshes who need to be.
+	void				Animate();
 };
 //========================================================================
 

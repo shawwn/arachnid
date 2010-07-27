@@ -40,4 +40,3 @@ GrMesh::~GrMesh()
 	E_DELETE("mesh", _skin);
 }
 
-

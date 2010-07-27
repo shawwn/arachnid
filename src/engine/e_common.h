@@ -43,6 +43,7 @@
 // std headers.
 #include <cassert>
 #include <fstream>
+#include <algorithm>
 
 // engine headers.
 #include "e_api.h"

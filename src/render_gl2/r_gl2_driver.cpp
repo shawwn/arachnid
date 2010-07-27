@@ -208,14 +208,14 @@ void		GL2Driver::RenderModelNode(GrModelNode& node)
 			positions = skin->DeformVerts(skeleton);
 		}
 
-		E_ASSERT(node.NumMeshRanges() > 0);
-		for (uint rangeIdx = 0; rangeIdx < node.NumMeshRanges(); ++rangeIdx)
+		E_ASSERT(node.GetNumMeshRanges() > 0);
+		for (uint rangeIdx = 0; rangeIdx < node.GetNumMeshRanges(); ++rangeIdx)
 		{
 			GrModelNode::SMeshRange* range(node.GetMeshRange(rangeIdx));
 			E_VERIFY(range != NULL, continue);
 
 			// set texture.
-			GrTexture* diffuse(range->material->GetTexture(MT_DIFFUSE));
+			GrTexture* diffuse(range->material->GetTexture(MTEX_DIFFUSE));
 			if (diffuse != NULL)
 				glBindTexture(0, (GLuint)(size_t)diffuse->_userdata);
 			else
@@ -242,7 +242,7 @@ void		GL2Driver::RenderModelNode(GrModelNode& node)
 	}
 
 	// render each child.
-	for (uint i = 0; i < node.NumChildModelNodes(); ++i)
+	for (uint i = 0; i < node.GetNumChildModelNodes(); ++i)
 	{
 		GrModelNode& child(*node.GetChildModelNode(i));
 		RenderModelNode(child);
@@ -259,7 +259,7 @@ void		GL2Driver::RenderModel(GrModel& model)
 	RenderModelNode(model.GetRoot());
 
 	// render each child.
-	for (uint i = 0; i < model.NumChildModels(); ++i)
+	for (uint i = 0; i < model.GetNumChildModels(); ++i)
 	{
 		GrModel& child(*model.GetChildModel(i));
 		RenderModel(child);

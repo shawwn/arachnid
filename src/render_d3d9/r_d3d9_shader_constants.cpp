@@ -10,6 +10,10 @@
 //========================================================================
 #include "r_d3d9_common.h"
 #include "r_d3d9_shader_constants.h"
+
+// graphics headers.
+#include "../engine/gr_material.h"
+#include "../engine/gr_texture.h"
 //========================================================================
 
 //========================================================================
@@ -23,8 +27,10 @@ const char*			gVertexShaderConstantNames[VC_COUNT] =
 };
 const char*			gPixelShaderConstantNames[PC_COUNT] =
 {
-	"_diffuseColor",
-	"_diffuse"
+	"_diffuse",
+	"_specular",
+	"_emissive",
+	"_diffuseColor"
 };
 //========================================================================
 
@@ -70,7 +76,9 @@ RD3D9ShaderConstants::RD3D9ShaderConstants()
 	for (uint i = 0; i < PC_COUNT; ++i)
 		_pixelConstants[i].Reset(gPixelShaderConstantNames[i]);
 
-	_pixelConstants[PC_DIFFUSE].SetSampler(0);
+
+	for (uint i = 0; i < MTEX_COUNT; ++i)
+		_pixelConstants[i].SetSampler(i);
 
 	gShaderConstants = this;
 }
@@ -102,5 +110,23 @@ RD3D9ShaderConstant&			RD3D9ShaderConstants::GetPixelConstant(EPixelShaderConsta
 {
 	E_ASSERT(which >= 0 && which < PC_COUNT);
 	return _pixelConstants[which];
+}
+
+
+//===================
+// RD3D9ShaderConstants::SetMaterial
+//===================
+void							RD3D9ShaderConstants::SetMaterial(const GrMaterial& mat, IDirect3DBaseTexture9* nullTex)
+{
+	for (uint i = 0; i < MTEX_COUNT; ++i)
+	{
+		GrTexture* tex(mat.GetTexture((EMaterialTexture)i));
+		RD3D9ShaderConstant& constant(GetPixelConstant((EPixelShaderConstant)i));
+
+		if (tex != NULL)
+			constant.SetTexture((IDirect3DBaseTexture9*)tex->GetUserdata());
+		else
+			constant.SetTexture(nullTex);
+	}
 }
 //========================================================================

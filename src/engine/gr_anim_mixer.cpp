@@ -34,7 +34,7 @@ void			GrAnimMixer::AnimateNode(GrAnim* anim, GrModelNode* node, bool recurse)
 	if (recurse)
 	{
 		// recurse to children.
-		uint numChildren = node->NumChildModelNodes();
+		uint numChildren = node->GetNumChildModelNodes();
 		for (uint i = 0; i < numChildren; ++i)
 		{
 			GrModelNode* child(node->GetChildModelNode(i));

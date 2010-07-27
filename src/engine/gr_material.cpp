@@ -20,8 +20,9 @@
 // GrMaterial::GrMaterial
 //===================
 GrMaterial::GrMaterial()
+: _type(MAT_SOLID)
 {
-	for (uint i = 0; i < MT_COUNT; ++i)
+	for (uint i = 0; i < MTEX_COUNT; ++i)
 		_textures[i] = NULL;
 }
 
@@ -38,7 +39,7 @@ GrMaterial::~GrMaterial()
 //===================
 GrTexture*			GrMaterial::GetTexture(EMaterialTexture which) const
 {
-	E_VERIFY(which >= 0 && which < MT_COUNT, return NULL);
+	E_VERIFY(which >= 0 && which < MTEX_COUNT, return NULL);
 	return _textures[which];
 }
 
@@ -48,7 +49,7 @@ GrTexture*			GrMaterial::GetTexture(EMaterialTexture which) const
 //===================
 void				GrMaterial::SetTexture(EMaterialTexture which, GrTexture* val)
 {
-	E_VERIFY(which >= 0 && which < MT_COUNT, return);
+	E_VERIFY(which >= 0 && which < MTEX_COUNT, return);
 	_textures[which] = val;
 }
 

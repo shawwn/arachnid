@@ -23,12 +23,19 @@ enum EVertexShaderConstant
 };
 enum EPixelShaderConstant
 {
-	PC_DIFFUSE_COLOR,
 	PC_DIFFUSE,
+	PC_SPECULAR,
+	PC_EMISSIVE,
+
+	PC_DIFFUSE_COLOR,
+
 	PC_COUNT
 };
+
 extern const char*		gVertexShaderConstantNames[VC_COUNT];
 extern const char*		gPixelShaderConstantNames[PC_COUNT];
+
+class GrMaterial;
 //========================================================================
 
 //========================================================================
@@ -79,6 +86,8 @@ public:
 
 	RD3D9ShaderConstant&			GetVertexConstant(EVertexShaderConstant which);
 	RD3D9ShaderConstant&			GetPixelConstant(EPixelShaderConstant which);
+
+	void							SetMaterial(const GrMaterial& mat, IDirect3DBaseTexture9* nullTex);
 };
 extern RD3D9ShaderConstants*		gShaderConstants;
 //========================================================================

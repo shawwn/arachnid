@@ -19,6 +19,7 @@
 //========================================================================
 // Declarations
 //========================================================================
+enum EMaterialPass;
 class GrScene;
 class GrCamera;
 class GrModel;
@@ -39,11 +40,7 @@ private:
 	D3D9Driver_impl*	_impl;
 
 	// renderer functions.
-	void				ApplyCamera(const GrCamera& cam);
 	void				RenderMeshNormals(GrMesh* mesh);
-	void				RenderModelNode(GrModel& parent, GrModelNode& node);
-	void				RenderModel(GrModel& model);
-
 public:
 	D3D9Driver(int windowWidth, int windowHeight, const wstring& windowTitle);
 	~D3D9Driver();
@@ -52,6 +49,10 @@ public:
 
 	bool				BeginFrame();
 	void				EndFrame();
+
+	void				ApplyCamera(const GrCamera& cam);
+	void				ApplyMaterial(GrMaterial* mat, EMaterialPass pass);
+	void				DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triStart, uint triCount);
 
 	void				SetMousePos(int x, int y);
 

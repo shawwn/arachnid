@@ -522,6 +522,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="rendering"
+				>
+				<File
+					RelativePath=".\gr_render_ambient.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\gr_render_ambient.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="importers"

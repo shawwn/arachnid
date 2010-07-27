@@ -84,6 +84,7 @@ public:
 	bool					PerFrame(uint dt);
 
 	// internal use only.
+	void					OnRender();
 	void					OnResize(uint windowWidth, uint windowHeight);
 	void					OnMousePos(int x, int y);
 };

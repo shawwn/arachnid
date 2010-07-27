@@ -63,6 +63,37 @@ D3DXMATRIX			gView;
 D3DXMATRIX			gProj;
 
 RD3D9Shader*		gShaderSimple;
+RD3D9Shader*		gCurShader;
+//========================================================================
+
+//========================================================================
+// Functions
+//========================================================================
+static void			XFormToD3DXMat(D3DXMATRIX& mat, const MTransform& xform)
+{
+	const MMat33& rot(xform.GetRot());
+	const MVec3& trans(xform.GetTrans());
+
+	mat._11 = rot(0, 0);
+	mat._21 = rot(1, 0);
+	mat._31 = rot(2, 0);
+	mat._41 = trans.X();
+
+	mat._12 = rot(0, 1);
+	mat._22 = rot(1, 1);
+	mat._32 = rot(2, 1);
+	mat._42 = trans.Y();
+
+	mat._13 = rot(0, 2);
+	mat._23 = rot(1, 2);
+	mat._33 = rot(2, 2);
+	mat._43 = trans.Z();
+
+	mat._14 = 0.0f;
+	mat._24 = 0.0f;
+	mat._34 = 0.0f;
+	mat._44 = 1.0f;
+}
 //========================================================================
 
 //========================================================================
@@ -152,25 +183,6 @@ struct D3D9Driver_impl
 
 
 //===================
-// D3D9Driver::ApplyCamera
-//===================
-void		D3D9Driver::ApplyCamera(const GrCamera& cam)
-{
-	MVec3 pos, lookAt, up;
-	cam.GetEyeInfo(pos, lookAt, up);
-
-	D3DXMATRIX mat;
-	D3DXMatrixLookAtRH(&mat,
-		(const D3DXVECTOR3*)pos.Get(),
-		(const D3DXVECTOR3*)lookAt.Get(),
-		(const D3DXVECTOR3*)up.Get());
-
-	_impl->device->SetTransform(D3DTS_VIEW, &mat);
-	gView = mat;
-}
-
-
-//===================
 // D3D9Driver::RenderMeshNormals
 //===================
 void		D3D9Driver::RenderMeshNormals(GrMesh* mesh)
@@ -245,118 +257,6 @@ void		D3D9Driver::RenderMeshNormals(GrMesh* mesh)
 	}
 }
 
-
-//===================
-// D3D9Driver::RenderModelNode
-//===================
-void		D3D9Driver::RenderModelNode(GrModel& parent, GrModelNode& node)
-{
-	GrMesh* mesh(node.GetMesh());
-	if (mesh != NULL)
-	{
-		GrSkin* skin(mesh->GetSkin());
-		const byte* boneIndices(NULL);
-		const float* boneWeights(NULL);
-		const MTransform** skeleton = NULL;
-		const SVec3* positions(skin->GetPositions());
-		if (skin->GetMeshChannels() & MESH_BONE_INFO)
-		{
-			skeleton = node.GetSkeleton();
-			positions = skin->DeformVerts(skeleton);
-		}
-
-		_impl->device->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
-		_impl->device->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
-		_impl->device->SetTextureStageState(0,D3DTSS_COLORARG2,D3DTA_DIFFUSE);
-		_impl->device->SetFVF(D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_DIFFUSE);
-
-		const SVec2* texcoords(skin->GetTexcoords());
-		const TriIdx* indices(skin->GetIndices());
-
-		E_ASSERT(node.NumMeshRanges() > 0);
-		for (uint rangeIdx = 0; rangeIdx < node.NumMeshRanges(); ++rangeIdx)
-		{
-			GrModelNode::SMeshRange* range(node.GetMeshRange(rangeIdx));
-			E_VERIFY(range != NULL, continue);
-
-			// set texture.
-			GrTexture* diffuse(range->material->GetTexture(MT_DIFFUSE));
-			if (diffuse != NULL)
-			{
-				_impl->device->SetTexture(0, (IDirect3DBaseTexture9*)diffuse->_userdata);
-				gShaderConstants->GetPixelConstant(PC_DIFFUSE).SetTexture((IDirect3DBaseTexture9*)diffuse->_userdata);
-			}
-			else
-			{
-				_impl->device->SetTexture(0, gNullTex);
-				gShaderConstants->GetPixelConstant(PC_DIFFUSE).SetTexture(gNullTex);
-			}
-
-			// set shader.
-			gShaderSimple->Apply();
-
-			for (uint tri = range->triStart; tri < range->triStart + range->triCount; ++tri)
-			{
-				D3D9Vertex vert[3];
-
-				const MTransform& xform(node.GetWorld());
-
-				for (uint corner = 0; corner < 3; ++corner)
-				{
-					uint idx(indices[3*tri + corner]);
-					vert[corner].pos = positions[idx];
-					vert[corner].uv = texcoords[idx];
-					vert[corner].pos.RotateTranslate(xform);
-					vert[corner].uv.Y() = 1.0f - vert[corner].uv.Y();
-					vert[corner].color = 0xFFFFFFFF;
-				}
-
-				HRESULT hr = _impl->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 1, (const void*)vert, sizeof(D3D9Vertex));
-				if (FAILED(hr))
-				{
-					_fatalError = true;
-					return;
-				}
-			}
-
-			gDevice->SetVertexShader(NULL);
-			gDevice->SetPixelShader(NULL);
-		}
-
-#if RENDER_NORMALS
-		RenderMeshNormals(mesh);
-#endif
-	}
-
-	// render each child.
-	for (uint i = 0; i < node.NumChildModelNodes(); ++i)
-	{
-		GrModelNode& child(*node.GetChildModelNode(i));
-		RenderModelNode(parent, child);
-	}
-}
-
-
-//===================
-// D3D9Driver::RenderModel
-//===================
-void		D3D9Driver::RenderModel(GrModel& model)
-{
-	// render the nodes.
-	RenderModelNode(model, model.GetRoot());
-
-	// render each child.
-	for (uint i = 0; i < model.NumChildModels(); ++i)
-	{
-		GrModel& child(*model.GetChildModel(i));
-		RenderModel(child);
-	}
-
-#if E_PRINT_DEBUG_INFO
-	model.PrintDebug();
-#endif
-
-}
 
 //===================
 // D3D9Driver::D3D9Driver
@@ -559,6 +459,9 @@ bool		D3D9Driver::BeginFrame()
 	ScreenToClient(_impl->hWnd, &pt);
 	gEngine->OnMousePos(pt.x, pt.y);
 
+	// set shader constants.
+	gShaderConstants->GetPixelConstant(PC_DIFFUSE_COLOR).SetVector(D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+
 	return true;
 }
 
@@ -569,6 +472,94 @@ bool		D3D9Driver::BeginFrame()
 void		D3D9Driver::EndFrame()
 {
 	E_VERIFY(!_fatalError, return);
+}
+
+
+//===================
+// D3D9Driver::ApplyCamera
+//===================
+void		D3D9Driver::ApplyCamera(const GrCamera& cam)
+{
+	MVec3 pos, lookAt, up;
+	cam.GetEyeInfo(pos, lookAt, up);
+
+	D3DXMATRIX mat;
+	D3DXMatrixLookAtRH(&mat,
+		(const D3DXVECTOR3*)pos.Get(),
+		(const D3DXVECTOR3*)lookAt.Get(),
+		(const D3DXVECTOR3*)up.Get());
+
+	_impl->device->SetTransform(D3DTS_VIEW, &mat);
+	gView = mat;
+}
+
+
+//===================
+// D3D9Driver::ApplyMaterial
+//===================
+void		D3D9Driver::ApplyMaterial(GrMaterial* mat, EMaterialPass pass)
+{
+	gDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
+	gDevice->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
+	gDevice->SetTextureStageState(0,D3DTSS_COLORARG2,D3DTA_DIFFUSE);
+	gDevice->SetFVF(D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_DIFFUSE);
+
+	// set textures.
+	for (uint i = 0; i < MTEX_COUNT; ++i)
+	{
+		GrTexture* tex(mat->GetTexture((EMaterialTexture)i));
+
+		if (tex != NULL)
+			gDevice->SetTexture(i, (IDirect3DBaseTexture9*)tex->GetUserdata());
+		else
+			gDevice->SetTexture(i, gNullTex);
+	}
+}
+
+
+//===================
+// D3D9Driver::DrawMeshRange
+//===================
+void		D3D9Driver::DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triStart, uint triCount)
+{
+	GrSkin* skin(mesh->GetSkin());
+	const SVec3* positions(skin->GetPositions());
+
+	const SVec2* texcoords(skin->GetTexcoords());
+	const TriIdx* indices(skin->GetIndices());
+
+	// set transform.
+	D3DXMATRIX world;
+	XFormToD3DXMat(world, xform);
+	gShaderConstants->GetVertexConstant(VC_WORLD_VIEW_PROJ).SetMatrix(world * gView * gProj);
+
+	// set shader.
+	gShaderSimple->Apply();
+
+	for (uint tri = triStart; tri < triStart + triCount; ++tri)
+	{
+		D3D9Vertex vert[3];
+
+		for (uint corner = 0; corner < 3; ++corner)
+		{
+			uint idx(indices[3*tri + corner]);
+			vert[corner].pos = positions[idx];
+			vert[corner].uv = texcoords[idx];
+			vert[corner].pos.RotateTranslate(xform);
+			vert[corner].uv.Y() = 1.0f - vert[corner].uv.Y();
+			vert[corner].color = 0xFFFFFFFF;
+		}
+
+		HRESULT hr = gDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 1, (const void*)vert, sizeof(D3D9Vertex));
+		if (FAILED(hr))
+		{
+			_fatalError = true;
+			return;
+		}
+	}
+
+	gDevice->SetVertexShader(NULL);
+	gDevice->SetPixelShader(NULL);
 }
 
 
@@ -788,19 +779,7 @@ void		D3D9Driver::OnPaint()
 	_impl->device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x10101010, 1.0f, 0);
 	_impl->device->BeginScene();
 
-	// apply the camera.
-	GrCamera* cam(GetCamera());
-	if (cam != NULL)
-	{
-		ApplyCamera(*cam);
-
-		// set shader constants.
-		gShaderConstants->GetVertexConstant(VC_WORLD_VIEW_PROJ).SetMatrix(gView * gProj);
-		gShaderConstants->GetPixelConstant(PC_DIFFUSE_COLOR).SetVector(D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
-
-		// render the scene.
-		RenderModel(GetScene().GetModel());
-	}
+	gEngine->OnRender();
 
 	_impl->device->EndScene();
 	_impl->device->Present(0, 0, 0, 0);

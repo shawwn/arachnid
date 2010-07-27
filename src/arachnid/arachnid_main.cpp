@@ -93,7 +93,7 @@ bool			StartupRenderer()
 		E_VERIFY(gCheckerTex != NULL, return false);
 
 		gChecker = E_NEW("main", GrMaterial);
-		gChecker->SetTexture(MT_DIFFUSE, gCheckerTex);
+		gChecker->SetTexture(MTEX_DIFFUSE, gCheckerTex);
 	}
 
 	// create tri mesh.
@@ -149,9 +149,9 @@ bool			StartupRenderer()
 		gWsMat = E_NEW(_T("main"), GrMaterial);
 		gWsTex = renderer.CreateTexture(_T("main"), _TS(FILE_PATH_ROOT_DIR) + MODEL_BASE_PATH + MODEL_TEXTURE);
 		if (gWsTex != NULL)
-			gWsMat->SetTexture(MT_DIFFUSE, gWsTex);
+			gWsMat->SetTexture(MTEX_DIFFUSE, gWsTex);
 		else
-			gWsMat->SetTexture(MT_DIFFUSE, gCheckerTex);
+			gWsMat->SetTexture(MTEX_DIFFUSE, gCheckerTex);
 	}
 
 	// import model.

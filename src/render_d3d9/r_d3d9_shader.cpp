@@ -249,7 +249,8 @@ void					RD3D9Shader::Apply()
 
 			if (constant.desc.RegisterSet == D3DXRS_SAMPLER)
 			{
-				gDevice->SetTexture(constant.constant->GetSampler(), constant.constant->GetTexture());
+				continue;
+				//gDevice->SetTexture(constant.constant->GetSampler(), constant.constant->GetTexture());
 			}
 			else
 			{

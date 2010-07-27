@@ -16,11 +16,13 @@
 //========================================================================
 // Declarations
 //========================================================================
+enum EMaterialPass;
 class GrDriver;
 class GrCamera;
 class GrScene;
 class GrMesh;
 class GrTexture;
+class GrMaterial;
 class GrSkin;
 
 // renderer DLL functions.
@@ -70,6 +72,15 @@ public:
 
 	// call at the end of each frame.
 	virtual void			EndFrame()=0;
+
+	// applies a camera.
+	virtual void			ApplyCamera(const GrCamera& cam) { }
+
+	// applies a material.
+	virtual void			ApplyMaterial(GrMaterial* mat, EMaterialPass pass) { }
+
+	// draws a mesh range using the current material.
+	virtual void			DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triStart, uint triCount) { }
 
 	// set the mouse position.
 	virtual void			SetMousePos(int x, int y)=0;

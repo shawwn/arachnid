@@ -430,7 +430,7 @@ GrModelNode*		GrModelNode::GetChildModelNode(uint idx) const
 //===================
 // GrModelNode::NumChildModelNodes
 //===================
-uint				GrModelNode::NumChildModelNodes() const
+uint				GrModelNode::GetNumChildModelNodes() const
 {
 	return (uint)_stl->children.size();
 }
@@ -458,7 +458,7 @@ void				GrModelNode::AddMeshRange(const SMeshRange& range)
 //===================
 // GrModelNode::NumMeshRanges
 //===================
-uint				GrModelNode::NumMeshRanges() const
+uint				GrModelNode::GetNumMeshRanges() const
 {
 	return (uint)_stl->meshRanges.size();
 }
@@ -484,5 +484,29 @@ const MTransform**	GrModelNode::GetSkeleton()
 	}
 
 	return _skeleton;
+}
+
+
+//===================
+// GrModelNode::Animate
+//===================
+void				GrModelNode::Animate()
+{
+	// if any meshes are animated, then deform them.
+	if (_mesh != NULL)
+	{
+		GrSkin* skin(_mesh->GetSkin());
+		if (skin->GetMeshChannels() & MESH_BONE_INFO)
+		{
+			skin->DeformVerts(GetSkeleton());
+		}
+	}
+
+	// recurse to children.
+	for (ModelNodeVec::iterator it(_stl->children.begin()), itEnd(_stl->children.end()); it != itEnd; ++it)
+	{
+		GrModelNode* child(*it);
+		child->Animate();
+	}
 }
 

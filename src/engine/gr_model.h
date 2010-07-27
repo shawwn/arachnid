@@ -68,7 +68,7 @@ public:
 
 	// provides array access to the child models.
 	GrModel*				GetChildModel(uint idx) const;
-	uint					NumChildModels() const;
+	uint					GetNumChildModels() const;
 
 	// animation controls.
 	GrAnimMixer*			Animations();

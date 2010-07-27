@@ -318,7 +318,7 @@ GrModel*				GrModel::GetChildModel(uint idx) const
 //===================
 // GrModel::NumChildModels
 //===================
-uint					GrModel::NumChildModels() const
+uint					GrModel::GetNumChildModels() const
 {
 	return _stl->modelsVec.size();
 }
@@ -342,10 +342,12 @@ GrAnimMixer*			GrModel::Animations()
 //===================
 void					GrModel::Update(uint deltaTime)
 {
+	// update animations.
 	if (_animMixer != NULL)
-	{
 		_animMixer->Update(deltaTime);
-	}
+
+	// deform meshes.
+	_root->Animate();
 
 	// recurse to children.
 	for (ModelMap::iterator it(_stl->models.begin()), itEnd(_stl->models.end()); it != itEnd; ++it)

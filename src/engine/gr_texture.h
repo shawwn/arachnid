@@ -31,8 +31,6 @@ private:
 	uint				_width;
 	uint				_height;
 
-	void*				GetUserdata() const			{ return _userdata; }
-
 	GrTexture(Internal_GrDriver* driver);
 public:
 	~GrTexture();
@@ -41,6 +39,7 @@ public:
 	const byte*			GetPixel(uint x, uint y) const	{ E_VERIFY(x < _width && y < _height, return NULL); return _pixels + 4*_width*y + 4*x; }
 	uint				GetWidth() const				{ return _width; }
 	uint				GetHeight() const				{ return _height; }
+	void*				GetUserdata() const				{ return _userdata; }
 };
 //========================================================================
 

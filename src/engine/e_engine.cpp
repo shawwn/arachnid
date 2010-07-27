@@ -26,6 +26,7 @@
 #include "gr_camera.h"
 #include "gr_scene.h"
 #include "gr_model.h"
+#include "gr_render_ambient.h"
 //========================================================================
 
 //========================================================================
@@ -232,6 +233,21 @@ bool				EEngine::PerFrame(uint dt)
 	}
 
 	return true;
+}
+
+
+//===================
+// EEngine::OnResize
+//===================
+void				EEngine::OnRender()
+{
+	// apply the camera.
+	_renderer->ApplyCamera(*_cam);
+
+	// render the scene.
+	GrRenderAmbient renderAmbient;
+	renderAmbient.AddModel(GetScene().GetModel());
+	renderAmbient.RenderAmbient(_renderer);
 }
 
 

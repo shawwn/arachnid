@@ -1,7 +1,7 @@
 //========================================================================
-//	file:		gr_material.h
+//	file:		gr_render_ambient.h
 //	author:		Shawn Presser 
-//	date:		7/6/10
+//	date:		7/27/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -10,27 +10,27 @@
 //========================================================================
 // Declarations
 //========================================================================
-class GrTexture;
+class GrMesh;
+class GrModel;
+class GrModelNode;
+class GrDriver;
+struct GrRenderAmbient_impl;
 //========================================================================
 
 //========================================================================
-// GrMaterial
+// GrRenderAmbient
 //========================================================================
-class ENGINE_API GrMaterial
+class GrRenderAmbient
 {
 private:
-	GrTexture*			_textures[MTEX_COUNT];
-	EMaterialType		_type;
-
+	GrRenderAmbient_impl*	_impl;
 public:
-	GrMaterial();
-	~GrMaterial();
+	GrRenderAmbient();
+	~GrRenderAmbient();
 
-	GrTexture*			GetTexture(EMaterialTexture which) const;
-	void				SetTexture(EMaterialTexture which, GrTexture* val);
-
-	EMaterialType		GetMaterialType() const				{ return _type; }
+	void					Reset();
+	void					AddModel(GrModel& model);
+	void					AddModelNode(GrModelNode& modelNode);
+	void					RenderAmbient(GrDriver* driver);
 };
 //========================================================================
-
-
