@@ -473,7 +473,7 @@ const MTransform**	GrModelNode::GetSkeleton()
 	{
 		uint numBones(CountChildren());
 		const MTransform** skeleton = E_NEW_ARRAY("model_node", const MTransform*, numBones);
-		ArrayZero(skeleton, numBones);
+		BufZero(skeleton, numBones);
 		_skeleton = skeleton;
 
 		for (ModelNodeVec::iterator it(_stl->children.begin()), itEnd(_stl->children.end()); it != itEnd; ++it)

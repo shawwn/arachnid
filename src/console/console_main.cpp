@@ -42,6 +42,9 @@
 #include "../engine/e_expr_add.h"
 #include "../engine/e_expr_multiply.h"
 
+// test headers.
+#include "../engine/test_containers.h"
+
 // std headers.
 #include <iostream>
 //========================================================================
@@ -302,6 +305,7 @@ public:
 };
 
 
+#if 0
 //===================
 // main
 //===================
@@ -394,3 +398,16 @@ int		main()
 
 	return 0;
 }
+#endif
+
+
+//===================
+// main
+//===================
+int		main()
+{
+	TestContainers::Test();
+
+	return 0;
+}
+

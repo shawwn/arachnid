@@ -1,50 +1,57 @@
 //========================================================================
-//	file:		gr_mesh.h
+//	file:		gr_polygon_mesh.cpp
 //	author:		Shawn Presser 
-//	date:		7/2/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
-#pragma once
 
 //========================================================================
 // Headers
 //========================================================================
-#include "gr_skin.h"
+#include "e_common.h"
+#include "gr_polygon_mesh.h"
 //========================================================================
 
 //========================================================================
-// Declarations
+// GrPolygonMesh_impl
 //========================================================================
-class GL2Driver;
-class D3D9Driver;
-class Internal_GrDriver;
-//========================================================================
-
-//========================================================================
-// GrMesh
-//========================================================================
-class ENGINE_API GrMesh
+struct GrPolygonMesh_impl
 {
-	friend class GL2Driver;
-	friend class D3D9Driver;
-private:
-	Internal_GrDriver*	_driver;
-	void*				_userdata;
-
-	// geometry data.
-	GrSkin*				_skin;
-
-	void*				GetUserdata() const			{ return _userdata; }
-
-	GrMesh(Internal_GrDriver* driver);
-public:
-	~GrMesh();
-
-	// provide access to the geometry.
-	const GrSkin*		GetSkin() const				{ return _skin; }
-	GrSkin*				GetSkin()					{ return _skin; }
+	int junk;
 };
 //========================================================================
+
+//========================================================================
+// GrPolygonMesh
+//========================================================================
+
+//===================
+// GrPolygonMesh::Triangulate
+//===================
+void					GrPolygonMesh::Triangulate()
+{
+	for (uint i = 0; i < _polys.size(); ++i)
+		_polys[i].Triangulate(_triangles);
+}
+
+//===================
+// GrPolygonMesh::GrPolygonMesh
+//===================
+GrPolygonMesh::GrPolygonMesh()
+: _polys(128)
+, _triangles(128)
+, _channels(0)
+{
+}
+
+
+//===================
+// GrPolygonMesh::~GrPolygonMesh
+//===================
+GrPolygonMesh::~GrPolygonMesh()
+{
+}
+//========================================================================
+
 
 

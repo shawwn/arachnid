@@ -463,6 +463,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gr_polygon.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_polygon.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gr_scene.cpp"
 				>
 			</File>
@@ -502,6 +510,18 @@
 				RelativePath=".\gr_utils.h"
 				>
 			</File>
+			<Filter
+				Name="processing"
+				>
+				<File
+					RelativePath=".\gr_polygon_mesh.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\gr_polygon_mesh.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="importers"
@@ -532,6 +552,14 @@
 			</File>
 			<File
 				RelativePath=".\test_anim.h"
+				>
+			</File>
+			<File
+				RelativePath=".\test_containers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\test_containers.h"
 				>
 			</File>
 		</Filter>
@@ -588,6 +616,22 @@
 			</File>
 			<File
 				RelativePath=".\e_ref.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="containers"
+			>
+			<File
+				RelativePath=".\e_pool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\e_vector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\e_vector_policies.h"
 				>
 			</File>
 		</Filter>

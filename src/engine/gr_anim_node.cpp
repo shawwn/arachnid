@@ -56,7 +56,7 @@ GrAnimNode::GrAnimNode(const wstring& nodeName)
 	_numPosYKeyframes = 0;
 	_numPosZKeyframes = 0;
 
-	ArrayZero(_userdata, 3);
+	BufZero(_userdata, 3);
 	_userKeyframes = NULL;
 	_posKeyframes = NULL;
 	_scaleKeyframes = NULL;
@@ -78,7 +78,7 @@ GrAnimNode::~GrAnimNode()
 //===================
 void			GrAnimNode::Reset()
 {
-	ArrayZero(_userdata, 3);
+	BufZero(_userdata, 3);
 	E_DELETE_ARRAY("animnode", _userKeyframes);
 	E_DELETE_ARRAY("animnode", _posKeyframes);
 	E_DELETE_ARRAY("animnode", _scaleKeyframes);
@@ -121,9 +121,9 @@ void			GrAnimNode::SetMaxKeyframes(uint maxKeyframes)
 	_scaleKeyframes = E_NEW_ARRAY("animnode", MVec3, maxKeyframes);
 	_rotKeyframes = E_NEW_ARRAY("animnode", MQuat, maxKeyframes);
 
-	ArrayZero(_userKeyframes, maxKeyframes);
-	ArrayZero(_posKeyframes, maxKeyframes);
-	ArrayZero(_scaleKeyframes, maxKeyframes);
+	BufZero(_userKeyframes, maxKeyframes);
+	BufZero(_posKeyframes, maxKeyframes);
+	BufZero(_scaleKeyframes, maxKeyframes);
 }
 
 

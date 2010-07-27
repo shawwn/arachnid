@@ -53,6 +53,7 @@
 #include "e_exception.h"
 #include "e_string_converters.h"
 #include "e_ref.h"
+#include "e_vector.h"
 
 // math headers.
 #include "m_math.h"

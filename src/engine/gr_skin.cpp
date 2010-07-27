@@ -77,7 +77,7 @@ typedef hash_map<uint, SBoneBucket>		BoneBucketMap;
 struct GrSkin_impl
 {
 	BoneBucketMap		_boneBuckets;
-	uivec				_indices;
+	EVecRawMem<TriIdx>	_indices;
 
 	SVec3vec			_normals;
 	SVec3vec			_binormals;
@@ -85,6 +85,11 @@ struct GrSkin_impl
 
 	SVec3vec			_positions;
 	SVec2vec			_uvs;
+
+	GrSkin_impl()
+		: _indices(256)
+	{
+	}
 };
 //========================================================================
 
@@ -103,8 +108,8 @@ void			GrSkin::RecomputeTangentsBinormals()
 
 	_impl->_binormals.resize(numVerts);
 	_impl->_tangents.resize(numVerts);
-	ArrayZero(&_impl->_binormals[0], numVerts);
-	ArrayZero(&_impl->_tangents[0], numVerts);
+	BufZero(&_impl->_binormals[0], numVerts);
+	BufZero(&_impl->_tangents[0], numVerts);
 
 	for (uint triIdx = 0; triIdx < numTris; ++triIdx)
 	{
@@ -167,6 +172,7 @@ void			GrSkin::NormalizeTBN()
 //===================
 GrSkin::GrSkin(uint reserveVerts, uint reserveTris)
 : _impl(E_NEW("skin", GrSkin_impl))
+, _hasBoneInfo(false)
 {
 	_impl->_tangents.reserve(reserveVerts);
 	_impl->_binormals.reserve(reserveVerts);
@@ -198,11 +204,20 @@ uint			GrSkin::GetNumVerts() const
 
 
 //===================
-// GrSkin::GetPositions
+// GrSkin::GetNumTris
 //===================
-SVec3*			GrSkin::GetPositions() const
+uint			GrSkin::GetNumTris() const
 {
-	return &_impl->_positions[0];
+	return (uint)(_impl->_indices.size() / 3);
+}
+
+
+//===================
+// GrSkin::GetIndices
+//===================
+TriIdx*			GrSkin::GetIndices() const
+{
+	return _impl->_indices.ptr();
 }
 
 
@@ -211,6 +226,8 @@ SVec3*			GrSkin::GetPositions() const
 //===================
 SVec3*			GrSkin::GetTangents() const
 {
+	if (_impl->_tangents.empty())
+		return NULL;
 	return &_impl->_tangents[0];
 }
 
@@ -220,6 +237,8 @@ SVec3*			GrSkin::GetTangents() const
 //===================
 SVec3*			GrSkin::GetBinormals() const
 {
+	if (_impl->_binormals.empty())
+		return NULL;
 	return &_impl->_binormals[0];
 }
 
@@ -229,7 +248,27 @@ SVec3*			GrSkin::GetBinormals() const
 //===================
 SVec3*			GrSkin::GetNormals() const
 {
+	if (_impl->_normals.empty())
+		return NULL;
 	return &_impl->_normals[0];
+}
+
+
+//===================
+// GrSkin::GetPositions
+//===================
+SVec3*			GrSkin::GetPositions() const
+{
+	return &_impl->_positions[0];
+}
+
+
+//===================
+// GrSkin::GetTexcoords
+//===================
+SVec2*			GrSkin::GetTexcoords() const
+{
+	return &_impl->_uvs[0];
 }
 
 
@@ -238,6 +277,9 @@ SVec3*			GrSkin::GetNormals() const
 //===================
 SVec3*			GrSkin::DeformVerts(const MTransform** bones)
 {
+	if (!_hasBoneInfo)
+		return GetPositions();
+
 	uint numVerts(GetNumVerts());
 	SVec3* positions = &_impl->_positions[0];
 	SVec3* tangents(NULL);
@@ -245,17 +287,17 @@ SVec3*			GrSkin::DeformVerts(const MTransform** bones)
 	SVec3* normals = &_impl->_normals[0];
 
 	// zero the verts.
-	ArrayZero(positions, numVerts);
-	ArrayZero(normals, numVerts);
+	BufZero(positions, numVerts);
+	BufZero(normals, numVerts);
 	if (!_impl->_tangents.empty())
 	{
 		tangents = &_impl->_tangents[0];
-		ArrayZero(tangents, numVerts);
+		BufZero(tangents, numVerts);
 	}
 	if (!_impl->_binormals.empty())
 	{
 		binormals = &_impl->_binormals[0];
-		ArrayZero(binormals, numVerts);
+		BufZero(binormals, numVerts);
 	}
 
 	for (BoneBucketMap::iterator it(_impl->_boneBuckets.begin()), itEnd(_impl->_boneBuckets.end()); it != itEnd; ++it)
@@ -322,6 +364,7 @@ SVec3*			GrSkin::DeformVerts(const MTransform** bones)
 //===================
 void			GrSkin::Reset()
 {
+	_hasBoneInfo = false;
 	_impl->_boneBuckets.clear();
 	_impl->_positions.clear();
 	_impl->_uvs.clear();
@@ -332,14 +375,22 @@ void			GrSkin::Reset()
 //===================
 // GrSkin::StartVert
 //===================
-void			GrSkin::StartVert(const SVec3& pos, const SVec3& normal, const SVec2& uv)
+void			GrSkin::StartVert(const SVec3& pos, const SVec2& uv)
+{
+	_impl->_positions.push_back(pos);
+	_impl->_uvs.push_back(uv);
+	_curTotalWeight = 0.0f;
+}
+
+
+//===================
+// GrSkin::AddNormals
+//===================
+void			GrSkin::AddNormals(const SVec3& normal)
 {
 	SVec3 n(normal);
 	n.Normalize();
-	_impl->_positions.push_back(pos);
 	_impl->_normals.push_back(n);
-	_impl->_uvs.push_back(uv);
-	_curTotalWeight = 0.0f;
 }
 
 
@@ -358,10 +409,12 @@ void			GrSkin::AddTangents(const SVec3& uBasis, const SVec3& vBasis)
 
 
 //===================
-// GrSkin::AddWeight
+// GrSkin::AddBoneWeight
 //===================
-void			GrSkin::AddWeight(byte boneIndex, float weight)
+void			GrSkin::AddBoneWeight(byte boneIndex, float weight)
 {
+	_hasBoneInfo = true;
+
 	E_ASSERT(boneIndex != byte(-1));
 	E_ASSERT(weight > 0.0f);
 
@@ -392,7 +445,7 @@ void			GrSkin::AddWeight(byte boneIndex, float weight)
 //===================
 // GrSkin::AddTriangle
 //===================
-void			GrSkin::AddTriangle(uint idxA, uint idxB, uint idxC)
+void			GrSkin::AddTriangle(TriIdx idxA, TriIdx idxB, TriIdx idxC)
 {
 	_impl->_indices.push_back(idxA);
 	_impl->_indices.push_back(idxB);

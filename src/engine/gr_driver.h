@@ -75,10 +75,7 @@ public:
 	virtual void			SetMousePos(int x, int y)=0;
 
 	// mesh management.
-	virtual GrMesh*			CreateMesh(const wchar_t* ctx,
-		const SVec3* positions, const SVec2* texcoords, uint numVerts,
-		const TriIdx* triangles, uint numTris,
-		GrSkin* skin = NULL)=0;
+	virtual GrMesh*			CreateMesh(const wchar_t* ctx, GrSkin* geometry)=0;
 
 	// texture management.
 	virtual GrTexture*		CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height)=0;

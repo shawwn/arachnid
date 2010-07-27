@@ -27,6 +27,9 @@
 
 // misc macros
 #define BIT(x)								(1 << (x))
+#define HAS_FLAGS(var, flags)				((var & flags) != 0)
+
+// min / max / clamp macros
 #define E_MIN(x, y)							((x) < (y) ? (x) : (y))
 #define E_MAX(x, y)							((x) > (y) ? (x) : (y))
 #define E_CLAMP(lo, hi, val)				((val) < (lo) ? (lo) : (val) > (hi) ? (hi) : (val))
@@ -82,6 +85,15 @@ inline byte*				MemAlloc(uint size)
 
 
 //===================
+// MemRealloc
+//===================
+inline byte*				MemRealloc(byte* buf, uint newSize)
+{
+	return (byte*)realloc((void*)buf, newSize);
+}
+
+
+//===================
 // MemFree
 //===================
 inline void					MemFree(void* p)
@@ -119,21 +131,35 @@ inline T*					AlignPtr16(T* ptr)
 //===================
 inline void					MemCpy(void* dst, const void* src, uint size)
 {
-	E_VERIFY(src != NULL && size > 0, return);
 	memcpy(dst, src, size);
 }
 
 
 //===================
-// ArrayZero
+// ItemsCpy
 //===================
-template<class T>
-inline void					ArrayZero(T* dst, uint count)
+template< typename T >
+inline void					ItemsCpy(T* dst, const T* src, uint count)
 {
-	if (dst == NULL || count == 0)
-		return;
+	while (count > 0)
+	{
+		*dst++ = *src++;
+		--count;
+	}
+}
 
-	MemZero((byte*)dst, sizeof(T)*count);
+
+//===================
+// ItemsConstruct
+//===================
+template< typename T >
+inline void					ItemsConstruct(T* dst, const T* src, uint count)
+{
+	while (count > 0)
+	{
+		new(dst++) T(*src++);
+		--count;
+	}
 }
 
 
@@ -143,15 +169,18 @@ inline void					ArrayZero(T* dst, uint count)
 template<class T>
 inline void					ArrayResize(const wchar_t* ctx, T*& dst, uint oldSize, uint newSize)
 {
-	T* result = E_NEW_ARRAY(ctx, T, newSize);
-
-	if (dst != NULL)
+	if (newSize == 0)
 	{
-		uint keepSize(E_MIN(oldSize, newSize));
-		MemCpy(result, dst, sizeof(T) * keepSize);
+		E_DELETE_ARRAY(ctx, dst);
+		return;
 	}
 
+	T* result = E_NEW_ARRAY(ctx, T, newSize);
+
+	uint keepSize(E_MIN(oldSize, newSize));
+	ItemsCpy(result, dst, keepSize);
 	E_DELETE_ARRAY(ctx, dst);
+
 	dst = result;
 }
 
@@ -161,6 +190,52 @@ inline void					ArrayResize(const wchar_t* ctx, T*& dst, uint oldSize, uint newS
 //===================
 template<class T>
 inline T*					ArrayCpy(const wchar_t* ctx, const T* src, uint count)
+{
+	if (src == NULL)
+		return NULL;
+
+	T* result(E_NEW_ARRAY(ctx, T, count));
+	ItemsCpy(result, src, count);
+	return result;
+}
+
+
+//===================
+// BufZero
+//===================
+template<class T>
+inline void					BufZero(T* dst, uint count)
+{
+	if (dst == NULL || count == 0)
+		return;
+
+	MemZero((byte*)dst, sizeof(T)*count);
+}
+
+
+//===================
+// BufResize
+//===================
+template<class T>
+inline void					BufResize(const wchar_t* ctx, T*& dst, uint oldSize, uint newSize)
+{
+	T* result = E_NEW_ARRAY(ctx, T, newSize);
+
+	if (dst != NULL)
+	{
+		uint keepSize(E_MIN(oldSize, newSize));
+		MemCpy(result, dst, sizeof(T) * keepSize);
+		E_DELETE_ARRAY(ctx, dst);
+	}
+	dst = result;
+}
+
+
+//===================
+// BufCpy
+//===================
+template<class T>
+inline T*					BufCpy(const wchar_t* ctx, const T* src, uint count)
 {
 	if (src == NULL)
 		return NULL;
@@ -180,5 +255,13 @@ inline void					Swap(T& a, T& b)
 	T tmp(a);
 	a = b;
 	b = tmp;
+}
+template<class T>
+inline void					SwapRaw(T& a, T& b)
+{
+	byte tmp[sizeof(T)];
+	MemCpy(tmp, &a, sizeof(T));
+	MemCpy(&a, &b, sizeof(T));
+	MemCpy(&b, tmp, sizeof(T));
 }
 //========================================================================

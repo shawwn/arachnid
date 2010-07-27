@@ -373,7 +373,8 @@ bool				ImportK2Model::ParseSkin(GrDriver& driver, EFile* file, int blockSize)
 	for (int vertIdx = 0; vertIdx < numVerts; ++vertIdx)
 	{
 		E_ASSERT(mesh.positions != NULL && mesh.normals != NULL && mesh.texcoords != NULL);
-		skin->StartVert(mesh.positions[vertIdx], mesh.normals[vertIdx], mesh.texcoords[vertIdx]);
+		skin->StartVert(mesh.positions[vertIdx], mesh.texcoords[vertIdx]);
+		skin->AddNormals(mesh.normals[vertIdx]);
 
 		if (mesh.tangents[0] && mesh.tangents[1])
 			skin->AddTangents(mesh.tangents[0][vertIdx], mesh.tangents[1][vertIdx]);
@@ -406,7 +407,7 @@ bool				ImportK2Model::ParseSkin(GrDriver& driver, EFile* file, int blockSize)
 
 		// add the weights.
 		for (int i = 0; i < numWeights; ++i)
-			skin->AddWeight((uint)indices[i], weights[i]);
+			skin->AddBoneWeight((uint)indices[i], weights[i]);
 	}
 
 	int numTris(mesh.numTriangles);
@@ -597,14 +598,10 @@ bool			ImportK2Model::Read(EFile* file)
 	K2Mesh& k2mesh(_stl->meshes[0]);
 	E_ASSERT(_stl->meshes.size() == 1);
 
-	GrSkin* skin(NULL);
-	skin = _stl->skins[0];
+	GrSkin* skin = _stl->skins[0];
+	E_ASSERT(skin != NULL);
 
-	GrMesh* mesh(_driver.CreateMesh(_T("k2mesh"),
-		k2mesh.positions, k2mesh.texcoords,
-		k2mesh.numVertices,
-		k2mesh.triangles, k2mesh.numTriangles,
-		skin));
+	GrMesh* mesh(_driver.CreateMesh(_T("k2mesh"), skin));
 	if (mesh != NULL)
 	{
 		GrModelNode& modelNode(_model->GetRoot());

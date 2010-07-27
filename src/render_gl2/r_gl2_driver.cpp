@@ -191,9 +191,9 @@ void		GL2Driver::RenderModelNode(GrModelNode& node)
 	GrMesh* mesh(node.GetMesh());
 	if (mesh != NULL)
 	{
-		const SVec3* positions(mesh->GetPositions());
-		const SVec2* texcoords(mesh->GetTexcoords());
-		const TriIdx* indices(mesh->GetTriIndices());
+		const SVec3* positions(mesh->GetSkin()->GetPositions());
+		const SVec2* texcoords(mesh->GetSkin()->GetTexcoords());
+		const TriIdx* indices(mesh->GetSkin()->GetIndices());
 
 		E_ASSERT(node.NumMeshRanges() > 0);
 		for (uint rangeIdx = 0; rangeIdx < node.NumMeshRanges(); ++rangeIdx)
@@ -306,29 +306,16 @@ void		GL2Driver::SetMousePos(int x, int y)
 //===================
 // GL2Driver::CreateMesh
 //===================
-GrMesh*		GL2Driver::CreateMesh(const wchar_t* ctx,
-								  const SVec3* positions, const SVec2* texcoords, uint numVerts,
-								  const TriIdx* triangles, uint numTris,
-								  GrSkin* skin)
+GrMesh*		GL2Driver::CreateMesh(const wchar_t* ctx, GrSkin* geometry)
 {
 	// verify input.
-	E_VERIFY(numVerts != 0 && numTris != 0, return NULL);
-	E_VERIFY(positions != NULL && triangles != NULL, return NULL);
+	E_VERIFY(geometry->GetNumVerts() != 0 && geometry->GetNumTris() != 0, return NULL);
 
 	// prepare the result.
 	GrMesh* result(E_NEW("gl2", GrMesh)(this));
 
-	// store the vertex data.
-	result->_positions = ArrayCpy(_T("gl2"), positions, numVerts);
-	result->_texcoords = ArrayCpy(_T("gl2"), texcoords, numVerts);
-	result->_numVertices = numVerts;
-
-	// store the index data.
-	result->_triIndices = ArrayCpy(_T("gl2"), triangles, 3*numTris);
-	result->_numTriangles = numTris;
-
-	// store the skinning data.
-	result->_skin = skin;
+	// store the geometry.
+	result->_skin = geometry;
 
 	// return the result.
 	return result;
@@ -363,7 +350,7 @@ GrTexture*	GL2Driver::CreateTexture(const wchar_t* ctx, const byte* bgra, uint w
 	// copy the texture data.
 	result->_width = width;
 	result->_height = height;
-	result->_pixels = ArrayCpy(ctx, bgra, 4*width*height);
+	result->_pixels = BufCpy(ctx, bgra, 4*width*height);
 
 	// return the result.
 	return result;

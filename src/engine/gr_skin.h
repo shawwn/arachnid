@@ -22,6 +22,7 @@ class ENGINE_API GrSkin
 private:
 	GrSkin_impl*	_impl;
 	float			_curTotalWeight;
+	bool			_hasBoneInfo;
 
 	void			RecomputeTangentsBinormals();
 	void			NormalizeTBN();
@@ -31,6 +32,10 @@ public:
 	~GrSkin();
 
 	uint			GetNumVerts() const;
+	uint			GetNumTris() const;
+	bool			HasBoneInfo() const		{ return _hasBoneInfo; }
+
+	TriIdx*			GetIndices() const;
 
 	SVec3*			GetTangents() const;
 	SVec3*			GetBinormals() const;
@@ -38,15 +43,18 @@ public:
 
 	SVec3*			GetPositions() const;
 
+	SVec2*			GetTexcoords() const;
+
 	SVec3*			DeformVerts(const MTransform** bones);
 
 	void			Reset();
 
-	void			StartVert(const SVec3& pos, const SVec3& normal, const SVec2& uv);
+	void			StartVert(const SVec3& pos, const SVec2& uv);
+	void			AddNormals(const SVec3& normal);
 	void			AddTangents(const SVec3& uBasis, const SVec3& vBasis);
-	void			AddWeight(byte boneIndex, float weight);
+	void			AddBoneWeight(byte boneIndex, float weight);
 
-	void			AddTriangle(uint idxA, uint idxB, uint idxC);
+	void			AddTriangle(TriIdx idxA, TriIdx idxB, TriIdx idxC);
 };
 //========================================================================
 

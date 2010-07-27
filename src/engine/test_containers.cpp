@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		gr_mesh.cpp
+//	file:		test_containers.cpp
 //	author:		Shawn Presser 
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
@@ -9,35 +9,28 @@
 // Headers
 //========================================================================
 #include "e_common.h"
-#include "gr_mesh.h"
-
-// graphics headers.
-#include "gr_driver.h"
-#include "gr_skin.h"
+#include "test_containers.h"
 //========================================================================
 
-
 //===================
-// GrMesh::GrMesh
+// TestContainers::Test
 //===================
-GrMesh::GrMesh(Internal_GrDriver* driver)
-: _driver(driver)
-, _userdata(NULL)
-, _skin(NULL)
+void			TestContainers::Test()
 {
-	E_ASSERT(driver);
+	EVecRawMem<float> vec(2);
+	vec.push_back(5.0f);
+	vec.push_back(1.0f);
+	vec.push_back(3.0f);
+	vec.push_back(2.0f);
+
+	vec.reserve(32);
+
+	EVecRawMem<float> vec2(vec);
+
+	for (uint i = 0; i < vec2.size(); ++i)
+	{
+		float val = vec2[i];
+		val = val;
+	}
 }
-
-
-//===================
-// GrMesh::~GrMesh
-//===================
-GrMesh::~GrMesh()
-{
-	_driver->OnDestroyMesh(*this);
-
-	// delete geometry data.
-	E_DELETE("mesh", _skin);
-}
-
 

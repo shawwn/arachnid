@@ -28,5 +28,6 @@ typedef long long			int64;
 
 // NULL type
 #define	NULL					0
+static const uint NPOS(uint(-1));
 //========================================================================
 

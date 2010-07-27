@@ -57,10 +57,7 @@ public:
 
 	void			SetMousePos(int x, int y);
 
-	GrMesh*			CreateMesh(const wchar_t* ctx,
-		const SVec3* positions, const SVec2* texcoords, uint numVerts,
-		const TriIdx* triangles, uint numTris,
-		GrSkin* skin);
+	GrMesh*			CreateMesh(const wchar_t* ctx, GrSkin* geometry);
 	void			OnDestroyMesh(GrMesh& mesh) { }
 
 	GrTexture*		CreateTexture(const wchar_t* ctx, const byte* bgra, uint width, uint height);

@@ -98,22 +98,12 @@ bool			StartupRenderer()
 
 	// create tri mesh.
 	{
-		SVec3 positions[] = {
-			SVec3( 0.0f, 1.0f, 0.0f),
-			SVec3( 1.0f,-1.0f, 0.0f),
-			SVec3(-1.0f,-1.0f, 0.0f)
-		};
-		SVec2 texcoords[] = {
-			SVec2( 0.5f, 1.0f),
-			SVec2( 1.0f, 0.0f),
-			SVec2( 0.0f, 0.0f)
-		};
-		TriIdx triangles[] = { 0, 1, 2 };
-		uint numVerts(sizeof(positions) / sizeof(SVec3));
-		uint numTris((sizeof(triangles)/sizeof(TriIdx)) / 3);
-		gMeshTri = renderer.CreateMesh(_T("main"),
-			positions, texcoords, numVerts,
-			triangles, numTris);
+		GrSkin* skin(E_NEW("main", GrSkin));
+		skin->StartVert(SVec3( 0.0f, 1.0f, 0.0f), SVec2( 0.5f, 1.0f));
+		skin->StartVert(SVec3( 1.0f,-1.0f, 0.0f), SVec2( 1.0f, 0.0f));
+		skin->StartVert(SVec3(-1.0f,-1.0f, 0.0f), SVec2( 0.0f, 0.0f));
+		skin->AddTriangle(0, 1, 2);
+		gMeshTri = renderer.CreateMesh(_T("main"), skin);
 
 		if (gMeshTri != NULL)
 		{
@@ -123,7 +113,7 @@ bool			StartupRenderer()
 				GrModelNode& root(gTri->GetRoot());
 				root.SetLocal(MTransform(MVec3(-1.5f, 0.0f, -6.0f)));
 				root.SetMesh(gMeshTri);
-				root.AddMeshRange(GrModelNode::SMeshRange(0, numTris, gChecker));
+				root.AddMeshRange(GrModelNode::SMeshRange(0, skin->GetNumTris(), gChecker));
 				sceneModel.AddChildModel(gTri);
 			}
 		}
@@ -131,27 +121,14 @@ bool			StartupRenderer()
 
 	// create square mesh.
 	{
-		SVec3 positions[] = {
-			SVec3(-1.0f, 1.0f, 0.0f),
-			SVec3( 1.0f, 1.0f, 0.0f),
-			SVec3( 1.0f,-1.0f, 0.0f),
-			SVec3(-1.0f,-1.0f, 0.0f)
-		};
-		SVec2 texcoords[] = {
-			SVec2( 0.0f, 1.0f),
-			SVec2( 1.0f, 1.0f),
-			SVec2( 1.0f, 0.0f),
-			SVec2( 0.0f, 0.0f)
-		};
-		TriIdx triangles[] = {
-			0, 1, 2,
-			0, 2, 3
-		};
-		uint numVerts(sizeof(positions) / sizeof(SVec3));
-		uint numTris((sizeof(triangles)/sizeof(TriIdx)) / 3);
-		gMeshSquare = renderer.CreateMesh(_T("main"),
-			positions, texcoords, numVerts,
-			triangles, numTris);
+		GrSkin* skin(E_NEW("main", GrSkin));
+		skin->StartVert(SVec3(-1.0f, 1.0f, 0.0f), SVec2( 0.0f, 1.0f));
+		skin->StartVert(SVec3( 1.0f, 1.0f, 0.0f), SVec2( 1.0f, 1.0f));
+		skin->StartVert(SVec3( 1.0f,-1.0f, 0.0f), SVec2( 1.0f, 0.0f));
+		skin->StartVert(SVec3(-1.0f,-1.0f, 0.0f), SVec2( 0.0f, 0.0f));
+		skin->AddTriangle(0, 1, 2);
+		skin->AddTriangle(0, 2, 3);
+		gMeshSquare = renderer.CreateMesh(_T("main"), skin);
 
 		if (gMeshSquare != NULL)
 		{
@@ -161,7 +138,7 @@ bool			StartupRenderer()
 				GrModelNode& root(gSquare->GetRoot());
 				root.SetLocal(MTransform(MVec3(1.5f, 0.0f, -6.0f)));
 				root.SetMesh(gMeshSquare);
-				root.AddMeshRange(GrModelNode::SMeshRange(0, numTris, gChecker));
+				root.AddMeshRange(GrModelNode::SMeshRange(0, skin->GetNumTris(), gChecker));
 				sceneModel.AddChildModel(gSquare);
 			}
 		}

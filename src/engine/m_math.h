@@ -88,6 +88,30 @@ inline void SINCOS(float theta, float& s, float& c)
 //========================================================================
 
 //===================
+// IsPow2
+//		returns whether 'x' is a power of two.
+//===================
+inline bool					IsPow2(uint x)
+{
+	return (x & (x - 1)) == 0;
+}
+
+//===================
+// NextPow2
+//		returns the next highest power of 2.
+//===================
+inline uint					NextPow2(uint x)
+{
+	uint v(1);
+	while (x != 0)
+	{
+		x >>= 1;
+		v <<= 1;
+	}
+	return v;
+}
+
+//===================
 // FloatZero
 //		returns whether 'f' is almost equivalent to zero.
 //===================

@@ -35,7 +35,7 @@ uint		EFileMem::Grow(uint totalSize)
 			if ((nextSize & FILE_MEM_GROW_MASK) != totalSize)
 				nextSize = (totalSize + FILE_MEM_GROW_SIZE) & FILE_MEM_GROW_MASK;
 
-			ArrayResize(_T("filemem"), _fileBuf, _fileBufReserved, nextSize);
+			BufResize(_T("filemem"), _fileBuf, _fileBufReserved, nextSize);
 			_fileBufReserved = nextSize;
 		}
 	}
@@ -142,7 +142,7 @@ bool		EFileMem::OpenMemForReading(const byte* buf, uint bufSize, uint mode)
 
 	// open the memory.
 	_mode = mode | FILE_READ;
-	_fileBuf = ArrayCpy(_T("filemem"), buf, bufSize);
+	_fileBuf = BufCpy(_T("filemem"), buf, bufSize);
 	_fileSize = bufSize;
 	_filePos = 0;
 	_growSize = FILE_MEM_GROW_SIZE;

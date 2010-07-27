@@ -174,17 +174,10 @@ void		D3D9Driver::RenderMeshNormals(GrMesh* mesh)
 	const byte* boneIndices(NULL);
 	const float* boneWeights(NULL);
 	const MTransform** skeleton = NULL;
-	const SVec3* positions(mesh->GetPositions());
-	const SVec3* normals(NULL);
-	const SVec3* binormals(NULL);
-	const SVec3* tangents(NULL);
-	if (skin != NULL)
-	{
-		positions = skin->GetPositions();
-		normals = skin->GetNormals();
-		binormals = skin->GetBinormals();
-		tangents = skin->GetTangents();
-	}
+	const SVec3* positions(skin->GetPositions());
+	const SVec3* normals(skin->GetNormals());
+	const SVec3* binormals(skin->GetBinormals());
+	const SVec3* tangents(skin->GetTangents());
 
 	if (normals == NULL && binormals == NULL && tangents == NULL)
 		return;
@@ -193,7 +186,7 @@ void		D3D9Driver::RenderMeshNormals(GrMesh* mesh)
 	_impl->device->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_DIFFUSE);
 	_impl->device->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
 
-	uint numVerts(mesh->GetNumVertices());
+	uint numVerts(skin->GetNumVerts());
 	for (uint vertIdx = 0; vertIdx < numVerts; ++vertIdx)
 	{
 		const SVec3& pos(positions[vertIdx]);
@@ -257,8 +250,8 @@ void		D3D9Driver::RenderModelNode(GrModel& parent, GrModelNode& node)
 		const byte* boneIndices(NULL);
 		const float* boneWeights(NULL);
 		const MTransform** skeleton = NULL;
-		const SVec3* positions(mesh->GetPositions());
-		if (skin != NULL)
+		const SVec3* positions(skin->GetPositions());
+		if (skin->HasBoneInfo())
 		{
 			skeleton = node.GetSkeleton();
 			positions = skin->DeformVerts(skeleton);
@@ -269,8 +262,8 @@ void		D3D9Driver::RenderModelNode(GrModel& parent, GrModelNode& node)
 		_impl->device->SetTextureStageState(0,D3DTSS_COLORARG2,D3DTA_DIFFUSE);
 		_impl->device->SetFVF(D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_DIFFUSE);
 
-		const SVec2* texcoords(mesh->GetTexcoords());
-		const TriIdx* indices(mesh->GetTriIndices());
+		const SVec2* texcoords(skin->GetTexcoords());
+		const TriIdx* indices(skin->GetIndices());
 
 		E_ASSERT(node.NumMeshRanges() > 0);
 		for (uint rangeIdx = 0; rangeIdx < node.NumMeshRanges(); ++rangeIdx)
@@ -566,31 +559,18 @@ void		D3D9Driver::SetMousePos(int x, int y)
 //===================
 // D3D9Driver::CreateMesh
 //===================
-GrMesh*		D3D9Driver::CreateMesh(const wchar_t* ctx,
-								   const SVec3* positions, const SVec2* texcoords, uint numVerts,
-								   const TriIdx* triangles, uint numTris,
-								   GrSkin* skin)
+GrMesh*		D3D9Driver::CreateMesh(const wchar_t* ctx, GrSkin* geometry)
 {
 	E_VERIFY(!_fatalError, return NULL);
 
 	// verify input.
-	E_VERIFY(numVerts != 0 && numTris != 0, return NULL);
-	E_VERIFY(positions != NULL && triangles != NULL, return NULL);
+	E_VERIFY(geometry->GetNumVerts() != 0 && geometry->GetNumTris() != 0, return NULL);
 
 	// prepare the result.
 	GrMesh* result(E_NEW(ctx, GrMesh)(this));
 
-	// store the vertex data.
-	result->_positions = ArrayCpy(ctx, positions, numVerts);
-	result->_texcoords = ArrayCpy(ctx, texcoords, numVerts);
-	result->_numVertices = numVerts;
-
-	// store the index data.
-	result->_triIndices = ArrayCpy(ctx, triangles, 3*numTris);
-	result->_numTriangles = numTris;
-
 	// store the skinning data.
-	result->_skin = skin;
+	result->_skin = geometry;
 
 	// return the result.
 	return result;
@@ -649,7 +629,7 @@ GrTexture*	D3D9Driver::CreateTexture(const wchar_t* ctx, const byte* bgra, uint 
 	// copy the texture data.
 	result->_width = width;
 	result->_height = height;
-	result->_pixels = ArrayCpy(ctx, bgra, 4*width*height);
+	result->_pixels = BufCpy(ctx, bgra, 4*width*height);
 
 	// return the result.
 	return result;

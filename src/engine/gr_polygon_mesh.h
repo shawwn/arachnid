@@ -1,7 +1,7 @@
 //========================================================================
-//	file:		gr_mesh.h
+//	file:		gr_polygon_mesh.h
 //	author:		Shawn Presser 
-//	date:		7/2/10
+//	date:		7/23/10
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
 //========================================================================
@@ -10,41 +10,42 @@
 //========================================================================
 // Headers
 //========================================================================
-#include "gr_skin.h"
+// graphics headers.
+#include "gr_polygon.h"
 //========================================================================
 
 //========================================================================
 // Declarations
 //========================================================================
-class GL2Driver;
-class D3D9Driver;
-class Internal_GrDriver;
+class GrSkin;
 //========================================================================
 
 //========================================================================
-// GrMesh
+// GrPolygonMesh
 //========================================================================
-class ENGINE_API GrMesh
+class ENGINE_API GrPolygonMesh
 {
-	friend class GL2Driver;
-	friend class D3D9Driver;
 private:
-	Internal_GrDriver*	_driver;
-	void*				_userdata;
+	GrPolygonVec			_polys;
+	GrPolygonVec			_triangles;
 
-	// geometry data.
-	GrSkin*				_skin;
+	uint					_channels;
 
-	void*				GetUserdata() const			{ return _userdata; }
+	void					Triangulate();
 
-	GrMesh(Internal_GrDriver* driver);
 public:
-	~GrMesh();
+	GrPolygonMesh();
+	~GrPolygonMesh();
 
-	// provide access to the geometry.
-	const GrSkin*		GetSkin() const				{ return _skin; }
-	GrSkin*				GetSkin()					{ return _skin; }
+	void					AddPoly(const GrPolygon& poly)		{ _polys.push_back(poly); }
+
+	void					SetChannels(uint channels)			{ _channels |= channels; }
+	void					ClearChannels(uint channels)		{ _channels &= ~channels; }
+	bool					HasChannels(uint channels) const	{ return HAS_FLAGS(_channels, channels); }
+
+	GrSkin*					BuildIndexedGeometry();
 };
 //========================================================================
+
 
 

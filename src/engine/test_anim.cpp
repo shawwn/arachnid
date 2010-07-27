@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		e_common.cpp
+//	file:		test_anim.cpp
 //	author:		Shawn Presser 
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
