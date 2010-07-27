@@ -172,7 +172,7 @@ void			GrSkin::NormalizeTBN()
 //===================
 GrSkin::GrSkin(uint reserveVerts, uint reserveTris)
 : _impl(E_NEW("skin", GrSkin_impl))
-, _hasBoneInfo(false)
+, _channels(0)
 {
 	_impl->_tangents.reserve(reserveVerts);
 	_impl->_binormals.reserve(reserveVerts);
@@ -226,7 +226,7 @@ TriIdx*			GrSkin::GetIndices() const
 //===================
 SVec3*			GrSkin::GetTangents() const
 {
-	if (_impl->_tangents.empty())
+	if (!HAS_FLAGS(_channels, MESH_TANGENTS))
 		return NULL;
 	return &_impl->_tangents[0];
 }
@@ -237,7 +237,7 @@ SVec3*			GrSkin::GetTangents() const
 //===================
 SVec3*			GrSkin::GetBinormals() const
 {
-	if (_impl->_binormals.empty())
+	if (!HAS_FLAGS(_channels, MESH_BINORMALS))
 		return NULL;
 	return &_impl->_binormals[0];
 }
@@ -248,7 +248,7 @@ SVec3*			GrSkin::GetBinormals() const
 //===================
 SVec3*			GrSkin::GetNormals() const
 {
-	if (_impl->_normals.empty())
+	if (!HAS_FLAGS(_channels, MESH_NORMALS))
 		return NULL;
 	return &_impl->_normals[0];
 }
@@ -268,6 +268,8 @@ SVec3*			GrSkin::GetPositions() const
 //===================
 SVec2*			GrSkin::GetTexcoords() const
 {
+	if (!HAS_FLAGS(_channels, MESH_TEXCOORDS))
+		return NULL;
 	return &_impl->_uvs[0];
 }
 
@@ -277,27 +279,33 @@ SVec2*			GrSkin::GetTexcoords() const
 //===================
 SVec3*			GrSkin::DeformVerts(const MTransform** bones)
 {
-	if (!_hasBoneInfo)
+	if (!(_channels & MESH_BONE_INFO))
 		return GetPositions();
 
 	uint numVerts(GetNumVerts());
-	SVec3* positions = &_impl->_positions[0];
+	SVec3* positions(&_impl->_positions[0]);
 	SVec3* tangents(NULL);
 	SVec3* binormals(NULL);
-	SVec3* normals = &_impl->_normals[0];
+	SVec3* normals(NULL);
 
-	// zero the verts.
 	BufZero(positions, numVerts);
-	BufZero(normals, numVerts);
-	if (!_impl->_tangents.empty())
+
+	if (_channels & MESH_TANGENTS)
 	{
 		tangents = &_impl->_tangents[0];
 		BufZero(tangents, numVerts);
 	}
-	if (!_impl->_binormals.empty())
+
+	if (_channels & MESH_BINORMALS)
 	{
 		binormals = &_impl->_binormals[0];
 		BufZero(binormals, numVerts);
+	}
+
+	if (_channels & MESH_NORMALS)
+	{
+		normals = &_impl->_normals[0];
+		BufZero(normals, numVerts);
 	}
 
 	for (BoneBucketMap::iterator it(_impl->_boneBuckets.begin()), itEnd(_impl->_boneBuckets.end()); it != itEnd; ++it)
@@ -364,7 +372,7 @@ SVec3*			GrSkin::DeformVerts(const MTransform** bones)
 //===================
 void			GrSkin::Reset()
 {
-	_hasBoneInfo = false;
+	_channels = 0;
 	_impl->_boneBuckets.clear();
 	_impl->_positions.clear();
 	_impl->_uvs.clear();
@@ -377,6 +385,7 @@ void			GrSkin::Reset()
 //===================
 void			GrSkin::StartVert(const SVec3& pos, const SVec2& uv)
 {
+	_channels |= MESH_TEXCOORDS;
 	_impl->_positions.push_back(pos);
 	_impl->_uvs.push_back(uv);
 	_curTotalWeight = 0.0f;
@@ -388,6 +397,7 @@ void			GrSkin::StartVert(const SVec3& pos, const SVec2& uv)
 //===================
 void			GrSkin::AddNormals(const SVec3& normal)
 {
+	_channels |= MESH_NORMALS;
 	SVec3 n(normal);
 	n.Normalize();
 	_impl->_normals.push_back(n);
@@ -399,6 +409,7 @@ void			GrSkin::AddNormals(const SVec3& normal)
 //===================
 void			GrSkin::AddTangents(const SVec3& uBasis, const SVec3& vBasis)
 {
+	_channels |= (MESH_TANGENTS | MESH_BINORMALS);
 	SVec3 u(uBasis);
 	SVec3 v(vBasis);
 	u.Normalize();
@@ -413,7 +424,7 @@ void			GrSkin::AddTangents(const SVec3& uBasis, const SVec3& vBasis)
 //===================
 void			GrSkin::AddBoneWeight(byte boneIndex, float weight)
 {
-	_hasBoneInfo = true;
+	_channels |= MESH_BONE_INFO;
 
 	E_ASSERT(boneIndex != byte(-1));
 	E_ASSERT(weight > 0.0f);

@@ -623,10 +623,6 @@
 			Name="containers"
 			>
 			<File
-				RelativePath=".\e_pool.h"
-				>
-			</File>
-			<File
 				RelativePath=".\e_vector.h"
 				>
 			</File>

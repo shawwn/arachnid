@@ -251,7 +251,7 @@ void		D3D9Driver::RenderModelNode(GrModel& parent, GrModelNode& node)
 		const float* boneWeights(NULL);
 		const MTransform** skeleton = NULL;
 		const SVec3* positions(skin->GetPositions());
-		if (skin->HasBoneInfo())
+		if (skin->GetMeshChannels() & MESH_BONE_INFO)
 		{
 			skeleton = node.GetSkeleton();
 			positions = skin->DeformVerts(skeleton);

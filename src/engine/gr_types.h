@@ -20,7 +20,9 @@ typedef ushort		TriIdx;
 //========================================================================
 #define MESH_TEXCOORDS		BIT(0)
 #define MESH_NORMALS		BIT(1)
-#define MESH_SKINNING		BIT(2)
+#define MESH_TANGENTS		BIT(2)
+#define MESH_BINORMALS		BIT(3)
+#define MESH_BONE_INFO		BIT(4)
 //========================================================================
 
 //========================================================================

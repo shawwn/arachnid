@@ -22,7 +22,7 @@ class ENGINE_API GrSkin
 private:
 	GrSkin_impl*	_impl;
 	float			_curTotalWeight;
-	bool			_hasBoneInfo;
+	uint			_channels;
 
 	void			RecomputeTangentsBinormals();
 	void			NormalizeTBN();
@@ -33,7 +33,7 @@ public:
 
 	uint			GetNumVerts() const;
 	uint			GetNumTris() const;
-	bool			HasBoneInfo() const		{ return _hasBoneInfo; }
+	uint			GetMeshChannels() const	{ return _channels; }
 
 	TriIdx*			GetIndices() const;
 

@@ -161,6 +161,10 @@ GL2Driver::GL2Driver(int windowWidth, int windowHeight, const wstring& windowTit
 			_winIdx = 0;
 		}
 	}
+
+	if (_winIdx != 0)
+		_isActive = true;
+
 }
 
 
@@ -191,9 +195,18 @@ void		GL2Driver::RenderModelNode(GrModelNode& node)
 	GrMesh* mesh(node.GetMesh());
 	if (mesh != NULL)
 	{
-		const SVec3* positions(mesh->GetSkin()->GetPositions());
-		const SVec2* texcoords(mesh->GetSkin()->GetTexcoords());
-		const TriIdx* indices(mesh->GetSkin()->GetIndices());
+		GrSkin* skin(mesh->GetSkin());
+		const byte* boneIndices(NULL);
+		const float* boneWeights(NULL);
+		const MTransform** skeleton = NULL;
+		const SVec3* positions(skin->GetPositions());
+		const SVec2* texcoords(skin->GetTexcoords());
+		const TriIdx* indices(skin->GetIndices());
+		if (skin->GetMeshChannels() & MESH_BONE_INFO)
+		{
+			skeleton = node.GetSkeleton();
+			positions = skin->DeformVerts(skeleton);
+		}
 
 		E_ASSERT(node.NumMeshRanges() > 0);
 		for (uint rangeIdx = 0; rangeIdx < node.NumMeshRanges(); ++rangeIdx)
