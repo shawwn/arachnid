@@ -79,7 +79,8 @@ void		EFileManager::ParsePath(wstring& inOutPath, wstring& outName, wstring& out
 bool		EFileManager::Exists(const wstring& filePath)
 {
 	wstring rootFilePath(GetAbsolutePath(filePath));
-	if (_waccess(rootFilePath.c_str(), 0) == -1)
+	int access(_waccess(rootFilePath.c_str(), 0));
+	if (access == -1)
 		return false;
 
 	return true;

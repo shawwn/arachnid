@@ -32,6 +32,7 @@
 // import headers.
 #include "../engine/import_k2_model.h"
 #include "../engine/import_k2_anim.h"
+#include "../engine/import_k2_map.h"
 //========================================================================
 
 //========================================================================
@@ -48,8 +49,10 @@
 #define MODEL_BASE_PATH				_TS("game/models/witch_slayer/")
 #define MODEL_TEXTURE				_TS("color.tga")
 #define MODEL_NORMALMAP				_TS("normal.tga")
-#define MODEL_ANIM					_TS("clips/walk_1.clip")
+#define MODEL_ANIM					_TS("clips/ability_4.clip")
 #define MODEL_MDL					_TS("high.model")
+
+#define MAP_NAME					_TS("caldavar")
 //========================================================================
 
 //========================================================================
@@ -187,6 +190,15 @@ bool			StartupRenderer()
 			gWsMdl->Animations()->PlayAnim(anim);
 		}
 	}
+
+	// import map.
+	{
+		ImportK2Map k2map(renderer, MAP_NAME, 9, 32.0f);
+		if (k2map.Read())
+		{
+		}
+	}
+
 	gEngine->GetCamera().SetPos(CAM_POS);
 
 	return true;

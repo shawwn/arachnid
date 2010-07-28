@@ -359,6 +359,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\m_plane.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\m_plane.h"
+				>
+			</File>
+			<File
 				RelativePath=".\m_quat.cpp"
 				>
 			</File>
@@ -568,6 +576,14 @@
 			</File>
 			<File
 				RelativePath=".\import_k2_anim.h"
+				>
+			</File>
+			<File
+				RelativePath=".\import_k2_map.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\import_k2_map.h"
 				>
 			</File>
 			<File
