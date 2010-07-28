@@ -27,7 +27,7 @@ void			GrAnimMixer::AnimateNode(GrAnim* anim, GrModelNode* node, bool recurse)
 	GrAnimNode* animNode(anim->FindTrack(trackName));
 	if (animNode != NULL)
 	{
-		float time = fmod(0.0125f*_elapsedTime / 1000.0f, animNode->GetAnimLength());
+		float time = fmod(_elapsedTime / 1000.0f, animNode->GetAnimLength());
 		animNode->AnimateNode(node, time);
 	}
 

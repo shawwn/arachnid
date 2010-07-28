@@ -25,6 +25,7 @@
 #include "../engine/gr_mesh.h"
 #include "../engine/gr_texture.h"
 #include "../engine/gr_material.h"
+#include "../engine/gr_light.h"
 #include "../engine/gr_skin.h"
 
 // d3d9 headers.
@@ -63,7 +64,24 @@ D3DXMATRIX			gView;
 D3DXMATRIX			gProj;
 
 RD3D9Shader*		gShaderSimple;
+RD3D9Shader*		gShaderColored;
+RD3D9Shader*		gSolidAmbient;
+RD3D9Shader*		gSolidLit;
+
 RD3D9Shader*		gCurShader;
+//========================================================================
+
+//========================================================================
+// Vertex Declarations
+//========================================================================
+IDirect3DVertexDeclaration9*	_meshDecl;
+IDirect3DVertexDeclaration9*	_coloredDecl;
+//========================================================================
+
+//========================================================================
+// Dynamic Textures
+//========================================================================
+IDirect3DTexture9*	_lightFalloffTex;
 //========================================================================
 
 //========================================================================
@@ -94,6 +112,12 @@ static void			XFormToD3DXMat(D3DXMATRIX& mat, const MTransform& xform)
 	mat._34 = 0.0f;
 	mat._44 = 1.0f;
 }
+
+
+static D3DXVECTOR4	SVec4ToD3DXVec(const SVec4& v)
+{
+	return D3DXVECTOR4(v.X(), v.Y(), v.Z(), v.W());
+}
 //========================================================================
 
 //========================================================================
@@ -103,11 +127,15 @@ struct D3D9Vertex
 {
 	SVec3			pos;
 
+	/*
 	union
 	{
 		byte			bgra[4];
 		uint			color;
 	};
+	*/
+
+	SVec3			normal;
 
 	SVec2			uv;
 };
@@ -127,6 +155,55 @@ struct D3D9UntexturedVertex
 	};
 };
 //========================================================================
+
+//========================================================================
+// D3D9MeshData
+//========================================================================
+struct D3D9MeshData
+{
+	IDirect3DVertexBuffer9*		vbPosNormals;
+	IDirect3DVertexBuffer9*		vbTexcoords;
+	IDirect3DIndexBuffer9*		ib;
+
+	D3D9MeshData()
+		: vbPosNormals(NULL)
+		, vbTexcoords(NULL)
+		, ib(NULL)
+	{
+	}
+
+	bool				Update(GrSkin* skin)
+	{
+		uint numVerts(skin->GetNumVerts());
+
+		// for now, all meshes must have position, tangent, binormal, normal, and texcoord data.
+		uint channels(skin->GetMeshChannels());
+		E_VERIFY((channels & MESH_TANGENTS), return false);
+		E_VERIFY((channels & MESH_BINORMALS), return false);
+		E_VERIFY((channels & MESH_NORMALS), return false);
+		SVec3* positions(skin->GetPositions());
+		SVec3* tangents(skin->GetTangents());
+		SVec3* binormals(skin->GetBinormals());
+		SVec3* normals(skin->GetNormals());
+
+		HRESULT hr;
+
+		// fill the pos-normals buffer.
+		SVec3* vbPosNormalsPtr(NULL);
+		hr = vbPosNormals->Lock(0, 0, (void **)&vbPosNormalsPtr, 0);
+		E_VERIFY(SUCCEEDED(hr), return false);
+		for (uint i = 0; i < numVerts; ++i)
+		{
+			*vbPosNormalsPtr++ = positions[i];
+			*vbPosNormalsPtr++ = tangents[i];
+			*vbPosNormalsPtr++ = binormals[i];
+			*vbPosNormalsPtr++ = normals[i];
+		}
+		vbPosNormals->Unlock();
+
+		return true;
+	}
+};
 
 //========================================================================
 // D3D9Driver_impl
@@ -183,78 +260,63 @@ struct D3D9Driver_impl
 
 
 //===================
-// D3D9Driver::RenderMeshNormals
+// D3D9Driver::SetupVertexDecls
 //===================
-void		D3D9Driver::RenderMeshNormals(GrMesh* mesh)
+bool		D3D9Driver::SetupVertexDecls()
 {
-	if (mesh == NULL)
-		return;
+	HRESULT hr;
 
-	GrSkin* skin(mesh->GetSkin());
-	const byte* boneIndices(NULL);
-	const float* boneWeights(NULL);
-	const MTransform** skeleton = NULL;
-	const SVec3* positions(skin->GetPositions());
-	const SVec3* normals(skin->GetNormals());
-	const SVec3* binormals(skin->GetBinormals());
-	const SVec3* tangents(skin->GetTangents());
+	/*
+    WORD    Stream;     // Stream index
+    WORD    Offset;     // Offset in the stream in bytes
+    BYTE    Type;       // Data type
+    BYTE    Method;     // Processing method
+    BYTE    Usage;      // Semantics
+    BYTE    UsageIndex; // Semantic index
+	*/
 
-	if (normals == NULL && binormals == NULL && tangents == NULL)
-		return;
-
-	_impl->device->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG1);
-	_impl->device->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_DIFFUSE);
-	_impl->device->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
-
-	uint numVerts(skin->GetNumVerts());
-	for (uint vertIdx = 0; vertIdx < numVerts; ++vertIdx)
+	D3DVERTEXELEMENT9 meshElems[] =
 	{
-		const SVec3& pos(positions[vertIdx]);
+		{ 0,  0, D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_POSITION, 0 }, // position 
+		{ 0, 12, D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_TANGENT,  0 }, // tangent
+		{ 0, 24, D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_BINORMAL, 0 }, // binormal
+		{ 0, 36, D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_NORMAL,   0 }, // normal
+		{ 1,  0, D3DDECLTYPE_FLOAT2, 0, D3DDECLUSAGE_TEXCOORD, 0 }, // texcoord
+		D3DDECL_END()
+	};
+	hr = gDevice->CreateVertexDeclaration(meshElems, &_meshDecl);
+	E_VERIFY(SUCCEEDED(hr), return false);
 
-		int numVecs = 0;
-		SVec3 vecs[3];
-		uint colors[3];
+	D3DVERTEXELEMENT9 coloredElems[] =
+	{
+		{ 0,  0, D3DDECLTYPE_FLOAT3,   0, D3DDECLUSAGE_POSITION, 0 }, // position 
+		{ 0, 12, D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_COLOR,  0 },
+		D3DDECL_END()
+	};
+	hr = gDevice->CreateVertexDeclaration(coloredElems, &_coloredDecl);
+	E_VERIFY(SUCCEEDED(hr), return false);
 
-		if (normals != NULL)
-		{
-			uint i = numVecs++;
-			vecs[i] = normals[vertIdx];
-			colors[i] = 0xFF00FF00;
-		}
+	return true;
+}
 
-		if (binormals != NULL)
-		{
-			uint i = numVecs++;
-			vecs[i] = binormals[vertIdx];
-			colors[i] = 0xFF0000FF;
-		}
 
-		if (tangents != NULL)
-		{
-			uint i = numVecs++;
-			vecs[i] = tangents[vertIdx];
-			colors[i] = 0xFFFF0000;
-		}
+//===================
+// D3D9Driver::SetupTextures
+//===================
+bool		D3D9Driver::SetupTextures()
+{
+	E_VERIFY(SUCCEEDED(gDevice->CreateTexture(
+		LIGHT_FALLOFF_SAMPLES, 1, 
+		1,
+		D3DUSAGE_DYNAMIC,
+		D3DFMT_R32F,
+		D3DPOOL_DEFAULT,
+		&_lightFalloffTex, NULL)),
+		return false);
+	gShaderConstants->GetPixelConstant(PC_LIGHT_FALLOFF).SetTexture(_lightFalloffTex);
+	gShaderConstants->GetPixelConstant(PC_LIGHT_FALLOFF).SetAddress(D3DTADDRESS_CLAMP, D3DTADDRESS_WRAP);
 
-		E_ASSERT(numVecs > 0);
-		for (int i = 0; i < numVecs; ++i)
-		{
-			D3D9UntexturedVertex verts[2];
-
-			verts[0].color = colors[i];
-			verts[1].color = colors[i];
-
-			verts[0].pos = pos;
-			verts[1].pos = pos + 3.0f*vecs[i];
-
-			HRESULT hr = _impl->device->DrawPrimitiveUP(D3DPT_LINELIST, 1, (const void*)verts, sizeof(D3D9UntexturedVertex));
-			if (FAILED(hr))
-			{
-				_fatalError = true;
-				return;
-			}
-		}
-	}
+	return true;
 }
 
 
@@ -387,9 +449,15 @@ D3D9Driver::D3D9Driver(int windowWidth, int windowHeight, const wstring& windowT
 
 	E_NEW("d3d9", RD3D9ShaderConstants);
 
+	SetupVertexDecls();
+	SetupTextures();
+
 	// create a shader.
 	wstring shaderErrors;
 	gShaderSimple = RD3D9Shader::Create(_T("simple"), shaderErrors);
+	gShaderColored = RD3D9Shader::Create(_T("colored"), shaderErrors);
+	gSolidAmbient = RD3D9Shader::Create(_T("ambient"), shaderErrors);
+	gSolidLit = RD3D9Shader::Create(_T("lit"), shaderErrors);
 }
 
 
@@ -398,6 +466,10 @@ D3D9Driver::D3D9Driver(int windowWidth, int windowHeight, const wstring& windowT
 //===================
 D3D9Driver::~D3D9Driver()
 {
+	E_DELETE("d3d9", gShaderSimple);
+	E_DELETE("d3d9", gShaderColored);
+	E_DELETE("d3d9", gSolidLit);
+
 	E_DELETE("d3d9", gShaderConstants);
 
 	// shutdown d3d9.
@@ -495,24 +567,81 @@ void		D3D9Driver::ApplyCamera(const GrCamera& cam)
 
 
 //===================
+// D3D9Driver::ApplyLight
+//===================
+void		D3D9Driver::ApplyLight(const GrLight& light)
+{
+	const MVec3& pos(light.GetPos());
+	float radius(light.GetRadius());
+
+	// build the falloff texture.
+	E_VERIFY(_lightFalloffTex, return);
+	D3DLOCKED_RECT rect;
+	E_VERIFY(SUCCEEDED(_lightFalloffTex->LockRect(0, &rect, 0, D3DLOCK_DISCARD)), return);
+	MemCpy(rect.pBits, (const void*)light.GetFalloff(), sizeof(float) * LIGHT_FALLOFF_SAMPLES);
+	_lightFalloffTex->UnlockRect(0);
+
+	gShaderConstants->GetVertexConstant(VC_LIGHT_POS).SetVector(D3DXVECTOR4(pos.X(), pos.Y(), pos.Z(), 1.0f));
+	gShaderConstants->GetVertexConstant(VC_LIGHT_DIR).SetVector(D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f));
+	gShaderConstants->GetVertexConstant(VC_LIGHT_RADIUS).SetVector(D3DXVECTOR4(radius, radius, radius, radius));
+
+	gShaderConstants->GetPixelConstant(PC_LIGHT_POS).SetVector(D3DXVECTOR4(pos.X(), pos.Y(), pos.Z(), 1.0f));
+	gShaderConstants->GetPixelConstant(PC_LIGHT_DIR).SetVector(D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f));
+	gShaderConstants->GetPixelConstant(PC_LIGHT_RADIUS).SetVector(D3DXVECTOR4(radius, radius, radius, radius));
+
+	gShaderConstants->GetPixelConstant(PC_DIFFUSE_COLOR).SetVector(SVec4ToD3DXVec(light.GetColor()));
+}
+
+
+//===================
 // D3D9Driver::ApplyMaterial
 //===================
 void		D3D9Driver::ApplyMaterial(GrMaterial* mat, EMaterialPass pass)
 {
-	gDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
-	gDevice->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
-	gDevice->SetTextureStageState(0,D3DTSS_COLORARG2,D3DTA_DIFFUSE);
-	gDevice->SetFVF(D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_DIFFUSE);
+	gCurShader = NULL;
 
-	// set textures.
-	for (uint i = 0; i < MTEX_COUNT; ++i)
+	switch (mat->GetMaterialType())
 	{
-		GrTexture* tex(mat->GetTexture((EMaterialTexture)i));
+	case MAT_SOLID:
+		{
+			if (pass == MAT_PASS_AMBIENT || pass == MAT_PASS_LIT)
+			{
+				if (pass == MAT_PASS_AMBIENT)
+				{
+					gShaderConstants->GetPixelConstant(PC_AMBIENT_COLOR).SetVector(D3DXVECTOR3(0.2f, 0.2f, 0.2f));
+					gDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+					gDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+					gDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+					gDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+					gCurShader = gSolidAmbient;
+				}
 
-		if (tex != NULL)
-			gDevice->SetTexture(i, (IDirect3DBaseTexture9*)tex->GetUserdata());
-		else
-			gDevice->SetTexture(i, gNullTex);
+				if (pass == MAT_PASS_LIT)
+				{
+					gDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+					gDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+					gDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+					gDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+					gCurShader = gSolidLit;
+				}
+
+				gDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG1);
+				gDevice->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
+				gDevice->SetVertexDeclaration(_meshDecl);
+
+				// set textures.
+				for (uint i = 0; i < MTEX_COUNT; ++i)
+				{
+					GrTexture* tex(mat->GetTexture((EMaterialTexture)i));
+
+					if (tex != NULL)
+						gShaderConstants->GetPixelConstant((EPixelShaderConstant)i).SetTexture((IDirect3DBaseTexture9*)tex->GetUserdata());
+					else
+						gShaderConstants->GetPixelConstant((EPixelShaderConstant)i).SetTexture(gNullTex);
+				}
+			}
+		}
+		break;
 	}
 }
 
@@ -522,11 +651,21 @@ void		D3D9Driver::ApplyMaterial(GrMaterial* mat, EMaterialPass pass)
 //===================
 void		D3D9Driver::DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triStart, uint triCount)
 {
-	GrSkin* skin(mesh->GetSkin());
-	const SVec3* positions(skin->GetPositions());
+	if (gCurShader == NULL)
+		return;
 
-	const SVec2* texcoords(skin->GetTexcoords());
-	const TriIdx* indices(skin->GetIndices());
+	GrSkin* skin(mesh->GetSkin());
+
+	D3D9MeshData* meshData((D3D9MeshData*)mesh->_userdata);
+	if (skin->GetDeformed())
+	{
+		meshData->Update(skin);
+		skin->ClearDeformed();
+	}
+
+	gDevice->SetStreamSource(0, meshData->vbPosNormals, 0, 4*sizeof(SVec3));
+	gDevice->SetStreamSource(1, meshData->vbTexcoords, 0, sizeof(SVec2));
+	gDevice->SetIndices(meshData->ib);
 
 	// set transform.
 	D3DXMATRIX world;
@@ -534,7 +673,18 @@ void		D3D9Driver::DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triS
 	gShaderConstants->GetVertexConstant(VC_WORLD_VIEW_PROJ).SetMatrix(world * gView * gProj);
 
 	// set shader.
-	gShaderSimple->Apply();
+	gCurShader->Apply();
+
+#if 1
+	uint numVerts(skin->GetNumVerts());
+	HRESULT hr = gDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, numVerts, 3*triStart, triCount);
+	E_ASSERT(SUCCEEDED(hr));
+#else
+	const SVec3* positions(skin->GetPositions());
+	const SVec3* normals(skin->GetNormals());
+
+	const SVec2* texcoords(skin->GetTexcoords());
+	const TriIdx* indices(skin->GetIndices());
 
 	for (uint tri = triStart; tri < triStart + triCount; ++tri)
 	{
@@ -544,10 +694,10 @@ void		D3D9Driver::DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triS
 		{
 			uint idx(indices[3*tri + corner]);
 			vert[corner].pos = positions[idx];
+			vert[corner].normal = normals ? normals[idx] : SVec3::Zero;
 			vert[corner].uv = texcoords[idx];
 			vert[corner].pos.RotateTranslate(xform);
 			vert[corner].uv.Y() = 1.0f - vert[corner].uv.Y();
-			vert[corner].color = 0xFFFFFFFF;
 		}
 
 		HRESULT hr = gDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 1, (const void*)vert, sizeof(D3D9Vertex));
@@ -557,9 +707,55 @@ void		D3D9Driver::DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triS
 			return;
 		}
 	}
+#endif
 
 	gDevice->SetVertexShader(NULL);
 	gDevice->SetPixelShader(NULL);
+}
+
+
+//===================
+// D3D9Driver::BeginLines
+//===================
+void		D3D9Driver::BeginLines()
+{
+	gDevice->SetTextureStageState(0,D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+	gDevice->SetTextureStageState(0,D3DTSS_COLORARG1, D3DTA_DIFFUSE);
+	gDevice->SetVertexDeclaration(NULL);
+	gDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+
+	gDevice->SetPixelShader(NULL);
+	gDevice->SetVertexShader(NULL);
+
+	D3DXMATRIX mat;
+	D3DXMatrixIdentity(&mat);
+	gDevice->SetTransform(D3DTS_WORLD, &mat);
+}
+
+
+//===================
+// D3D9Driver::DrawLine
+//===================
+void		D3D9Driver::DrawLine(const uint& startCol, const SVec3& startPos, const uint& endCol, const SVec3& endPos)
+{
+	D3D9UntexturedVertex v[2];
+
+	v[0].color = startCol;
+	v[1].color = endCol;
+
+	v[0].pos = startPos;
+	v[1].pos = endPos;
+
+	gDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, (CONST VOID*)&v, sizeof(D3D9UntexturedVertex));
+}
+
+
+//===================
+// D3D9Driver::DrawLines
+//===================
+void		D3D9Driver::DrawLines(const SColoredVertex* lines, uint count)
+{
+	gDevice->DrawPrimitiveUP(D3DPT_LINELIST, count, (CONST VOID*)lines, sizeof(SColoredVertex));
 }
 
 
@@ -584,19 +780,79 @@ void		D3D9Driver::SetMousePos(int x, int y)
 //===================
 GrMesh*		D3D9Driver::CreateMesh(const wchar_t* ctx, GrSkin* geometry)
 {
+	HRESULT hr;
+	IDirect3DVertexBuffer9* vbPosNormals(NULL);
+	IDirect3DVertexBuffer9* vbTexcoords(NULL);
+	IDirect3DIndexBuffer9*	ib(NULL);
+	GrMesh* result(NULL);
+	D3D9MeshData* meshData(NULL);
+
 	E_VERIFY(!_fatalError, return NULL);
 
 	// verify input.
-	E_VERIFY(geometry->GetNumVerts() != 0 && geometry->GetNumTris() != 0, return NULL);
+	uint numVerts(geometry->GetNumVerts());
+	uint numTris(geometry->GetNumTris());
+	E_VERIFY(numVerts != 0 && numTris != 0, return NULL);
+
+	int channels = geometry->GetMeshChannels();
+	E_VERIFY(channels & MESH_TEXCOORDS, return NULL);
+	SVec2* texcoords(geometry->GetTexcoords());
+	TriIdx* indices(geometry->GetIndices());
+	E_VERIFY(indices != NULL, return NULL);
+
+	// create the buffers.
+	hr = gDevice->CreateVertexBuffer(4 * sizeof(SVec3) * numVerts, gManagedUsage, 0, gManagedPool, &vbPosNormals, NULL);
+	E_VERIFY(SUCCEEDED(hr), goto fail);
+	hr = gDevice->CreateVertexBuffer(sizeof(SVec2) * numVerts, gManagedUsage, 0, gManagedPool, &vbTexcoords, NULL);
+	E_VERIFY(SUCCEEDED(hr), goto fail);
+	hr = gDevice->CreateIndexBuffer(3 * sizeof(TriIdx) * numTris, gManagedUsage, D3DFMT_INDEX16, gManagedPool, &ib, NULL);
+	E_VERIFY(SUCCEEDED(hr), goto fail);
+
+	// fill the texcoord buffer.
+	SVec2* vbTexcoordsPtr(NULL);
+	hr = vbTexcoords->Lock(0, 0, (void **)&vbTexcoordsPtr, 0);
+	E_VERIFY(SUCCEEDED(hr), return false);
+	for (uint i = 0; i < numVerts; ++i)
+	{
+		vbTexcoordsPtr[i] = texcoords[i];
+		vbTexcoordsPtr[i].Y() = 1.0f - vbTexcoordsPtr[i].Y();
+	}
+	vbTexcoords->Unlock();
+
+	// fill the index buffer.
+	TriIdx* ibPtr(NULL);
+	hr = ib->Lock(0, 0, (void **)&ibPtr, 0);
+	E_VERIFY(SUCCEEDED(hr), return false);
+	for (uint i = 0; i < numTris; ++i)
+	{
+		*ibPtr++ = *indices++;
+		*ibPtr++ = *indices++;
+		*ibPtr++ = *indices++;
+	}
+	ib->Unlock();
+
+	meshData = E_NEW("d3d9", D3D9MeshData);
+	meshData->vbPosNormals = vbPosNormals;
+	meshData->vbTexcoords = vbTexcoords;
+	meshData->ib = ib;
+	E_VERIFY(meshData->Update(geometry), goto fail);
 
 	// prepare the result.
-	GrMesh* result(E_NEW(ctx, GrMesh)(this));
+	result = E_NEW(ctx, GrMesh)(this);
 
 	// store the skinning data.
 	result->_skin = geometry;
+	result->_userdata = (void*)meshData;
 
 	// return the result.
 	return result;
+
+fail:
+	E_DELETE("d3d9", meshData);
+	SAFE_RELEASE(vbPosNormals);
+	SAFE_RELEASE(vbTexcoords);
+	SAFE_RELEASE(ib);
+	return NULL;
 }
 
 
@@ -605,6 +861,11 @@ GrMesh*		D3D9Driver::CreateMesh(const wchar_t* ctx, GrSkin* geometry)
 //===================
 void		D3D9Driver::OnDestroyMesh(GrMesh& mesh)
 {
+	D3D9MeshData* meshData((D3D9MeshData*)mesh._userdata);
+	SAFE_RELEASE(meshData->vbPosNormals);
+	SAFE_RELEASE(meshData->vbTexcoords);
+	SAFE_RELEASE(meshData->ib);
+	E_DELETE("d3d9", meshData);
 }
 
 
@@ -747,7 +1008,7 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 	const float fovy(DEGREES_TO_ANGLE(60.0f));
 	const float aspect(windowWidth / (float)windowHeight);
 	const float znear(1.0f);
-	const float zfar(10000.0f);
+	const float zfar(500.0f);
 	D3DXMATRIX mat;
 	D3DXMatrixPerspectiveFovRH(&mat, fovy, aspect, znear, zfar);
 	gDevice->SetTransform(D3DTS_PROJECTION, &mat);
@@ -759,10 +1020,17 @@ void		D3D9Driver::OnResize(uint windowWidth, uint windowHeight)
 
 	gDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 	gDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-	gDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	gDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 	gDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 	gDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-	gDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	//gDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+
+	for (uint i = 0; i < 4; ++i)
+	{
+		gDevice->SetSamplerState(i, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC );
+		gDevice->SetSamplerState(i, D3DSAMP_MAGFILTER, D3DTEXF_ANISOTROPIC );
+		gDevice->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_ANISOTROPIC );
+	}
 
 	SetMousePos(windowWidth/2, windowHeight/2);
 	gEngine->OnMousePos(windowWidth/2, windowHeight/2);

@@ -47,6 +47,7 @@
 
 #define MODEL_BASE_PATH				_TS("game/models/witch_slayer/")
 #define MODEL_TEXTURE				_TS("color.tga")
+#define MODEL_NORMALMAP				_TS("normal.tga")
 #define MODEL_ANIM					_TS("clips/walk_1.clip")
 #define MODEL_MDL					_TS("high.model")
 //========================================================================
@@ -70,6 +71,7 @@ GrMaterial*	gChecker;
 // ws material.
 GrModel*	gWsMdl;
 GrTexture*	gWsTex;
+GrTexture*	gWsNorm;
 GrMaterial*	gWsMat;
 //========================================================================
 
@@ -103,7 +105,7 @@ bool			StartupRenderer()
 		skin->StartVert(SVec3( 1.0f,-1.0f, 0.0f), SVec2( 1.0f, 0.0f));
 		skin->StartVert(SVec3(-1.0f,-1.0f, 0.0f), SVec2( 0.0f, 0.0f));
 		skin->AddTriangle(0, 1, 2);
-		gMeshTri = renderer.CreateMesh(_T("main"), skin);
+		//gMeshTri = renderer.CreateMesh(_T("main"), skin);
 
 		if (gMeshTri != NULL)
 		{
@@ -128,7 +130,7 @@ bool			StartupRenderer()
 		skin->StartVert(SVec3(-1.0f,-1.0f, 0.0f), SVec2( 0.0f, 0.0f));
 		skin->AddTriangle(0, 1, 2);
 		skin->AddTriangle(0, 2, 3);
-		gMeshSquare = renderer.CreateMesh(_T("main"), skin);
+		//gMeshSquare = renderer.CreateMesh(_T("main"), skin);
 
 		if (gMeshSquare != NULL)
 		{
@@ -148,10 +150,15 @@ bool			StartupRenderer()
 	{
 		gWsMat = E_NEW(_T("main"), GrMaterial);
 		gWsTex = renderer.CreateTexture(_T("main"), _TS(FILE_PATH_ROOT_DIR) + MODEL_BASE_PATH + MODEL_TEXTURE);
+		gWsNorm = renderer.CreateTexture(_T("main"), _TS(FILE_PATH_ROOT_DIR) + MODEL_BASE_PATH + MODEL_NORMALMAP);
+
 		if (gWsTex != NULL)
 			gWsMat->SetTexture(MTEX_DIFFUSE, gWsTex);
 		else
 			gWsMat->SetTexture(MTEX_DIFFUSE, gCheckerTex);
+
+		if (gWsNorm != NULL)
+			gWsMat->SetTexture(MTEX_NORMAL, gWsNorm);
 	}
 
 	// import model.

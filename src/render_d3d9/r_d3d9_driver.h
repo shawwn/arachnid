@@ -39,8 +39,8 @@ private:
 	int					_winIdx;
 	D3D9Driver_impl*	_impl;
 
-	// renderer functions.
-	void				RenderMeshNormals(GrMesh* mesh);
+	bool				SetupVertexDecls();
+	bool				SetupTextures();
 public:
 	D3D9Driver(int windowWidth, int windowHeight, const wstring& windowTitle);
 	~D3D9Driver();
@@ -51,8 +51,12 @@ public:
 	void				EndFrame();
 
 	void				ApplyCamera(const GrCamera& cam);
+	void				ApplyLight(const GrLight& light);
 	void				ApplyMaterial(GrMaterial* mat, EMaterialPass pass);
 	void				DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triStart, uint triCount);
+	void				BeginLines();
+	void				DrawLine(const uint& startCol, const SVec3& startPos, const uint& endCol, const SVec3& endPos);
+	void				DrawLines(const SColoredVertex* lines, uint count);
 
 	void				SetMousePos(int x, int y);
 

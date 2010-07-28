@@ -22,6 +22,7 @@ class GrCamera;
 class GrScene;
 class GrMesh;
 class GrTexture;
+class GrLight;
 class GrMaterial;
 class GrSkin;
 
@@ -76,11 +77,18 @@ public:
 	// applies a camera.
 	virtual void			ApplyCamera(const GrCamera& cam) { }
 
+	// applies a light.
+	virtual void			ApplyLight(const GrLight& light) { }
+
 	// applies a material.
 	virtual void			ApplyMaterial(GrMaterial* mat, EMaterialPass pass) { }
 
 	// draws a mesh range using the current material.
 	virtual void			DrawMeshRange(const MTransform& xform, GrMesh* mesh, uint triStart, uint triCount) { }
+
+	// draws a line with the specified colors.
+	virtual void			BeginLines() { }
+	virtual void			DrawLines(const SColoredVertex* lines, uint count) { }
 
 	// set the mouse position.
 	virtual void			SetMousePos(int x, int y)=0;

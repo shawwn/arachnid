@@ -431,6 +431,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gr_light.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gr_light.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gr_material.cpp"
 				>
 			</File>
@@ -531,6 +539,22 @@
 				</File>
 				<File
 					RelativePath=".\gr_render_ambient.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gr_render_light.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\gr_render_light.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gr_render_lines.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\gr_render_lines.h"
 					>
 				</File>
 			</Filter>

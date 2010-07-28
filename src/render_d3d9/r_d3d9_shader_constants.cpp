@@ -23,14 +23,26 @@ RD3D9ShaderConstants*		gShaderConstants;
 
 const char*			gVertexShaderConstantNames[VC_COUNT] =
 {
-	"_worldViewProj"
+	"_worldViewProj",
+
+	"_lightPos",
+	"_lightDir",
+	"_lightRadius",
 };
 const char*			gPixelShaderConstantNames[PC_COUNT] =
 {
 	"_diffuse",
+	"_normal",
 	"_specular",
 	"_emissive",
-	"_diffuseColor"
+	"_falloff",
+
+	"_ambientColor",
+	"_diffuseColor",
+
+	"_lightPos",
+	"_lightDir",
+	"_lightRadius",
 };
 //========================================================================
 
@@ -44,6 +56,8 @@ const char*			gPixelShaderConstantNames[PC_COUNT] =
 RD3D9ShaderConstant::RD3D9ShaderConstant()
 : _name("invalid")
 , _tex(NULL)
+, _addressU(D3DTADDRESS_WRAP)
+, _addressV(D3DTADDRESS_WRAP)
 {
 }
 
@@ -56,7 +70,6 @@ void						RD3D9ShaderConstant::Reset(const char* name)
 	_name = name;
 	_vec = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
 	_tex = NULL;
-	_sampler = 0;
 	D3DXMatrixIdentity(&_mat);
 }
 //========================================================================
@@ -75,10 +88,6 @@ RD3D9ShaderConstants::RD3D9ShaderConstants()
 
 	for (uint i = 0; i < PC_COUNT; ++i)
 		_pixelConstants[i].Reset(gPixelShaderConstantNames[i]);
-
-
-	for (uint i = 0; i < MTEX_COUNT; ++i)
-		_pixelConstants[i].SetSampler(i);
 
 	gShaderConstants = this;
 }
@@ -110,23 +119,5 @@ RD3D9ShaderConstant&			RD3D9ShaderConstants::GetPixelConstant(EPixelShaderConsta
 {
 	E_ASSERT(which >= 0 && which < PC_COUNT);
 	return _pixelConstants[which];
-}
-
-
-//===================
-// RD3D9ShaderConstants::SetMaterial
-//===================
-void							RD3D9ShaderConstants::SetMaterial(const GrMaterial& mat, IDirect3DBaseTexture9* nullTex)
-{
-	for (uint i = 0; i < MTEX_COUNT; ++i)
-	{
-		GrTexture* tex(mat.GetTexture((EMaterialTexture)i));
-		RD3D9ShaderConstant& constant(GetPixelConstant((EPixelShaderConstant)i));
-
-		if (tex != NULL)
-			constant.SetTexture((IDirect3DBaseTexture9*)tex->GetUserdata());
-		else
-			constant.SetTexture(nullTex);
-	}
 }
 //========================================================================

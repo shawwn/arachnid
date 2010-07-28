@@ -202,6 +202,11 @@ RD3D9Shader*		RD3D9Shader::Create(const wstring& name, wstring& errors)
 			constant.handle = handle;
 			constant.desc = desc;
 			constant.constant = &gShaderConstants->GetPixelConstant((EPixelShaderConstant)i);
+			constant.samplerIdx = (DWORD)(-1);
+
+			if (desc.RegisterSet == D3DXRS_SAMPLER)
+				constant.samplerIdx = shader->_psConstantTable->GetSamplerIndex(handle);
+
 			shader->_psConstants.push_back(constant);
 		}
 	}
@@ -249,8 +254,9 @@ void					RD3D9Shader::Apply()
 
 			if (constant.desc.RegisterSet == D3DXRS_SAMPLER)
 			{
-				continue;
-				//gDevice->SetTexture(constant.constant->GetSampler(), constant.constant->GetTexture());
+				gDevice->SetSamplerState(constant.samplerIdx, D3DSAMP_ADDRESSU, constant.constant->GetAddressU());
+				gDevice->SetSamplerState(constant.samplerIdx, D3DSAMP_ADDRESSV, constant.constant->GetAddressV());
+				gDevice->SetTexture(constant.samplerIdx, constant.constant->GetTexture());
 			}
 			else
 			{

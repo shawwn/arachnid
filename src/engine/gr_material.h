@@ -20,6 +20,9 @@ class ENGINE_API GrMaterial
 {
 private:
 	GrTexture*			_textures[MTEX_COUNT];
+
+	SVec4				_diffuseColor;
+
 	EMaterialType		_type;
 
 public:
@@ -28,6 +31,9 @@ public:
 
 	GrTexture*			GetTexture(EMaterialTexture which) const;
 	void				SetTexture(EMaterialTexture which, GrTexture* val);
+
+	const SVec4&		GetDiffuseColor() const				{ return _diffuseColor; }
+	void				SetDiffuseColor(const SVec4& col)	{ _diffuseColor = col; }
 
 	EMaterialType		GetMaterialType() const				{ return _type; }
 };

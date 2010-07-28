@@ -173,6 +173,7 @@ void			GrSkin::NormalizeTBN()
 GrSkin::GrSkin(uint reserveVerts, uint reserveTris)
 : _impl(E_NEW("skin", GrSkin_impl))
 , _channels(0)
+, _dirty(false)
 {
 	_impl->_tangents.reserve(reserveVerts);
 	_impl->_binormals.reserve(reserveVerts);
@@ -281,6 +282,8 @@ SVec3*			GrSkin::DeformVerts(const MTransform** bones)
 {
 	if (!(_channels & MESH_BONE_INFO))
 		return GetPositions();
+
+	_dirty = true;
 
 	uint numVerts(GetNumVerts());
 	SVec3* positions(&_impl->_positions[0]);

@@ -20,6 +20,7 @@ class EFile;
 class GrMesh;
 class GrMaterial;
 class GrModel;
+class GrLight;
 struct GrModelNode_stl;
 //========================================================================
 
@@ -166,6 +167,14 @@ public:
 	SMeshRange*			GetMeshRange(uint idx) const;
 	void				AddMeshRange(const SMeshRange& range);
 	uint				GetNumMeshRanges() const;
+
+	// provides array ccess to the child lights.
+	GrLight*			GetLight(uint idx) const;
+	void				AddLight(const GrLight& light);
+	uint				GetNumLights() const;
+
+	// gets all lights in the hierarchy, transformed into worldspace.
+	void				GetLights(vector<GrLight>& lights);
 
 	// builds a skeleton hierarchy out of the child node hierarchy.
 	const MTransform**	GetSkeleton();

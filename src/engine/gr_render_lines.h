@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		r_d3d9_shader.h
+//	file:		gr_render_lines.h
 //	author:		Shawn Presser 
 //	date:		7/27/10
 //
@@ -8,40 +8,36 @@
 #pragma once
 
 //========================================================================
-// Headers
+// Declarations
 //========================================================================
-#include "r_d3d9_shader_constants.h"
+class GrMesh;
+class GrModel;
+class GrModelNode;
+class GrDriver;
+struct GrRenderLines_impl;
 //========================================================================
 
 //========================================================================
-// RD3D9Shader
+// GrRenderLines
 //========================================================================
-class RD3D9Shader
+class GrRenderLines
 {
-	struct Constant
-	{
-		D3DXHANDLE				handle;
-		D3DXCONSTANT_DESC		desc;
-		RD3D9ShaderConstant*	constant;
-		DWORD					samplerIdx;
-	};
-
 private:
-	vector<Constant>			_vsConstants;
-	vector<Constant>			_psConstants;
+	GrRenderLines_impl*	_impl;
 
-	IDirect3DVertexShader9*		_vs;
-	ID3DXConstantTable*			_vsConstantTable;
-
-	IDirect3DPixelShader9*		_ps;
-	ID3DXConstantTable*			_psConstantTable;
-
-	RD3D9Shader();
+	uint				_startCol;
+	uint				_endCol;
 
 public:
-	~RD3D9Shader();
-	static RD3D9Shader*		Create(const wstring& name, wstring& errors);
-	void					Apply();
+	GrRenderLines();
+	~GrRenderLines();
+
+	void					Reset();
+	void					AddNormals(GrModel& model, float scale);
+	void					AddNormals(GrModelNode& modelNode, float scale);
+	void					SetColor(const uint& startColor, const uint& endColor)	{ _startCol = startColor; _endCol = endColor; }
+	void					SetColor(const uint& color)								{ _startCol = color; _endCol = color; }
+	void					AddLine(const MTransform& xform, const SVec3& startPos, const SVec3& endPos);
+	void					RenderLines(GrDriver* driver);
 };
 //========================================================================
-

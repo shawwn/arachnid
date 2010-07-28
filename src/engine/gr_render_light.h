@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		r_d3d9_shader.h
+//	file:		gr_render_light.h
 //	author:		Shawn Presser 
 //	date:		7/27/10
 //
@@ -8,40 +8,30 @@
 #pragma once
 
 //========================================================================
-// Headers
+// Declarations
 //========================================================================
-#include "r_d3d9_shader_constants.h"
+class GrMesh;
+class GrModel;
+class GrModelNode;
+class GrLight;
+class GrDriver;
+struct GrRenderLight_impl;
 //========================================================================
 
 //========================================================================
-// RD3D9Shader
+// GrRenderLight
 //========================================================================
-class RD3D9Shader
+class GrRenderLight
 {
-	struct Constant
-	{
-		D3DXHANDLE				handle;
-		D3DXCONSTANT_DESC		desc;
-		RD3D9ShaderConstant*	constant;
-		DWORD					samplerIdx;
-	};
-
 private:
-	vector<Constant>			_vsConstants;
-	vector<Constant>			_psConstants;
-
-	IDirect3DVertexShader9*		_vs;
-	ID3DXConstantTable*			_vsConstantTable;
-
-	IDirect3DPixelShader9*		_ps;
-	ID3DXConstantTable*			_psConstantTable;
-
-	RD3D9Shader();
-
+	GrRenderLight_impl*	_impl;
 public:
-	~RD3D9Shader();
-	static RD3D9Shader*		Create(const wstring& name, wstring& errors);
-	void					Apply();
+	GrRenderLight();
+	~GrRenderLight();
+
+	void					Reset(const GrLight& light);
+	void					AddModel(GrModel& model);
+	void					AddModelNode(GrModelNode& modelNode);
+	void					RenderLight(GrDriver* driver);
 };
 //========================================================================
-

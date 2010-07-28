@@ -26,7 +26,10 @@
 #include "gr_camera.h"
 #include "gr_scene.h"
 #include "gr_model.h"
+#include "gr_light.h"
 #include "gr_render_ambient.h"
+#include "gr_render_light.h"
+#include "gr_render_lines.h"
 //========================================================================
 
 //========================================================================
@@ -60,6 +63,9 @@ EEngine::EEngine()
 	, _mouseY(_windowHeight/2)
 	, _done(false)
 	, _wasActive(false)
+	, _renderAmbient(E_NEW("engine", GrRenderAmbient))
+	, _renderLight(E_NEW("engine", GrRenderLight))
+	, _time(0)
 {
 }
 
@@ -158,6 +164,9 @@ EEngine::~EEngine()
 	// unload the renderer DLL.
 	gSystem->UnloadLib(_rendererLib);
 
+	E_DELETE("engine", _renderLight);
+	E_DELETE("engine", _renderAmbient);
+
 	// delete the camera.
 	E_DELETE("engine", _cam);
 
@@ -173,6 +182,8 @@ bool				EEngine::PerFrame(uint dt)
 {
 	if (_done)
 		return true;
+
+	_time += dt;
 
 	if (_renderer != NULL)
 	{
@@ -245,9 +256,33 @@ void				EEngine::OnRender()
 	_renderer->ApplyCamera(*_cam);
 
 	// render the scene.
-	GrRenderAmbient renderAmbient;
-	renderAmbient.AddModel(GetScene().GetModel());
-	renderAmbient.RenderAmbient(_renderer);
+	_renderAmbient->Reset();
+	_renderAmbient->AddModel(GetScene().GetModel());
+	_renderAmbient->RenderAmbient(_renderer);
+
+	float angle = TURNS_TO_ANGLE(_time / 2000.0f);
+
+	GrLight stub;
+	stub.SetPos(MVec3(-45.0f * COS(angle), -45.0f * SIN(angle), 65.0f));
+	stub.SetRadius(60.0f);
+	stub.SetColor(3.0f * SVec4(1.000f, 0.152f, 0.353f, 1.0f));
+	stub.SetFalloff(GrLight::RoundedFalloff);
+
+	_renderLight->Reset(stub);
+	_renderLight->AddModel(GetScene().GetModel());
+	_renderLight->RenderLight(_renderer);
+
+	stub.SetPos(MVec3(50.0f * COS(-angle), -50.0f * SIN(-angle), 65.0f));
+	stub.SetRadius(60.0f);
+	stub.SetColor(5.0f * SVec4(0.683f, 1.000f, 0.321f, 1.0f));
+	_renderLight->Reset(stub);
+	_renderLight->AddModel(GetScene().GetModel());
+	_renderLight->RenderLight(_renderer);
+
+	//_renderer->BeginLines();
+	//GrRenderLines renderLines;
+	//renderLines.AddNormals(GetScene().GetModel(), 1.0f);
+	//renderLines.RenderLines(_renderer);
 }
 
 

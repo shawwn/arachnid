@@ -149,6 +149,76 @@ typedef vector<SVec3> SVec3vec;
 //========================================================================
 
 //========================================================================
+// SVec4
+//		guaranteed to be 16 bytes in size.
+//========================================================================
+struct ENGINE_API SVec4
+{
+private:
+	float		_v[4];
+
+public:
+	// ctors.
+	SVec4()										{ /* not initialized */ }
+	SVec4(const SVec4& v)						{ Set(v); }
+	SVec4(const float* p)						{ Set(p); }
+	SVec4(float s)								{ Set(s, s, s, s); }
+	SVec4(float x, float y, float z, float w)	{ Set(x, y, z, w); }
+	SVec4(const SVec3& v, float w)				{ Set(v.X(), v.Y(), v.Z(), w); }
+
+	static SVec4	Zero;
+	void			SetZero()					{ Set(Zero); }
+
+	// accessors.
+	float			X() const					{ return _v[0]; }
+	float&			X()							{ return _v[0]; }
+	float			Y() const					{ return _v[1]; }
+	float&			Y()							{ return _v[1]; }
+	float			Z() const					{ return _v[2]; }
+	float&			Z()							{ return _v[2]; }
+	float			W() const					{ return _v[3]; }
+	float&			W()							{ return _v[3]; }
+	const float*	Get() const					{ return _v; }
+	float			Get(uint idx) const			{ E_ASSERT(idx < 4); return _v[idx]; }
+	float&			Get(uint idx) 				{ E_ASSERT(idx < 4); return _v[idx]; }
+	float			operator()(uint idx) const	{ E_ASSERT(idx < 4); return _v[idx]; }
+	float&			operator()(uint idx) 		{ E_ASSERT(idx < 4); return _v[idx]; }
+	int				GetColor() const;
+
+	// setters.
+	void			SetX(float v)				{ _v[0] = v; }
+	void			SetY(float v)				{ _v[1] = v; }
+	void			SetZ(float v)				{ _v[2] = v; }
+	void			SetW(float v)				{ _v[3] = v; }
+	void			Set(float x, float y, float z, float w);
+	void			Set(const float* p);
+	void			Set(const SVec4& v);
+	SVec4&			operator =(const SVec4& v);
+
+	// magnitude.
+	SVec3			Vec3() const				{ return SVec3(X(), Y(), Z()); }
+
+	// arithmetic operators.
+	SVec4						operator +(const SVec4& v) const;
+	SVec4&						operator +=(const SVec4& v);
+	SVec4						operator -(const SVec4& v) const;
+	SVec4&						operator -=(const SVec4& v);
+	friend ENGINE_API SVec4		operator *(float s, const SVec4& v);
+	SVec4&						operator *=(float s);
+};
+typedef vector<SVec4> SVec4vec;
+//========================================================================
+
+//========================================================================
+// SColoredVertex
+//========================================================================
+struct SColoredVertex
+{
+	SVec3		pos;
+	uint		color;
+};
+
+//========================================================================
 // SMeshVertex
 //========================================================================
 struct SMeshVertex
@@ -169,6 +239,7 @@ BuildVectorType(SMeshVertexVec, SMeshVertex, 512,
 enum EMaterialTexture
 {
 	MTEX_DIFFUSE,
+	MTEX_NORMAL,
 	MTEX_SPECULAR,
 	MTEX_EMISSIVE,
 	MTEX_COUNT

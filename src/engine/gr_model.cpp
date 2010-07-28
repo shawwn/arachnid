@@ -325,6 +325,22 @@ uint					GrModel::GetNumChildModels() const
 
 
 //===================
+// GrModel::GetLights
+//===================
+void					GrModel::GetLights(vector<GrLight>& lights)
+{
+	_root->GetLights(lights);
+
+	// recurse to children.
+	for (ModelMap::iterator it(_stl->models.begin()), itEnd(_stl->models.end()); it != itEnd; ++it)
+	{
+		GrModel* child(it->second);
+		child->GetLights(lights);
+	}
+}
+
+
+//===================
 // GrModel::Animations
 //===================
 GrAnimMixer*			GrModel::Animations()

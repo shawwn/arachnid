@@ -14,6 +14,7 @@
 // graphics headers.
 #include "gr_model.h"
 #include "gr_mesh.h"
+#include "gr_light.h"
 
 // debug headers.
 #include "e_filemanager.h"
@@ -24,6 +25,7 @@
 //========================================================================
 typedef vector<GrModelNode*>				ModelNodeVec;
 typedef vector<GrModelNode::SMeshRange>		MeshRangeVec;
+typedef vector<GrLight>						LightVec;
 //========================================================================
 
 //========================================================================
@@ -33,6 +35,7 @@ struct GrModelNode_stl
 {
 	ModelNodeVec		children;
 	MeshRangeVec		meshRanges;
+	LightVec			lights;
 };
 
 
@@ -461,6 +464,59 @@ void				GrModelNode::AddMeshRange(const SMeshRange& range)
 uint				GrModelNode::GetNumMeshRanges() const
 {
 	return (uint)_stl->meshRanges.size();
+}
+
+
+//===================
+// GrModelNode::GetLight
+//===================
+GrLight*			GrModelNode::GetLight(uint idx) const
+{
+	E_VERIFY(idx < _stl->lights.size(), return NULL);
+	return &_stl->lights[idx];
+}
+
+
+//===================
+// GrModelNode::AddLight
+//===================
+void				GrModelNode::AddLight(const GrLight& light)
+{
+	return _stl->lights.push_back(light);
+}
+
+
+//===================
+// GrModelNode::GetNumLights
+//===================
+uint				GrModelNode::GetNumLights() const
+{
+	return (uint)_stl->lights.size();
+}
+
+
+//===================
+// GrModelNode::GetLights
+//===================
+void				GrModelNode::GetLights(vector<GrLight>& lights)
+{
+	const MTransform& world(GetWorld());
+
+	for (size_t i = 0; i < _stl->lights.size(); ++i)
+	{
+		const GrLight& localLight(_stl->lights[i]);
+
+		// transform the light into worldspace.
+		lights.push_back(GrLight());
+		localLight.Transform(lights.back(), world);
+	}
+
+	// recurse to children.
+	for (ModelNodeVec::const_iterator it(_stl->children.begin()), itEnd(_stl->children.end()); it != itEnd; ++it)
+	{
+		GrModelNode* child(*it);
+		child->GetLights(lights);
+	}
 }
 
 

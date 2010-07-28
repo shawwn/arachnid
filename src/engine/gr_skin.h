@@ -23,6 +23,7 @@ private:
 	GrSkin_impl*	_impl;
 	float			_curTotalWeight;
 	uint			_channels;
+	bool			_dirty;
 
 	void			RecomputeTangentsBinormals();
 	void			NormalizeTBN();
@@ -34,6 +35,8 @@ public:
 	uint			GetNumVerts() const;
 	uint			GetNumTris() const;
 	uint			GetMeshChannels() const	{ return _channels; }
+	bool			GetDeformed() const		{ return _dirty; }
+	void			ClearDeformed()			{ _dirty = false; }
 
 	TriIdx*			GetIndices() const;
 

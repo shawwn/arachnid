@@ -1,0 +1,22 @@
+
+float4		_diffuseColor;
+
+struct		VS_OUTPUT
+{
+	float4		Pos		: POSITION0;
+};
+
+struct		PS_OUTPUT
+{
+	float4		Color : COLOR0;
+};
+
+PS_OUTPUT	PS(VS_OUTPUT In)
+{
+	PS_OUTPUT Out;
+
+	Out.Color = _diffuseColor;
+
+	return Out;
+}
+

@@ -22,6 +22,8 @@
 class EFile;
 class GrScene;
 class GrCamera;
+class GrRenderAmbient;
+class GrRenderLight;
 //========================================================================
 
 //========================================================================
@@ -57,8 +59,13 @@ private:
 
 	GrCamera*				_cam;
 
+	GrRenderAmbient*		_renderAmbient;
+	GrRenderLight*			_renderLight;
+
 	uint					_windowWidth;
 	uint					_windowHeight;
+
+	uint					_time;
 
 	int						_mouseX;
 	int						_mouseY;

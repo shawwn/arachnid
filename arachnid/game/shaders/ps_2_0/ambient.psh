@@ -1,0 +1,25 @@
+
+float4		_ambientColor;
+
+sampler2D	_diffuse;
+
+struct		VS_OUTPUT
+{
+	float4		pos			: POSITION0;
+	float4		tex0		: TEXCOORD0;
+};
+
+struct		PS_OUTPUT
+{
+	float4		color 		: COLOR0;
+};
+
+PS_OUTPUT	PS(VS_OUTPUT In)
+{
+	PS_OUTPUT Out;
+
+	Out.color = _ambientColor * tex2D( _diffuse, In.tex0.xy );
+
+	return Out;
+}
+

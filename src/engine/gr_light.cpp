@@ -1,5 +1,5 @@
 //========================================================================
-//	file:		gr_material.cpp
+//	file:		gr_light.cpp
 //	author:		Shawn Presser 
 //
 // (c) 2010 Shawn Presser.  All Rights Reserved.
@@ -9,48 +9,51 @@
 // Headers
 //========================================================================
 #include "e_common.h"
-#include "gr_material.h"
+#include "gr_light.h"
 
-// graphics headers.
-#include "gr_texture.h"
+// math headers.
+#include "m_transform.h"
 //========================================================================
 
 
 //===================
-// GrMaterial::GrMaterial
+// GrLight::GrLight
 //===================
-GrMaterial::GrMaterial()
-: _type(MAT_SOLID)
-, _diffuseColor(SVec4(1.0f, 1.0f, 1.0f, 1.0f))
+GrLight::GrLight()
+: _pos(MVec3(0.0f, 0.0f, 0.0f))
+, _radius(0.0f)
+, _col(SVec4(1.0f, 1.0f, 1.0f, 1.0f))
 {
-	for (uint i = 0; i < MTEX_COUNT; ++i)
-		_textures[i] = NULL;
+	SetFalloff(LinearFalloff);
 }
 
 
 //===================
-// GrMaterial::~GrMaterial
+// GrLight::~GrLight
 //===================
-GrMaterial::~GrMaterial()
+GrLight::~GrLight()
 {
 }
 
+
 //===================
-// GrMaterial::GetTexture
+// GrLight::Transform
 //===================
-GrTexture*			GrMaterial::GetTexture(EMaterialTexture which) const
+void				GrLight::Transform(GrLight& result, const MTransform& xform) const
 {
-	E_VERIFY(which >= 0 && which < MTEX_COUNT, return NULL);
-	return _textures[which];
+	result = *this;
+	result._pos = xform.RotateTranslate(result._pos);
 }
 
 
 //===================
-// GrMaterial::SetTexture
+// GrLight::Transform
 //===================
-void				GrMaterial::SetTexture(EMaterialTexture which, GrTexture* val)
+void				GrLight::SetFalloff(LightFalloffFunc fn)
 {
-	E_VERIFY(which >= 0 && which < MTEX_COUNT, return);
-	_textures[which] = val;
+	for (uint i = 0; i < LIGHT_FALLOFF_SAMPLES; ++i)
+	{
+		float t = i / (float)LIGHT_FALLOFF_SAMPLES;
+		_falloff[i] = fn(t);
+	}
 }
-

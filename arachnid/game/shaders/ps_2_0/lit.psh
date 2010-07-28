@@ -1,0 +1,46 @@
+
+float4		_diffuseColor;
+float4		_lightRadius;
+
+sampler2D	_diffuse;
+sampler2D	_normal;
+sampler2D	_falloff;
+
+struct		VS_OUTPUT
+{
+	float4		pos			: POSITION0;
+	float4		tex0		: TEXCOORD0;
+	float4		tex1		: TEXCOORD1;
+	float4		tex2		: TEXCOORD2;
+	float4		tex3		: TEXCOORD3;
+};
+
+struct		PS_OUTPUT
+{
+	float4		color 		: COLOR0;
+};
+
+PS_OUTPUT	PS(VS_OUTPUT In)
+{
+	PS_OUTPUT Out;
+
+	//float3 worldPos = In.tex1.xyz;
+	//float3 lightPos = In.tex2.xyz;
+	//float lightPercent = distance( lightPos, worldPos ) / _lightRadius.x;
+
+	float3 lightDir = normalize( In.tex1.xyz );
+	float lightPercent = In.tex1.w;
+
+	float3 norm = normalize( In.tex3.xyz );
+
+	norm = normalize( 2.0 * tex2D( _normal, In.tex0.xy ).rgb - 1.0 );
+
+	float NdotL = dot( norm, lightDir );
+
+	float lightFalloff = tex2D( _falloff, float2(saturate(lightPercent), 0.0) );
+
+	Out.color = lightFalloff * NdotL * _diffuseColor * tex2D( _diffuse, In.tex0.xy );
+
+	return Out;
+}
+

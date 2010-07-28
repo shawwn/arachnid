@@ -14,6 +14,7 @@ class GrModel;
 class GrModelNode;
 class GrAnim;
 class GrAnimMixer;
+class GrLight;
 class MTransform;
 class EFile;
 struct GrModel_stl;
@@ -69,6 +70,9 @@ public:
 	// provides array access to the child models.
 	GrModel*				GetChildModel(uint idx) const;
 	uint					GetNumChildModels() const;
+
+	// gets all lights in the hierarchy.
+	void					GetLights(vector<GrLight>& lights);
 
 	// animation controls.
 	GrAnimMixer*			Animations();
