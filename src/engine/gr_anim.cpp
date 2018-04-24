@@ -23,7 +23,7 @@
 //========================================================================
 // GrAnim_impl
 //========================================================================
-typedef hash_map<wstring, GrAnimNode>		AnimTrackMap;
+typedef unordered_map<wstring, GrAnimNode>		AnimTrackMap;
 typedef map<wstring, GrAnimNode*>			AnimTrackSortedMap;
 typedef vector<GrAnimNode*>					AnimTrackVec;
 struct GrAnim_impl

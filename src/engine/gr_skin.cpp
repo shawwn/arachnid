@@ -68,7 +68,7 @@ struct SBoneBucket
 
 	uint			GetNumVerts() const		{ return (uint)_influencedVerts.size(); }
 };
-typedef hash_map<uint, SBoneBucket>		BoneBucketMap;
+typedef unordered_map<uint, SBoneBucket>		BoneBucketMap;
 //========================================================================
 
 //========================================================================

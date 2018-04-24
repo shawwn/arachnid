@@ -16,8 +16,8 @@
 #include <list>
 #include <map>
 #include <set>
-#include <hash_map>
-#include <hash_set>
+#include <unordered_map>
+#include <unordered_set>
 //========================================================================
 
 //========================================================================
@@ -30,8 +30,8 @@ using std::vector;
 using std::list;
 using std::map;
 using std::set;
-using stdext::hash_map;
-using stdext::hash_set;
+using std::unordered_map;
+using std::unordered_set;
 using std::make_pair;
 
 typedef vector<string>		strvec;

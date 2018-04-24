@@ -23,7 +23,7 @@
 //========================================================================
 // Declarations
 //========================================================================
-typedef hash_map<wstring, GrModel*>		ModelMap;
+typedef unordered_map<wstring, GrModel*>		ModelMap;
 typedef vector<GrModel*>				ModelVec;
 //========================================================================
 
