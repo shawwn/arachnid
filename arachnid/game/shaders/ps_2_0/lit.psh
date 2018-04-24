@@ -37,7 +37,7 @@ PS_OUTPUT	PS(VS_OUTPUT In)
 
 	float NdotL = dot( norm, lightDir );
 
-	float lightFalloff = tex2D( _falloff, float2(saturate(lightPercent), 0.0) );
+	float lightFalloff = tex2D( _falloff, float2(saturate(lightPercent), 0.0) ).r;
 
 	Out.color = lightFalloff * NdotL * _diffuseColor * tex2D( _diffuse, In.tex0.xy );
 
