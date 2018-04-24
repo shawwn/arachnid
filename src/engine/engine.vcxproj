@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}</ProjectGuid>
+    <RootNamespace>arach</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>15.0.27428.2015</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ENGINE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>e_common.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(SolutionDir)\..\$(SolutionName)\$(ProjectName)_d.dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ENGINE_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling />
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>e_common.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(SolutionDir)\..\$(SolutionName)\$(ProjectName).dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="e_api.h" />
+    <ClInclude Include="e_common.h" />
+    <ClInclude Include="e_config.h" />
+    <ClInclude Include="e_constants.h" />
+    <ClInclude Include="e_engine.h" />
+    <ClInclude Include="e_exception.h" />
+    <ClInclude Include="e_expr.h" />
+    <ClInclude Include="e_expr_add.h" />
+    <ClInclude Include="e_expr_multiply.h" />
+    <ClInclude Include="e_expr_number.h" />
+    <ClInclude Include="e_expr_symbol.h" />
+    <ClInclude Include="e_file.h" />
+    <ClInclude Include="e_filedisk.h" />
+    <ClInclude Include="e_filemanager.h" />
+    <ClInclude Include="e_filemem.h" />
+    <ClInclude Include="e_lean_windows.h" />
+    <ClInclude Include="e_ref.h" />
+    <ClInclude Include="e_stl.h" />
+    <ClInclude Include="e_string_converters.h" />
+    <ClInclude Include="e_string_utils.h" />
+    <ClInclude Include="e_system.h" />
+    <ClInclude Include="e_types.h" />
+    <ClInclude Include="e_utils.h" />
+    <ClInclude Include="e_vector.h" />
+    <ClInclude Include="e_vector_policies.h" />
+    <ClInclude Include="gr_anim.h" />
+    <ClInclude Include="gr_anim_mixer.h" />
+    <ClInclude Include="gr_anim_node.h" />
+    <ClInclude Include="gr_camera.h" />
+    <ClInclude Include="gr_config.h" />
+    <ClInclude Include="gr_driver.h" />
+    <ClInclude Include="gr_light.h" />
+    <ClInclude Include="gr_material.h" />
+    <ClInclude Include="gr_mesh.h" />
+    <ClInclude Include="gr_model.h" />
+    <ClInclude Include="gr_model_node.h" />
+    <ClInclude Include="gr_polygon.h" />
+    <ClInclude Include="gr_polygon_mesh.h" />
+    <ClInclude Include="gr_render_ambient.h" />
+    <ClInclude Include="gr_render_light.h" />
+    <ClInclude Include="gr_render_lines.h" />
+    <ClInclude Include="gr_scene.h" />
+    <ClInclude Include="gr_skin.h" />
+    <ClInclude Include="gr_texture.h" />
+    <ClInclude Include="gr_types.h" />
+    <ClInclude Include="gr_utils.h" />
+    <ClInclude Include="import_k2_anim.h" />
+    <ClInclude Include="import_k2_map.h" />
+    <ClInclude Include="import_k2_model.h" />
+    <ClInclude Include="m_color.h" />
+    <ClInclude Include="m_colors.h" />
+    <ClInclude Include="m_mat33.h" />
+    <ClInclude Include="m_mat44.h" />
+    <ClInclude Include="m_math.h" />
+    <ClInclude Include="m_plane.h" />
+    <ClInclude Include="m_quat.h" />
+    <ClInclude Include="m_transform.h" />
+    <ClInclude Include="m_vec3.h" />
+    <ClInclude Include="test_anim.h" />
+    <ClInclude Include="test_containers.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="e_common.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="e_engine.cpp" />
+    <ClCompile Include="e_expr.cpp" />
+    <ClCompile Include="e_expr_add.cpp" />
+    <ClCompile Include="e_expr_multiply.cpp" />
+    <ClCompile Include="e_expr_number.cpp" />
+    <ClCompile Include="e_expr_symbol.cpp" />
+    <ClCompile Include="e_file.cpp" />
+    <ClCompile Include="e_filedisk.cpp" />
+    <ClCompile Include="e_filemanager.cpp" />
+    <ClCompile Include="e_filemem.cpp" />
+    <ClCompile Include="e_ref.cpp" />
+    <ClCompile Include="e_stl.cpp" />
+    <ClCompile Include="e_string_converters.cpp" />
+    <ClCompile Include="e_string_utils.cpp" />
+    <ClCompile Include="e_system_win32.cpp" />
+    <ClCompile Include="e_utils.cpp" />
+    <ClCompile Include="gr_anim.cpp" />
+    <ClCompile Include="gr_anim_mixer.cpp" />
+    <ClCompile Include="gr_anim_node.cpp" />
+    <ClCompile Include="gr_camera.cpp" />
+    <ClCompile Include="gr_driver.cpp" />
+    <ClCompile Include="gr_light.cpp" />
+    <ClCompile Include="gr_material.cpp" />
+    <ClCompile Include="gr_mesh.cpp" />
+    <ClCompile Include="gr_model.cpp" />
+    <ClCompile Include="gr_model_node.cpp" />
+    <ClCompile Include="gr_polygon.cpp" />
+    <ClCompile Include="gr_polygon_mesh.cpp" />
+    <ClCompile Include="gr_render_ambient.cpp" />
+    <ClCompile Include="gr_render_light.cpp" />
+    <ClCompile Include="gr_render_lines.cpp" />
+    <ClCompile Include="gr_scene.cpp" />
+    <ClCompile Include="gr_skin.cpp" />
+    <ClCompile Include="gr_texture.cpp" />
+    <ClCompile Include="gr_types.cpp" />
+    <ClCompile Include="gr_utils.cpp" />
+    <ClCompile Include="import_k2_anim.cpp" />
+    <ClCompile Include="import_k2_map.cpp" />
+    <ClCompile Include="import_k2_model.cpp" />
+    <ClCompile Include="m_color.cpp" />
+    <ClCompile Include="m_colors.cpp" />
+    <ClCompile Include="m_mat33.cpp" />
+    <ClCompile Include="m_mat44.cpp" />
+    <ClCompile Include="m_math.cpp" />
+    <ClCompile Include="m_plane.cpp" />
+    <ClCompile Include="m_quat.cpp" />
+    <ClCompile Include="m_transform.cpp" />
+    <ClCompile Include="m_vec3.cpp" />
+    <ClCompile Include="test_anim.cpp" />
+    <ClCompile Include="test_containers.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

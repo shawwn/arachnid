@@ -1,0 +1,378 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="misc">
+      <UniqueIdentifier>{d29a32ba-6495-4aa1-9093-0b0dffee6b28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="filesystem">
+      <UniqueIdentifier>{0149ec09-db2f-45d3-815c-dae9d33b25d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform-specific">
+      <UniqueIdentifier>{3633907a-f383-48c5-8f9f-24f0820c9a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{4b6a8a7d-89a2-4032-b63f-4b890d8a70f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics">
+      <UniqueIdentifier>{dfaeb513-40c5-4bc0-a784-5f5cbe883900}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\processing">
+      <UniqueIdentifier>{dcf8fbf3-c973-4270-b4ad-c46e25c96b4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\rendering">
+      <UniqueIdentifier>{a52db3a4-5c7f-4f26-a4bb-e14db8b74339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="importers">
+      <UniqueIdentifier>{1416dd8c-96e1-4063-a41c-91fbf8e55f87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{fd9c1d3e-3ce7-405d-a10c-f5adc42a7506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="expressions">
+      <UniqueIdentifier>{0377cecb-b822-4c83-bbd9-cf58c56cd804}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="refcount">
+      <UniqueIdentifier>{b2feb253-f605-4de5-ac47-cc93c78114b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="containers">
+      <UniqueIdentifier>{25fd9984-6e30-407c-87b6-b4f40038d5bb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="e_api.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_common.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_config.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_constants.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_engine.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_exception.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_stl.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_string_converters.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_string_utils.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_types.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_utils.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="e_file.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="e_filedisk.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="e_filemanager.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="e_filemem.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="e_lean_windows.h">
+      <Filter>platform-specific</Filter>
+    </ClInclude>
+    <ClInclude Include="e_system.h">
+      <Filter>platform-specific</Filter>
+    </ClInclude>
+    <ClInclude Include="m_color.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="m_colors.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="m_mat33.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="m_mat44.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="m_math.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="m_plane.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="m_quat.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="m_transform.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="m_vec3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_anim.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_anim_mixer.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_anim_node.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_camera.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_config.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_driver.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_light.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_material.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_mesh.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_model.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_model_node.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_polygon.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_scene.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_skin.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_texture.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_types.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_utils.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_polygon_mesh.h">
+      <Filter>graphics\processing</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_render_ambient.h">
+      <Filter>graphics\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_render_light.h">
+      <Filter>graphics\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="gr_render_lines.h">
+      <Filter>graphics\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="import_k2_anim.h">
+      <Filter>importers</Filter>
+    </ClInclude>
+    <ClInclude Include="import_k2_map.h">
+      <Filter>importers</Filter>
+    </ClInclude>
+    <ClInclude Include="import_k2_model.h">
+      <Filter>importers</Filter>
+    </ClInclude>
+    <ClInclude Include="test_anim.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="test_containers.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="e_expr.h">
+      <Filter>expressions</Filter>
+    </ClInclude>
+    <ClInclude Include="e_expr_add.h">
+      <Filter>expressions</Filter>
+    </ClInclude>
+    <ClInclude Include="e_expr_multiply.h">
+      <Filter>expressions</Filter>
+    </ClInclude>
+    <ClInclude Include="e_expr_number.h">
+      <Filter>expressions</Filter>
+    </ClInclude>
+    <ClInclude Include="e_expr_symbol.h">
+      <Filter>expressions</Filter>
+    </ClInclude>
+    <ClInclude Include="e_ref.h">
+      <Filter>refcount</Filter>
+    </ClInclude>
+    <ClInclude Include="e_vector.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="e_vector_policies.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="e_common.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="e_engine.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="e_stl.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="e_string_converters.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="e_string_utils.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="e_utils.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="e_file.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="e_filedisk.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="e_filemanager.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="e_filemem.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="e_system_win32.cpp">
+      <Filter>platform-specific</Filter>
+    </ClCompile>
+    <ClCompile Include="m_color.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="m_colors.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="m_mat33.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="m_mat44.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="m_math.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="m_plane.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="m_quat.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="m_transform.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="m_vec3.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_anim.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_anim_mixer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_anim_node.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_camera.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_driver.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_light.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_material.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_mesh.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_model.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_model_node.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_polygon.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_scene.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_skin.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_texture.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_types.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_utils.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_polygon_mesh.cpp">
+      <Filter>graphics\processing</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_render_ambient.cpp">
+      <Filter>graphics\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_render_light.cpp">
+      <Filter>graphics\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="gr_render_lines.cpp">
+      <Filter>graphics\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="import_k2_anim.cpp">
+      <Filter>importers</Filter>
+    </ClCompile>
+    <ClCompile Include="import_k2_map.cpp">
+      <Filter>importers</Filter>
+    </ClCompile>
+    <ClCompile Include="import_k2_model.cpp">
+      <Filter>importers</Filter>
+    </ClCompile>
+    <ClCompile Include="test_anim.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="test_containers.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="e_expr.cpp">
+      <Filter>expressions</Filter>
+    </ClCompile>
+    <ClCompile Include="e_expr_add.cpp">
+      <Filter>expressions</Filter>
+    </ClCompile>
+    <ClCompile Include="e_expr_multiply.cpp">
+      <Filter>expressions</Filter>
+    </ClCompile>
+    <ClCompile Include="e_expr_number.cpp">
+      <Filter>expressions</Filter>
+    </ClCompile>
+    <ClCompile Include="e_expr_symbol.cpp">
+      <Filter>expressions</Filter>
+    </ClCompile>
+    <ClCompile Include="e_ref.cpp">
+      <Filter>refcount</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

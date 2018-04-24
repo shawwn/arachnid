@@ -1,27 +1,17 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "engine", "engine\engine.vcproj", "{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "engine", "engine\engine.vcxproj", "{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arachnid", "arachnid\arachnid.vcproj", "{3C9E39E7-205A-4625-B52A-FD92F2EEAE2D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6} = {1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arachnid", "arachnid\arachnid.vcxproj", "{3C9E39E7-205A-4625-B52A-FD92F2EEAE2D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "render_d3d9", "render_d3d9\render_d3d9.vcproj", "{1A6BC8F8-CCC5-4629-A029-E8FB2487DED6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6} = {1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "render_d3d9", "render_d3d9\render_d3d9.vcxproj", "{1A6BC8F8-CCC5-4629-A029-E8FB2487DED6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "render_gl2", "render_gl2\render_gl2.vcproj", "{35518FAA-89D5-4D9A-944E-3E6AAB0CB56A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6} = {1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "render_gl2", "render_gl2\render_gl2.vcxproj", "{35518FAA-89D5-4D9A-944E-3E6AAB0CB56A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "console", "console\console.vcproj", "{FD3AE840-6A5A-4117-A6FC-E86F140C4254}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6} = {1806F9A0-8CB9-46F6-9DF4-AAD385BEE4A6}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "console", "console\console.vcxproj", "{FD3AE840-6A5A-4117-A6FC-E86F140C4254}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,5 +42,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5BA7A694-C472-43C8-B0B3-B2292F3E609F}
 	EndGlobalSection
 EndGlobal
