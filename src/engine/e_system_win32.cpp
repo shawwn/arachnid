@@ -76,7 +76,7 @@ ESystem::~ESystem()
 //===================
 void				ESystem::OutputDebug(const wstring& msg)
 {
-	OutputDebugStr(msg.c_str());
+	//OutputDebugStr(msg.c_str());
 }
 
 
